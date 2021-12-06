@@ -1,0 +1,60 @@
+plugins {
+    id 'groovy'
+    id 'java'
+}
+
+group 'com.techzealot'
+version '1.0-SNAPSHOT'
+
+repositories {
+    maven {
+        url 'https://maven.aliyun.com/repository/public/'
+    }
+    mavenLocal()
+    mavenCentral()
+}
+
+ext {
+    spockReportsVersion = '2.1.1-groovy-3.0'
+    groovyVersion = '3.0.9'
+    spockVersion = '2.1-M2-groovy-3.0'
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    // mandatory dependencies for using Spock
+    implementation "org.codehaus.groovy:groovy:$groovyVersion"
+    testImplementation platform("org.spockframework:spock-bom:$spockVersion")
+    testImplementation "org.spockframework:spock-core"
+    //testCompile "org.spockframework:spock-junit4"  // you can remove this if your code does not rely on old JUnit 4 rules
+
+    // optional dependencies for using Spock
+    testImplementation "org.hamcrest:hamcrest-core:2.2"   // only necessary if Hamcrest matchers are used
+    testImplementation "net.bytebuddy:byte-buddy:1.10.10" // allows mocking of classes (in addition to interfaces)
+    testImplementation "org.objenesis:objenesis:3.1"
+    // allows mocking of classes without default constructor (together with ByteBuddy or CGLIB)
+
+    // you can use testRuntimeClasspath if you don't want to use spock-report-specific features in your Specs
+    testImplementation("com.athaydes:spock-reports:$spockReportsVersion") {
+        transitive = false // this avoids affecting your version of Groovy/Spock
+    }
+    //spock report dependencies
+    implementation "org.codehaus.groovy:groovy-xml:$groovyVersion"
+    implementation "org.codehaus.groovy:groovy-json:$groovyVersion"
+    implementation "org.codehaus.groovy:groovy-templates:$groovyVersion"
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-logging', version: '2.4.6'
+
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    //json
+    implementation group: 'org.json', name: 'json', version: '20210307'
+}
+
+test {
+    useJUnitPlatform()
+}
