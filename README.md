@@ -1,5 +1,5 @@
-# java-std(同时对比java源码实现)
-java collection framwork
+# java language seed(同时对比java源码实现)
+java collection framework
 
 java util concurrent
 
@@ -21,6 +21,10 @@ JCStress
 
 https://github.com/myui/btree4j
 
-https://github.com/rustyrussell/ccan/tree/master/ccan
-
 https://github.com/eclipse/eclipse-collections
+
+https://github.com/java-diff-utils/java-diff-utils
+
+https://github.com/google/guava
+
+https://github.com/jgrapht/jgrapht
