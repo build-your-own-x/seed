@@ -48,7 +48,6 @@ public class TwoPointPath {
                 if (dfs(w, v)) {
                     return true;
                 }
-                ;
             }
         }
         return false;
