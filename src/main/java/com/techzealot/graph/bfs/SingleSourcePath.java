@@ -1,40 +1,45 @@
-package com.techzealot.graph.dfs;
+package com.techzealot.graph.bfs;
 
 import com.techzealot.graph.AdjTreeSet;
 import com.techzealot.graph.Graph;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
 
 /**
- * 单源路径问题,可获取遍历起点到任意一点的一条路径
+ * 递归实现深度优先遍历
  */
 public class SingleSourcePath {
+
+    private Graph G;
     private final int s;
-    private final Graph G;
-    /**
-     * 优化:可以使用pre[x]==-1,判断是否访问过,可以省略visited数组
-     */
-    private final int[] pre;
+    private int[] pre;
 
 
     public SingleSourcePath(Graph G, int s) {
         this.G = G;
-        G.validateVertex(s);
         this.s = s;
         pre = new int[G.V()];
         Arrays.fill(pre, -1);
-        //可以认为根节点的父节点为其本身
-        dfs(s, s);
+        //无需处理其他联通分量
+        bfs(s);
     }
 
-    private void dfs(int v, int parent) {
-        pre[v] = parent;
-        for (int w : G.adjacent(v)) {
-            if (pre[w] == -1) {
-                dfs(w, v);
+    private void bfs(int v) {
+        Queue<Integer> queue = new ArrayDeque<>();
+        queue.offer(v);
+        pre[v] = v;
+        while (!queue.isEmpty()) {
+            Integer head = queue.poll();
+            for (int w : G.adjacent(head)) {
+                if (pre[w] == -1) {
+                    queue.offer(w);
+                    pre[w] = head;
+                }
             }
         }
     }
@@ -46,11 +51,10 @@ public class SingleSourcePath {
 
     public Iterable<Integer> path(int t) {
         List<Integer> path = new ArrayList<>();
-        if (!isConnectedTo(t)) {
+        if(!isConnectedTo(t)){
             return path;
         }
         int current = t;
-        //当current==s时,需要将起点也加入,为保证逻辑一致性,可以看出设定起点的父节点为自身比较合理
         while (current != s){
             path.add(current);
             current = pre[current];
@@ -62,11 +66,11 @@ public class SingleSourcePath {
 
     public static void main(String[] args) {
         Graph G = new AdjTreeSet("/graph.txt");
-        SingleSourcePath dfs = new SingleSourcePath(G, 0);
-        System.out.println(dfs.isConnectedTo(6));
-        System.out.println("0->6:" + dfs.path(6));
-        System.out.println(dfs.isConnectedTo(5));
-        System.out.println("0->5:" + dfs.path(5));
+        SingleSourcePath bfs = new SingleSourcePath(G,0);
+        System.out.println(bfs.isConnectedTo(6));
+        System.out.println(bfs.path(6));
+        System.out.println(bfs.isConnectedTo(5));
+        System.out.println(bfs.path(5));
     }
 
 }

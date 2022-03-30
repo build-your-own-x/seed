@@ -36,10 +36,12 @@ public class StackDfs {
         visited[v] = true;
         while (!stack.isEmpty()) {
             Integer pop = stack.pop();
+            //出栈收集
             pre.add(pop);
             for (int w : G.adjacent(pop)) {
                 if (!visited[w]) {
                     stack.push(w);
+                    //入栈时标记
                     visited[w] = true;
                 }
             }
