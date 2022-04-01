@@ -1,4 +1,4 @@
-# java language seed(同时对比java源码实现)
+# java language seed
 java collection framework
 
 java util concurrent
@@ -6,6 +6,8 @@ java util concurrent
 java thread pool
 
 graph
+
+algorithm
 
 # test:
 
@@ -20,6 +22,12 @@ JCStress
 参考:
 
 https://github.com/myui/btree4j
+
+https://github.com/andylamp/BPlusTree
+
+https://github.com/phishman3579/java-algorithms-implementation
+
+https://github.com/npgall/concurrent-trees
 
 https://github.com/eclipse/eclipse-collections
 

@@ -11,47 +11,55 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * 广度优先遍历，得到无向无权图最短路径
+ * 两点路径,即时返回
  */
-public class SingleSourcePath {
+public class TwoPointPath {
 
     private Graph G;
     private final int s;
+    private final int t;
     private int[] pre;
 
 
-    public SingleSourcePath(Graph G, int s) {
+    public TwoPointPath(Graph G, int s,int t) {
         this.G = G;
         this.s = s;
+        this.t=t;
         pre = new int[G.V()];
         Arrays.fill(pre, -1);
         //无需处理其他联通分量
-        bfs(s);
+        bfs(s,t);
     }
 
-    private void bfs(int v) {
+    private void bfs(int v,int t) {
         Queue<Integer> queue = new ArrayDeque<>();
         queue.offer(v);
         pre[v] = v;
+        if(v==t){
+            return;
+        }
         while (!queue.isEmpty()) {
             Integer head = queue.poll();
             for (int w : G.adjacent(head)) {
                 if (pre[w] == -1) {
                     queue.offer(w);
                     pre[w] = head;
+                    if (w == t){
+                        break;
+                    }
                 }
             }
         }
     }
 
-    public boolean isConnectedTo(int t) {
+    public boolean isConnected() {
         G.validateVertex(t);
         return pre[t] != -1;
     }
 
-    public Iterable<Integer> path(int t) {
+    public Iterable<Integer> path() {
         List<Integer> path = new ArrayList<>();
-        if(!isConnectedTo(t)){
+        if(!isConnected()){
             return path;
         }
         int current = t;
@@ -66,11 +74,15 @@ public class SingleSourcePath {
 
     public static void main(String[] args) {
         Graph G = new AdjTreeSet("/graph.txt");
-        SingleSourcePath bfs = new SingleSourcePath(G,0);
-        System.out.println(bfs.isConnectedTo(6));
-        System.out.println(bfs.path(6));
-        System.out.println(bfs.isConnectedTo(5));
-        System.out.println(bfs.path(5));
+        TwoPointPath bfs = new TwoPointPath(G,0,6);
+        System.out.println(bfs.isConnected());
+        System.out.println(bfs.path());
+        TwoPointPath bfs1 = new TwoPointPath(G,0,5);
+        System.out.println(bfs1.isConnected());
+        System.out.println(bfs1.path());
+        TwoPointPath bfs2 = new TwoPointPath(G,0,0);
+        System.out.println(bfs2.isConnected());
+        System.out.println(bfs2.path());
     }
 
 }

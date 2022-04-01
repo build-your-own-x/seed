@@ -4,7 +4,7 @@ import com.techzealot.graph.AdjTreeSet;
 import com.techzealot.graph.Graph;
 
 /**
- * 无向图环检测
+ * 无向图环检测 环:当前节点有两个已遍历邻接点
  */
 public class CycleDetection {
     private Graph G;

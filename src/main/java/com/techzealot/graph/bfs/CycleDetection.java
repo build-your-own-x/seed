@@ -4,21 +4,17 @@ import com.techzealot.graph.AdjTreeSet;
 import com.techzealot.graph.Graph;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 
 /**
- * 队列实现广度优先遍历(层序遍历)
+ * 环检测
  */
-public class Bfs {
+public class CycleDetection {
     private Graph G;
     private boolean[] visited;
+    private boolean hasCycle = false;
 
-    private List<Integer> order = new ArrayList<>();
-
-
-    public Bfs(Graph G) {
+    public CycleDetection(Graph G) {
         this.G = G;
         visited = new boolean[G.V()];
         //处理非连通图
@@ -36,25 +32,36 @@ public class Bfs {
         while (!queue.isEmpty()) {
             Integer head = queue.poll();
             //出队时收集数据
-            order.add(head);
+            int count = 0;
             for (int w : G.adjacent(head)) {
                 if (!visited[w]) {
                     queue.offer(w);
                     //入队时进行标记，避免重复入队
                     visited[w] = true;
+                } else {
+                    count++;
+                    //如果当前节点有两个以上已遍历邻接点，说明有环
+                    //也可以通过int[] pre记录该节点前一个节点,通过类似DFS方式判定
+                    if (count > 1) {
+                        hasCycle = true;
+                        break;
+                    }
                 }
             }
         }
     }
 
-    public Iterable<Integer> getOrder() {
-        return order;
+    public boolean hasCycle() {
+        return hasCycle;
     }
 
     public static void main(String[] args) {
         Graph G = new AdjTreeSet("/graph.txt");
-        Bfs bfs = new Bfs(G);
-        System.out.println(bfs.getOrder());
+        CycleDetection bfs = new CycleDetection(G);
+        System.out.println(bfs.hasCycle());
+        Graph G1 = new AdjTreeSet("/graph-cycle.txt");
+        CycleDetection bfs1 = new CycleDetection(G1);
+        System.out.println(bfs1.hasCycle());
     }
 
 }

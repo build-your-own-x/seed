@@ -64,11 +64,11 @@ public class TwoPointPath {
         }
         int current = t;
         //当current==s时,需要将起点也加入,为保证逻辑一致性,可以看出设定起点的父节点为自身比较合理
-        do {
+        while (current != s) {
             path.add(current);
             current = pre[current];
         }
-        while (current != s);
+        path.add(s);
         Collections.reverse(path);
         return path;
     }
