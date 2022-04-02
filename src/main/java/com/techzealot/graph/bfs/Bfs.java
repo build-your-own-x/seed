@@ -29,6 +29,10 @@ public class Bfs {
         }
     }
 
+    /**
+     * 深度优先与广度优先的逻辑出了容器特性不同，其他完全一致
+     * @param v
+     */
     private void bfs(int v) {
         Queue<Integer> queue = new ArrayDeque<>();
         queue.offer(v);
