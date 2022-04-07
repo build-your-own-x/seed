@@ -38,6 +38,7 @@ public class AdjTreeSet implements Graph{
                 if (adj[a].contains(b)) {
                     throw new IllegalArgumentException("Parallel edges are detected");
                 }
+                //无向图，双向连接
                 adj[a].add(b);
                 adj[b].add(a);
             }
