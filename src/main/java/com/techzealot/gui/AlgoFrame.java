@@ -40,8 +40,8 @@ public class AlgoFrame extends JFrame {
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            Graphics2D g2d= (Graphics2D) g;
-            Ellipse2D ellipse=new Ellipse2D.Double(50, 50, 300, 300);
+            Graphics2D g2d = (Graphics2D) g;
+            Ellipse2D ellipse = new Ellipse2D.Double(50, 50, 300, 300);
             g2d.draw(ellipse);
         }
 

@@ -28,6 +28,13 @@ public class Dfs {
         }
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        Dfs dfs = new Dfs(G);
+        System.out.println(dfs.pre());
+        System.out.println(dfs.post());
+    }
+
     private void dfs(int v) {
         visited[v] = true;
         pre.add(v);
@@ -45,13 +52,6 @@ public class Dfs {
 
     public Iterable<Integer> post() {
         return post;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        Dfs dfs = new Dfs(G);
-        System.out.println(dfs.pre());
-        System.out.println(dfs.post());
     }
 
 }

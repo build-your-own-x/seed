@@ -15,8 +15,8 @@ import java.util.Queue;
  */
 public class SingleSourcePath {
 
-    private Graph G;
     private final int s;
+    private Graph G;
     private int[] pre;
 
 
@@ -27,6 +27,15 @@ public class SingleSourcePath {
         Arrays.fill(pre, -1);
         //无需处理其他联通分量
         bfs(s);
+    }
+
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        SingleSourcePath bfs = new SingleSourcePath(G, 0);
+        System.out.println(bfs.isConnectedTo(6));
+        System.out.println(bfs.path(6));
+        System.out.println(bfs.isConnectedTo(5));
+        System.out.println(bfs.path(5));
     }
 
     private void bfs(int v) {
@@ -51,26 +60,17 @@ public class SingleSourcePath {
 
     public Iterable<Integer> path(int t) {
         List<Integer> path = new ArrayList<>();
-        if(!isConnectedTo(t)){
+        if (!isConnectedTo(t)) {
             return path;
         }
         int current = t;
-        while (current != s){
+        while (current != s) {
             path.add(current);
             current = pre[current];
         }
         path.add(s);
         Collections.reverse(path);
         return path;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        SingleSourcePath bfs = new SingleSourcePath(G,0);
-        System.out.println(bfs.isConnectedTo(6));
-        System.out.println(bfs.path(6));
-        System.out.println(bfs.isConnectedTo(5));
-        System.out.println(bfs.path(5));
     }
 
 }

@@ -29,8 +29,15 @@ public class Bfs {
         }
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        Bfs bfs = new Bfs(G);
+        System.out.println(bfs.getOrder());
+    }
+
     /**
      * 深度优先与广度优先的逻辑出了容器特性不同，其他完全一致
+     *
      * @param v
      */
     private void bfs(int v) {
@@ -53,12 +60,6 @@ public class Bfs {
 
     public Iterable<Integer> getOrder() {
         return order;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        Bfs bfs = new Bfs(G);
-        System.out.println(bfs.getOrder());
     }
 
 }

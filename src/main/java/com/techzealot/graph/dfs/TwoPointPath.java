@@ -37,6 +37,16 @@ public class TwoPointPath {
         System.out.println(Arrays.toString(pre));
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        TwoPointPath path1 = new TwoPointPath(G, 0, 6);
+        System.out.println(path1.isConnected());
+        System.out.println("0->6:" + path1.path());
+        TwoPointPath path2 = new TwoPointPath(G, 0, 5);
+        System.out.println(path2.isConnected());
+        System.out.println("0->5:" + path2.path());
+    }
+
     private boolean dfs(int v, int parent) {
         pre[v] = parent;
         //如果只需要求两个点的路径,可以提前退出,不必遍历所有联通节点
@@ -71,16 +81,6 @@ public class TwoPointPath {
         path.add(s);
         Collections.reverse(path);
         return path;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        TwoPointPath path1 = new TwoPointPath(G, 0, 6);
-        System.out.println(path1.isConnected());
-        System.out.println("0->6:" + path1.path());
-        TwoPointPath path2 = new TwoPointPath(G, 0, 5);
-        System.out.println(path2.isConnected());
-        System.out.println("0->5:" + path2.path());
     }
 
 }

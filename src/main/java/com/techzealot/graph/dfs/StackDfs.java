@@ -29,6 +29,12 @@ public class StackDfs {
         }
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        StackDfs dfs = new StackDfs(G);
+        System.out.println(dfs.pre());
+    }
+
     private void dfs(int v) {
         Stack<Integer> stack = new Stack<>();
         stack.push(v);
@@ -50,12 +56,6 @@ public class StackDfs {
 
     public Iterable<Integer> pre() {
         return pre;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        StackDfs dfs = new StackDfs(G);
-        System.out.println(dfs.pre());
     }
 
 }

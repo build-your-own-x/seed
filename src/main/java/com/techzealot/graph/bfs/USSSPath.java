@@ -15,8 +15,8 @@ import java.util.Queue;
  * 可用于求解无权图的最短路径
  */
 public class USSSPath {
-    private Graph G;
     private final int s;
+    private Graph G;
     private int[] pre;
     private int[] dists;
 
@@ -31,6 +31,17 @@ public class USSSPath {
         //无需处理其他联通分量
         bfs(s);
         System.out.println(Arrays.toString(dists));
+    }
+
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        USSSPath bfs = new USSSPath(G, 0);
+        System.out.println(bfs.isConnectedTo(6));
+        System.out.println(bfs.path(6));
+        System.out.println(bfs.distance(6));
+        System.out.println(bfs.isConnectedTo(5));
+        System.out.println(bfs.path(5));
+        System.out.println(bfs.distance(5));
     }
 
     private void bfs(int s) {
@@ -73,17 +84,6 @@ public class USSSPath {
     public int distance(int t) {
         G.validateVertex(t);
         return dists[t];
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        USSSPath bfs = new USSSPath(G, 0);
-        System.out.println(bfs.isConnectedTo(6));
-        System.out.println(bfs.path(6));
-        System.out.println(bfs.distance(6));
-        System.out.println(bfs.isConnectedTo(5));
-        System.out.println(bfs.path(5));
-        System.out.println(bfs.distance(5));
     }
 
 }

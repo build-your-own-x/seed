@@ -12,10 +12,9 @@ import org.jgrapht.traverse.DepthFirstIterator
 import spock.lang.Specification
 
 
-
 class JgraphtSpec extends Specification {
 
-    def "Jgrapht Spec"(){
+    def "Jgrapht Spec"() {
         when:
         Graph<String, DefaultEdge> stringGraph = createStringGraph();
 
@@ -50,8 +49,7 @@ class JgraphtSpec extends Specification {
      * @return a graph based on URI objects.
      */
     private static Graph<URI, DefaultEdge> createHrefGraph()
-            throws URISyntaxException
-    {
+            throws URISyntaxException {
 
         Graph<URI, DefaultEdge> g = new DefaultDirectedGraph<>(DefaultEdge.class);
 
@@ -81,8 +79,7 @@ class JgraphtSpec extends Specification {
      *
      * @param start the vertex where the traversal should start
      */
-    private static void traverseHrefGraph(Graph<URI, DefaultEdge> hrefGraph, URI start)
-    {
+    private static void traverseHrefGraph(Graph<URI, DefaultEdge> hrefGraph, URI start) {
         Iterator<URI> iterator = new DepthFirstIterator<>(hrefGraph, start);
         while (iterator.hasNext()) {
             URI uri = iterator.next();
@@ -96,8 +93,7 @@ class JgraphtSpec extends Specification {
      * @param hrefGraph a graph based on URI objects
      */
     private static void renderHrefGraph(Graph<URI, DefaultEdge> hrefGraph)
-            throws ExportException
-    {
+            throws ExportException {
 
         DOTExporter<URI, DefaultEdge> exporter =
                 new DOTExporter<>((v) -> v.getHost().replace('.', '_'));
@@ -116,8 +112,7 @@ class JgraphtSpec extends Specification {
      *
      * @return a graph based on String objects.
      */
-    private static Graph<String, DefaultEdge> createStringGraph()
-    {
+    private static Graph<String, DefaultEdge> createStringGraph() {
         Graph<String, DefaultEdge> g = new SimpleGraph<>(DefaultEdge.class);
 
         String v1 = "v1";

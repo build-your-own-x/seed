@@ -25,6 +25,15 @@ public class CycleDetection {
         }
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        CycleDetection bfs = new CycleDetection(G);
+        System.out.println(bfs.hasCycle());
+        Graph G1 = new AdjTreeSet("/graph-cycle.txt");
+        CycleDetection bfs1 = new CycleDetection(G1);
+        System.out.println(bfs1.hasCycle());
+    }
+
     private void bfs(int v) {
         Queue<Integer> queue = new ArrayDeque<>();
         queue.offer(v);
@@ -53,15 +62,6 @@ public class CycleDetection {
 
     public boolean hasCycle() {
         return hasCycle;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        CycleDetection bfs = new CycleDetection(G);
-        System.out.println(bfs.hasCycle());
-        Graph G1 = new AdjTreeSet("/graph-cycle.txt");
-        CycleDetection bfs1 = new CycleDetection(G1);
-        System.out.println(bfs1.hasCycle());
     }
 
 }

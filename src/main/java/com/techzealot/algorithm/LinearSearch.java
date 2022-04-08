@@ -5,7 +5,6 @@ import java.util.Objects;
 
 public class LinearSearch {
     /**
-     *
      * @param list
      * @param target
      * @param <E>
@@ -13,7 +12,7 @@ public class LinearSearch {
      */
     public static <E> int search(List<E> list, E target) {
         for (int i = 0; i < list.size(); i++) {
-            if(Objects.equals(list.get(i), target)){
+            if (Objects.equals(list.get(i), target)) {
                 return i;
             }
         }

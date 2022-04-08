@@ -30,6 +30,15 @@ public class SingleSourcePath {
         dfs(s, s);
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        SingleSourcePath dfs = new SingleSourcePath(G, 0);
+        System.out.println(dfs.isConnectedTo(6));
+        System.out.println("0->6:" + dfs.path(6));
+        System.out.println(dfs.isConnectedTo(5));
+        System.out.println("0->5:" + dfs.path(5));
+    }
+
     private void dfs(int v, int parent) {
         pre[v] = parent;
         for (int w : G.adjacent(v)) {
@@ -51,22 +60,13 @@ public class SingleSourcePath {
         }
         int current = t;
         //当current==s时,需要将起点也加入,为保证逻辑一致性,可以看出设定起点的父节点为自身比较合理
-        while (current != s){
+        while (current != s) {
             path.add(current);
             current = pre[current];
         }
         path.add(s);
         Collections.reverse(path);
         return path;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        SingleSourcePath dfs = new SingleSourcePath(G, 0);
-        System.out.println(dfs.isConnectedTo(6));
-        System.out.println("0->6:" + dfs.path(6));
-        System.out.println(dfs.isConnectedTo(5));
-        System.out.println("0->5:" + dfs.path(5));
     }
 
 }

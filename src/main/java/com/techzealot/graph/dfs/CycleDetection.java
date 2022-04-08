@@ -26,6 +26,15 @@ public class CycleDetection {
         }
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        CycleDetection dfs = new CycleDetection(G);
+        System.out.println(dfs.hasCycle());
+        Graph G1 = new AdjTreeSet("/graph-cycle.txt");
+        CycleDetection dfs1 = new CycleDetection(G1);
+        System.out.println(dfs1.hasCycle());
+    }
+
     private boolean dfs(int v, int parent) {
         visited[v] = true;
         for (int w : G.adjacent(v)) {
@@ -42,16 +51,6 @@ public class CycleDetection {
 
     public boolean hasCycle() {
         return hasCycle;
-    }
-
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        CycleDetection dfs = new CycleDetection(G);
-        System.out.println(dfs.hasCycle());
-        Graph G1 = new AdjTreeSet("/graph-cycle.txt");
-        CycleDetection dfs1 = new CycleDetection(G1);
-        System.out.println(dfs1.hasCycle());
     }
 
 }

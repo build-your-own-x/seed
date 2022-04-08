@@ -5,10 +5,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class AdjList implements Graph{
+public class AdjList implements Graph {
     private int V;
     private int E;
-    private LinkedList<Integer> [] adj;
+    private LinkedList<Integer>[] adj;
 
     public AdjList(String fileName) {
         InputStream is = this.getClass().getResourceAsStream(fileName);
@@ -41,6 +41,12 @@ public class AdjList implements Graph{
             }
         }
     }
+
+    public static void main(String[] args) {
+        AdjList am = new AdjList("/graph.txt");
+        System.out.println(am);
+    }
+
     public int V() {
         return V;
     }
@@ -71,16 +77,11 @@ public class AdjList implements Graph{
         sb.append(String.format("V = %d, E = %d\n", V, E));
         for (int v = 0; v < V; v++) {
             sb.append(String.format("%d: ", v));
-            for (int w: adj[v]) {
+            for (int w : adj[v]) {
                 sb.append(String.format("%d ", w));
             }
             sb.append("\n");
         }
         return sb.toString();
-    }
-
-    public static void main(String[] args) {
-        AdjList am = new AdjList("/graph.txt");
-        System.out.println(am);
     }
 }

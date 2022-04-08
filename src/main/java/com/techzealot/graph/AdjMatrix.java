@@ -40,6 +40,11 @@ public class AdjMatrix implements Graph {
         }
     }
 
+    public static void main(String[] args) {
+        AdjMatrix am = new AdjMatrix("/graph.txt");
+        System.out.println(am);
+    }
+
     @Override
     public int V() {
         return V;
@@ -90,10 +95,5 @@ public class AdjMatrix implements Graph {
             sb.append("\n");
         }
         return sb.toString();
-    }
-
-    public static void main(String[] args) {
-        AdjMatrix am = new AdjMatrix("/graph.txt");
-        System.out.println(am);
     }
 }

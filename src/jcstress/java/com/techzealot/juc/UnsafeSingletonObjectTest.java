@@ -39,9 +39,8 @@ public class UnsafeSingletonObjectTest {
     }
 
     static class IntWrapper {
-        private int value;
-
         public static volatile int y;
+        private int value;
 
         public IntWrapper(int value) {
             this.value = value;

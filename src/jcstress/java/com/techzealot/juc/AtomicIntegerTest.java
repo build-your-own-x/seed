@@ -12,24 +12,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @JCStressTest
 @State
-@Outcome(id="2",expect = Expect.ACCEPTABLE,desc = "both update")
-@Outcome(id="1",expect = Expect.FORBIDDEN,desc = "lost one update")
+@Outcome(id = "2", expect = Expect.ACCEPTABLE, desc = "both update")
+@Outcome(id = "1", expect = Expect.FORBIDDEN, desc = "lost one update")
 public class AtomicIntegerTest {
 
     private final AtomicInteger sequencer = new AtomicInteger();
 
     @Actor
-    public void actor1(){
+    public void actor1() {
         sequencer.incrementAndGet();
     }
 
     @Actor
-    public void actor2(){
+    public void actor2() {
         sequencer.incrementAndGet();
     }
 
     @Arbiter
-    public void arbiter(I_Result r){
-        r.r1= sequencer.get();
+    public void arbiter(I_Result r) {
+        r.r1 = sequencer.get();
     }
 }

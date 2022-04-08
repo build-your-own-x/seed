@@ -1,13 +1,12 @@
 package com.techzealot.graph;
 
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class AdjTreeSet implements Graph{
+public class AdjTreeSet implements Graph {
     private int V;
     private int E;
     private Set<Integer>[] adj;
@@ -44,6 +43,12 @@ public class AdjTreeSet implements Graph{
             }
         }
     }
+
+    public static void main(String[] args) {
+        AdjTreeSet am = new AdjTreeSet("/graph.txt");
+        System.out.println(am);
+    }
+
     public int V() {
         return V;
     }
@@ -74,16 +79,11 @@ public class AdjTreeSet implements Graph{
         sb.append(String.format("V = %d, E = %d\n", V, E));
         for (int v = 0; v < V; v++) {
             sb.append(String.format("%d: ", v));
-            for (int w: adj[v]) {
+            for (int w : adj[v]) {
                 sb.append(String.format("%d ", w));
             }
             sb.append("\n");
         }
         return sb.toString();
-    }
-
-    public static void main(String[] args) {
-        AdjTreeSet am = new AdjTreeSet("/graph.txt");
-        System.out.println(am);
     }
 }

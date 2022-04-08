@@ -14,12 +14,10 @@ import java.util.Queue;
  * 二分图检测
  */
 public class BipartitionDetection {
-    private Graph G;
-
     public static final int UNDEFINED = -1;
     public static final int BLUE = 0;
     public static final int GREEN = 1;
-
+    private Graph G;
     //0 blue 1 green
     private int[] colors;
 
@@ -37,6 +35,20 @@ public class BipartitionDetection {
                 }
             }
         }
+    }
+
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        BipartitionDetection bfs = new BipartitionDetection(G);
+        System.out.println(bfs.bipartite());
+        System.out.println(bfs.blues());
+        System.out.println(bfs.greens());
+
+        Graph G1 = new AdjTreeSet("/graph-bipartite.txt");
+        BipartitionDetection bfs1 = new BipartitionDetection(G1);
+        System.out.println(bfs1.bipartite());
+        System.out.println(bfs1.blues());
+        System.out.println(bfs1.greens());
     }
 
     private boolean bfs(int v) {
@@ -83,20 +95,6 @@ public class BipartitionDetection {
             }
         }
         return selected;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        BipartitionDetection bfs = new BipartitionDetection(G);
-        System.out.println(bfs.bipartite());
-        System.out.println(bfs.blues());
-        System.out.println(bfs.greens());
-
-        Graph G1 = new AdjTreeSet("/graph-bipartite.txt");
-        BipartitionDetection bfs1 = new BipartitionDetection(G1);
-        System.out.println(bfs1.bipartite());
-        System.out.println(bfs1.blues());
-        System.out.println(bfs1.greens());
     }
 
 }

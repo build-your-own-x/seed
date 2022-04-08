@@ -36,6 +36,15 @@ public class ConnectiveComponent {
         }
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        ConnectiveComponent dfs = new ConnectiveComponent(G);
+        System.out.println(dfs.count());
+        System.out.println(dfs.isConnective(1, 3));
+        System.out.println(dfs.isConnective(1, 5));
+        System.out.println(Arrays.toString(dfs.components()));
+    }
+
     private void dfs(int v, int ccid) {
         visited[v] = ccid;
         for (int w : G.adjacent(v)) {
@@ -47,6 +56,7 @@ public class ConnectiveComponent {
 
     /**
      * 联通分量个数
+     *
      * @return
      */
     public int count() {
@@ -56,6 +66,7 @@ public class ConnectiveComponent {
 
     /**
      * 判断两个顶点是否连通
+     *
      * @param v
      * @param w
      * @return
@@ -68,6 +79,7 @@ public class ConnectiveComponent {
 
     /**
      * 获取联通分量列表
+     *
      * @return
      */
     public List<Integer>[] components() {
@@ -79,15 +91,6 @@ public class ConnectiveComponent {
             res[visited[v]].add(v);
         }
         return res;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        ConnectiveComponent dfs = new ConnectiveComponent(G);
-        System.out.println(dfs.count());
-        System.out.println(dfs.isConnective(1, 3));
-        System.out.println(dfs.isConnective(1, 5));
-        System.out.println(Arrays.toString(dfs.components()));
     }
 
 }

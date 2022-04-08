@@ -5,7 +5,6 @@ import com.techzealot.graph.Graph;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -52,6 +51,19 @@ public class BipartitionDetection {
         }
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        BipartitionDetection dfs = new BipartitionDetection(G);
+        System.out.println(dfs.isBipartite());
+        System.out.println("blues:" + dfs.blues());
+        System.out.println("greens:" + dfs.greens());
+        Graph G1 = new AdjTreeSet("/graph-bipartite.txt");
+        BipartitionDetection dfs1 = new BipartitionDetection(G1);
+        System.out.println(dfs1.isBipartite());
+        System.out.println("blues:" + dfs1.blues());
+        System.out.println("greens:" + dfs1.greens());
+    }
+
     private boolean dfs(int v, int color) {
         visited[v] = true;
         colors[v] = color;
@@ -77,20 +89,6 @@ public class BipartitionDetection {
 
     public List<Integer> greens() {
         return greens;
-    }
-
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        BipartitionDetection dfs = new BipartitionDetection(G);
-        System.out.println(dfs.isBipartite());
-        System.out.println("blues:"+ dfs.blues());
-        System.out.println("greens:"+ dfs.greens());
-        Graph G1 = new AdjTreeSet("/graph-bipartite.txt");
-        BipartitionDetection dfs1 = new BipartitionDetection(G1);
-        System.out.println(dfs1.isBipartite());
-        System.out.println("blues:"+ dfs1.blues());
-        System.out.println("greens:"+ dfs1.greens());
     }
 
 }

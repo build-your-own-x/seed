@@ -15,27 +15,40 @@ import java.util.Queue;
  */
 public class TwoPointPath {
 
-    private Graph G;
     private final int s;
     private final int t;
+    private Graph G;
     private int[] pre;
 
 
-    public TwoPointPath(Graph G, int s,int t) {
+    public TwoPointPath(Graph G, int s, int t) {
         this.G = G;
         this.s = s;
-        this.t=t;
+        this.t = t;
         pre = new int[G.V()];
         Arrays.fill(pre, -1);
         //无需处理其他联通分量
-        bfs(s,t);
+        bfs(s, t);
     }
 
-    private void bfs(int v,int t) {
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        TwoPointPath bfs = new TwoPointPath(G, 0, 6);
+        System.out.println(bfs.isConnected());
+        System.out.println(bfs.path());
+        TwoPointPath bfs1 = new TwoPointPath(G, 0, 5);
+        System.out.println(bfs1.isConnected());
+        System.out.println(bfs1.path());
+        TwoPointPath bfs2 = new TwoPointPath(G, 0, 0);
+        System.out.println(bfs2.isConnected());
+        System.out.println(bfs2.path());
+    }
+
+    private void bfs(int v, int t) {
         Queue<Integer> queue = new ArrayDeque<>();
         queue.offer(v);
         pre[v] = v;
-        if(v==t){
+        if (v == t) {
             return;
         }
         while (!queue.isEmpty()) {
@@ -44,7 +57,7 @@ public class TwoPointPath {
                 if (pre[w] == -1) {
                     queue.offer(w);
                     pre[w] = head;
-                    if (w == t){
+                    if (w == t) {
                         break;
                     }
                 }
@@ -59,30 +72,17 @@ public class TwoPointPath {
 
     public Iterable<Integer> path() {
         List<Integer> path = new ArrayList<>();
-        if(!isConnected()){
+        if (!isConnected()) {
             return path;
         }
         int current = t;
-        while (current != s){
+        while (current != s) {
             path.add(current);
             current = pre[current];
         }
         path.add(s);
         Collections.reverse(path);
         return path;
-    }
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        TwoPointPath bfs = new TwoPointPath(G,0,6);
-        System.out.println(bfs.isConnected());
-        System.out.println(bfs.path());
-        TwoPointPath bfs1 = new TwoPointPath(G,0,5);
-        System.out.println(bfs1.isConnected());
-        System.out.println(bfs1.path());
-        TwoPointPath bfs2 = new TwoPointPath(G,0,0);
-        System.out.println(bfs2.isConnected());
-        System.out.println(bfs2.path());
     }
 
 }

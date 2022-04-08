@@ -13,7 +13,7 @@ class GenericTest extends Specification {
         //编译不会报错，运行时报错
         animals[1] = new Dog()
         then:
-        noExceptionThrown()
+        thrown(ArrayStoreException)
     }
 
     def "test collection covariance"() {

@@ -41,6 +41,7 @@ public class GTest {
         animals.add(new Dog());
         animals.add(new Animal());
         List<Creature> creatures = new ArrayList<>();
+        creatures.add(new Cat());
         animals = creatures;
         Object object = animals.get(0);
     }

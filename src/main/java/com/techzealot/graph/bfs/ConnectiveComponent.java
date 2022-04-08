@@ -30,6 +30,16 @@ public class ConnectiveComponent {
         }
     }
 
+    public static void main(String[] args) {
+        Graph G = new AdjTreeSet("/graph.txt");
+        ConnectiveComponent bfs = new ConnectiveComponent(G);
+        System.out.println(bfs.count());
+        System.out.println(bfs.isConnected(0, 6));
+        System.out.println(bfs.isConnected(0, 5));
+        System.out.println(Arrays.toString(bfs.components()));
+
+    }
+
     private void bfs(int v, int ccid) {
         Queue<Integer> queue = new ArrayDeque<>();
         queue.offer(v);
@@ -66,17 +76,6 @@ public class ConnectiveComponent {
             components[ccids[i]].add(i);
         }
         return components;
-    }
-
-
-    public static void main(String[] args) {
-        Graph G = new AdjTreeSet("/graph.txt");
-        ConnectiveComponent bfs = new ConnectiveComponent(G);
-        System.out.println(bfs.count());
-        System.out.println(bfs.isConnected(0,6));
-        System.out.println(bfs.isConnected(0,5));
-        System.out.println(Arrays.toString(bfs.components()));
-
     }
 
 }
