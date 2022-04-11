@@ -1,5 +1,8 @@
 package com.techzealot.designpatterns.creational.builder.simplify;
 
+import lombok.Data;
+
+@Data
 public class ManyFieldsObject {
 
     private String s;
@@ -10,46 +13,8 @@ public class ManyFieldsObject {
     private ManyFieldsObject() {
     }
 
-    public String getS() {
-        return s;
-    }
-
-    public void setS(String s) {
-        this.s = s;
-    }
-
-    public int getI() {
-        return i;
-    }
-
-    public void setI(int i) {
-        this.i = i;
-    }
-
-    public boolean isB() {
-        return b;
-    }
-
-    public void setB(boolean b) {
-        this.b = b;
-    }
-
-    public double getD() {
-        return d;
-    }
-
-    public void setD(double d) {
-        this.d = d;
-    }
-
-    @Override
-    public String toString() {
-        return "ManyFieldsObject{" +
-                "s='" + s + '\'' +
-                ", i=" + i +
-                ", b=" + b +
-                ", d=" + d +
-                '}';
+    public static Builder builder(){
+        return new Builder();
     }
 
     public static class Builder {
