@@ -1,4 +1,4 @@
-package com.techzealot.gui;
+package com.techzealot.gui.collision;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

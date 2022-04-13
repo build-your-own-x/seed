@@ -1,4 +1,4 @@
-package com.techzealot.gui;
+package com.techzealot.gui.collision;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;

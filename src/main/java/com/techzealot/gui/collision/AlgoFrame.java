@@ -1,4 +1,4 @@
-package com.techzealot.gui;
+package com.techzealot.gui.collision;
 
 import javax.swing.*;
 import java.awt.*;
