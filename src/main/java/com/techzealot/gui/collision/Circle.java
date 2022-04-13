@@ -1,14 +1,21 @@
 package com.techzealot.gui.collision;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.experimental.Accessors;
+import lombok.experimental.FieldNameConstants;
+
+import java.awt.*;
 
 @AllArgsConstructor
+@Data()
 public class Circle {
     public int x, y;
-    @Getter
-    private int r;
+    private final int r;
     public int vx, vy;
+
+    private boolean filled = false;
 
     public void move(int minX, int minY, int maxX, int maxY) {
         x += vx;
@@ -35,4 +42,12 @@ public class Circle {
         }
     }
 
+    /**
+     * (x-x0)^2 +(y-y0)^2< r^2 说明点在圆内
+     * @param point
+     * @return
+     */
+    public boolean contains(Point point) {
+        return (point.x - x) * (point.x - x) + (point.y - y) * (point.y - y) < r * r;
+    }
 }
