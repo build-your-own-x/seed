@@ -2,7 +2,6 @@ package com.techzealot.gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
 
 public class AlgoFrame extends JFrame {
 
@@ -35,14 +34,32 @@ public class AlgoFrame extends JFrame {
         return canvasHeight;
     }
 
+    private Circle[] circles;
+
+    public void renders(Circle[] circles) {
+        this.circles = circles;
+        this.repaint();
+    }
+
     private class AlgoCanvas extends JPanel {
+
+        public AlgoCanvas() {
+            //开启双缓存，避免动画闪烁
+            super(true);
+        }
 
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
-            Ellipse2D ellipse = new Ellipse2D.Double(50, 50, 300, 300);
-            g2d.draw(ellipse);
+            //抗锯齿
+            RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.addRenderingHints(hints);
+            AlgoVisHelper.setColor(g2d, Color.RED);
+            AlgoVisHelper.setStrokeWith(g2d, 1);
+            for (Circle circle : circles) {
+                AlgoVisHelper.fillCircle(g2d,circle.x,circle.y,circle.getR());
+            }
         }
 
         /**

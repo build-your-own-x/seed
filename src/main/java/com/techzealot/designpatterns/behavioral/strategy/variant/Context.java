@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class Context {
 
-    Map<String, IStrategy> strategyMap = new HashMap<>(8);
+    private Map<String, IStrategy> strategyMap = new HashMap<>(8);
 
     public Context() {
         autowire();
