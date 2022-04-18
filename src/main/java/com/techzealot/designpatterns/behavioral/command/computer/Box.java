@@ -1,4 +1,4 @@
-package com.techzealot.designpatterns.behavioral.command;
+package com.techzealot.designpatterns.behavioral.command.computer;
 
 import lombok.Data;
 

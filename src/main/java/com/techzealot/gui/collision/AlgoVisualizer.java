@@ -46,7 +46,6 @@ public class AlgoVisualizer {
         frame.renders(circles);
         AlgoVisHelper.pauseMillis(50);
         for (Circle circle : circles) {
-            System.out.println("get:" + Thread.currentThread().getName());
             if (isAnimated) {
                 circle.move(0, 0, frame.getCanvasWidth(), frame.getCanvasHeight());
             }
@@ -57,7 +56,6 @@ public class AlgoVisualizer {
         @Override
         public void keyReleased(KeyEvent event) {
             if (event.getKeyChar() == ' ') {
-                System.out.println("set" + Thread.currentThread().getName());
                 isAnimated = !isAnimated;
             }
         }

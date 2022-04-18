@@ -1,0 +1,14 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+!theme superhero-outline
+'skinparam backgroundColor black
+scale 300 width
+[*] --> Ready: init
+Ready --> Playing: play
+Ready --> Stop: stop
+Playing --> Stop: stop
+Playing --> Playing: play
+Stop --> Playing: play
+Stop --> Stop: stop
+@enduml
