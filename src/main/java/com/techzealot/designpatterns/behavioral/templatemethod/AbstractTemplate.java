@@ -13,7 +13,10 @@ public abstract class AbstractTemplate {
 
     }
 
-    public void templateMethod() {
+    /**
+     * 加final不允许子类覆盖
+     */
+    public final void templateMethod() {
         doA();
         doB();
         doC();

@@ -6,6 +6,6 @@ package com.techzealot.designpatterns.structural.adapter;
 public class DefaultApiV2Adapter implements ApiV2 {
     @Override
     public String doV2(String args) {
-        return null;
+        return "";
     }
 }

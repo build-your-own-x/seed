@@ -1,6 +1,5 @@
 package com.techzealot.designpatterns.creational.factorymethod;
 
-public interface A {
-
-    void doA();
+public interface Transport {
+    void deliver();
 }

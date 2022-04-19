@@ -6,7 +6,7 @@ package com.techzealot.designpatterns.structural.adapter;
 public class ApiV2Adapter implements ApiV2 {
 
     //持有被适配的对象
-    private ApiV1 apiV1;
+    private final ApiV1 apiV1;
 
 
     public ApiV2Adapter(ApiV1 apiV1) {
