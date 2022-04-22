@@ -1,8 +1,6 @@
 package com.techzealot.designpatterns.structural.proxy;
 
-import com.techzealot.designpatterns.structural.proxy.Api;
-
-public class ApiImpl implements Api {
+public class ApiImpl implements Api, Cloneable {
     @Override
     public void doA() {
         System.out.println("A");
@@ -16,5 +14,9 @@ public class ApiImpl implements Api {
     @Override
     public void doC() {
         System.out.println("C");
+    }
+
+    public boolean equals(Api obj) {
+        return true;
     }
 }
