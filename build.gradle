@@ -1,7 +1,7 @@
 plugins {
-    id 'groovy'
     id 'java'
     id "io.github.reyerizo.gradle.jcstress" version "0.8.13"
+    id "me.champeau.jmh" version "0.6.6"
 }
 
 group 'com.techzealot'
@@ -11,7 +11,7 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
-    modularity.inferModulePath = true
+    //modularity.inferModulePath = true
 }
 
 jcstress {
@@ -28,7 +28,7 @@ repositories {
 
 ext {
     spockReportsVersion = '2.1.1-groovy-3.0'
-    groovyVersion = '3.0.9'
+    groovyVersion = '3.0.10'
     spockVersion = '2.1-M2-groovy-3.0'
     eclipseCollectionsVersion = '11.0.0'
     lombokVersion = '1.18.22'
@@ -38,26 +38,6 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
-    // mandatory dependencies for using Spock
-    implementation "org.codehaus.groovy:groovy:$groovyVersion"
-    testImplementation platform("org.spockframework:spock-bom:$spockVersion")
-    testImplementation "org.spockframework:spock-core"
-    //testCompile "org.spockframework:spock-junit4"  // you can remove this if your code does not rely on old JUnit 4 rules
-
-    // optional dependencies for using Spock
-    testImplementation "org.hamcrest:hamcrest-core:2.2"   // only necessary if Hamcrest matchers are used
-    testImplementation "net.bytebuddy:byte-buddy:1.10.10" // allows mocking of classes (in addition to interfaces)
-    testImplementation "org.objenesis:objenesis:3.1"
-    // allows mocking of classes without default constructor (together with ByteBuddy or CGLIB)
-
-    // you can use testRuntimeClasspath if you don't want to use spock-report-specific features in your Specs
-    testImplementation("com.athaydes:spock-reports:$spockReportsVersion") {
-        transitive = false // this avoids affecting your version of Groovy/Spock
-    }
-    //spock report dependencies
-    implementation "org.codehaus.groovy:groovy-xml:$groovyVersion"
-    implementation "org.codehaus.groovy:groovy-json:$groovyVersion"
-    implementation "org.codehaus.groovy:groovy-templates:$groovyVersion"
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-logging', version: '2.4.6'
 
     compileOnly "org.projectlombok:lombok:$lombokVersion"
@@ -80,6 +60,15 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jmh {
+    warmupIterations = 5
+    iterations = 5
+    fork = 1
+    threads = 8
+    jvmArgsPrepend = ['--enable-preview']
+    includes = []
 }
 
 //enable preview features
