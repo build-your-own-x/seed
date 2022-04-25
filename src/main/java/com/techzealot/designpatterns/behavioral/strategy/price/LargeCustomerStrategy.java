@@ -1,4 +1,4 @@
-package com.techzealot.designpatterns.behavioral.strategy;
+package com.techzealot.designpatterns.behavioral.strategy.price;
 
 public class LargeCustomerStrategy implements Strategy {
     @Override

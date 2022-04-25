@@ -31,7 +31,7 @@ public class Player {
         if (currentTrack > playList.size() - 1) {
             currentTrack = 0;
         }
-        return "Play song " + playList.get(currentTrack);
+        return "Play song " + getCurrentSong();
     }
 
     public String previousTrack() {
@@ -39,6 +39,14 @@ public class Player {
         if (currentTrack < 0) {
             currentTrack = playList.size() - 1;
         }
-        return "Play song " + playList.get(currentTrack);
+        return "Play song " + getCurrentSong();
+    }
+
+    public void changeState(State state) {
+        this.state = state;
+    }
+
+    public String getCurrentSong() {
+        return playList.get(currentTrack);
     }
 }

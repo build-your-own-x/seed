@@ -8,13 +8,13 @@ public class StopState extends State {
 
     @Override
     public String onStop() {
-        return "Stop song " + player.getCurrentTrack();
+        return "Stop song " + player.getCurrentSong();
     }
 
     @Override
     public String onPlay() {
-        player.setState(new PlayingState(player));
-        return "Play song " + player.getCurrentTrack();
+        player.changeState(new PlayingState(player));
+        return "Play song " + player.getCurrentSong();
     }
 
     @Override

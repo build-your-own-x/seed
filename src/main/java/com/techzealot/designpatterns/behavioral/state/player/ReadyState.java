@@ -10,25 +10,25 @@ public class ReadyState extends State {
 
     @Override
     public String onStop() {
-        player.setState(new StopState(player));
-        return "Stop song " + player.getCurrentTrack();
+        player.changeState(new StopState(player));
+        return "Stop song " + player.getCurrentSong();
     }
 
     @Override
     public String onPlay() {
-        player.setState(new PlayingState(player));
-        return "Play song " + player.getCurrentTrack();
+        player.changeState(new PlayingState(player));
+        return "Play song " + player.getCurrentSong();
     }
 
     @Override
     public String onNext() {
-        player.setState(new PlayingState(player));
+        player.changeState(new PlayingState(player));
         return player.nextTrack();
     }
 
     @Override
     public String onPrevious() {
-        player.setState(new PlayingState(player));
+        player.changeState(new PlayingState(player));
         return player.previousTrack();
     }
 }

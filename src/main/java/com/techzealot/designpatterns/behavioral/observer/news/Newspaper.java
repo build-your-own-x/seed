@@ -1,4 +1,4 @@
-package com.techzealot.designpatterns.behavioral.observer;
+package com.techzealot.designpatterns.behavioral.observer.news;
 
 
 import java.util.Observable;
