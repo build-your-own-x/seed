@@ -14,6 +14,8 @@ public class ApplicationFilterChain implements FilterChain {
 
     private List<Filter> filters = new ArrayList<>();
 
+    private Servlet servlet = new Servlet();
+
 
     @Override
     public void doFilter(Request request, Response response) throws Exception {
@@ -26,11 +28,7 @@ public class ApplicationFilterChain implements FilterChain {
             return;
         }
         // We fell off the end of the chain -- call the servlet instance
-        doService();
-    }
-
-    private void doService() {
-        System.out.println("here we handle get/post request and return response");
+        servlet.service(request, response);
     }
 
     public void addFilters(Filter... filters) {

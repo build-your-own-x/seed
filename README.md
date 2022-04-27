@@ -1,14 +1,11 @@
 # java language seed
 
-java collection framework
-
-java util concurrent
-
-java thread pool
-
-graph
-
-algorithm
+1. [ ] java collection framework
+2. [ ] java util concurrent
+3. [ ] java thread pool
+4. [ ] graph
+5. [ ] algorithm
+6. [x] design patterns
 
 # test:
 
@@ -37,3 +34,5 @@ https://github.com/java-diff-utils/java-diff-utils
 https://github.com/google/guava
 
 https://github.com/jgrapht/jgrapht
+
+https://github.com/JCTools/JCTools

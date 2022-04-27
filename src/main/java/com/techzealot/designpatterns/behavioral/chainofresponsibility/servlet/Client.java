@@ -4,6 +4,9 @@ import com.techzealot.designpatterns.behavioral.chainofresponsibility.servlet.te
 import com.techzealot.designpatterns.behavioral.chainofresponsibility.servlet.test.FilterB;
 import com.techzealot.designpatterns.behavioral.chainofresponsibility.servlet.test.FilterC;
 
+/**
+ * 实现简单,但需要调用者了解约定,可以支持双向拦截
+ */
 public class Client {
     public static void main(String[] args) throws Exception {
         ApplicationFilterChain chain = new ApplicationFilterChain();

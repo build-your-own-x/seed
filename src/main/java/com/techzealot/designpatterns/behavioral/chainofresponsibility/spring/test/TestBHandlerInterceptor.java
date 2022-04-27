@@ -8,7 +8,11 @@ public class TestBHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(Request request, Response response, Object handler) throws Exception {
         System.out.println("pre B");
-        return false;
+        //if return false,will output:
+        //pre A
+        //pre B
+        //after A
+        return true;
     }
 
     @Override
