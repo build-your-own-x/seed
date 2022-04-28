@@ -1,13 +1,18 @@
 package com.techzealot.designpatterns.behavioral.chainofresponsibility.netty;
 
+
 public class ChannelInboundHandlerAdapter implements ChannelInboundHandler {
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    @ChannelHandlerMask.Skip
+    public void exceptionCaught(AbstractChannelHandlerContext ctx, Throwable cause) throws Exception {
+        System.out.println(ctx.handler().getClass().getSimpleName());
         ctx.fireExceptionCaught(cause);
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    @ChannelHandlerMask.Skip
+    public void channelRead(AbstractChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println(ctx.handler().getClass().getSimpleName());
         ctx.fireChannelRead(msg);
     }
 }

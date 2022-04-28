@@ -8,9 +8,9 @@ public interface ChannelPipeline {
 
     ChannelPipeline fireExceptionCaught(Throwable cause);
 
-    void close(ChannelHandlerContext ctx) throws Exception;
+    void close(AbstractChannelHandlerContext ctx) throws Exception;
 
-    void read(ChannelHandlerContext ctx) throws Exception;
+    void read(AbstractChannelHandlerContext ctx) throws Exception;
 
-    void write(ChannelHandlerContext ctx, Object msg) throws Exception;
+    void write(AbstractChannelHandlerContext ctx, Object msg) throws Exception;
 }

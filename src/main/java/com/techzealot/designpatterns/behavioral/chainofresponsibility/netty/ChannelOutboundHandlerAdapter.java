@@ -2,17 +2,23 @@ package com.techzealot.designpatterns.behavioral.chainofresponsibility.netty;
 
 public class ChannelOutboundHandlerAdapter implements ChannelOutboundHandler {
     @Override
-    public void close(ChannelHandlerContext ctx) throws Exception {
+    @ChannelHandlerMask.Skip
+    public void close(AbstractChannelHandlerContext ctx) throws Exception {
+        System.out.println(ctx.handler().getClass().getSimpleName());
         ctx.close();
     }
 
     @Override
-    public void read(ChannelHandlerContext ctx) throws Exception {
+    @ChannelHandlerMask.Skip
+    public void read(AbstractChannelHandlerContext ctx) throws Exception {
+        System.out.println(ctx.handler().getClass().getSimpleName());
         ctx.read();
     }
 
     @Override
-    public void write(ChannelHandlerContext ctx, Object msg) throws Exception {
+    @ChannelHandlerMask.Skip
+    public void write(AbstractChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println(ctx.handler().getClass().getSimpleName());
         ctx.write(msg);
     }
 }

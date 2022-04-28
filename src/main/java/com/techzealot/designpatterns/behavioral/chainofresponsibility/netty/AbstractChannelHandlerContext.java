@@ -3,23 +3,25 @@ package com.techzealot.designpatterns.behavioral.chainofresponsibility.netty;
 /**
  * 作用是可以实现ChannelHandler的无状态化,可复用
  */
-public abstract class ChannelHandlerContext {
+public abstract class AbstractChannelHandlerContext {
 
     private final Channel channel;
     private final ChannelPipeline pipeline;
-    ChannelHandlerContext prev;
-    ChannelHandlerContext next;
+    private final int executionMask;
+    AbstractChannelHandlerContext prev;
+    AbstractChannelHandlerContext next;
 
-    public ChannelHandlerContext(Channel channel, ChannelPipeline pipeline) {
+    public AbstractChannelHandlerContext(Channel channel, ChannelPipeline pipeline, Class<? extends ChannelHandler> handlerClass) {
         this.channel = channel;
         this.pipeline = pipeline;
+        this.executionMask = ChannelHandlerMask.mask(handlerClass);
     }
 
-    public static void invokeChannelRead(ChannelHandlerContext next, Object msg) {
+    public static void invokeChannelRead(AbstractChannelHandlerContext next, Object msg) {
         next.invokeChannelRead(msg);
     }
 
-    public static void invokeExceptionCaught(ChannelHandlerContext next, Throwable cause) {
+    public static void invokeExceptionCaught(AbstractChannelHandlerContext next, Throwable cause) {
         next.invokeExceptionCaught(cause);
     }
 
@@ -33,8 +35,8 @@ public abstract class ChannelHandlerContext {
         return this.pipeline;
     }
 
-    public ChannelHandlerContext fireChannelRead(Object msg) {
-        invokeChannelRead(findContextInbound(), msg);
+    public AbstractChannelHandlerContext fireChannelRead(Object msg) {
+        invokeChannelRead(findContextInbound(ChannelHandlerMask.MASK_CHANNEL_READ), msg);
         return this;
     }
 
@@ -50,8 +52,8 @@ public abstract class ChannelHandlerContext {
         }
     }
 
-    public ChannelHandlerContext fireExceptionCaught(Throwable cause) {
-        invokeExceptionCaught(findContextInbound(), cause);
+    public AbstractChannelHandlerContext fireExceptionCaught(Throwable cause) {
+        invokeExceptionCaught(findContextInbound(ChannelHandlerMask.MASK_EXCEPTION_CAUGHT), cause);
         return this;
     }
 
@@ -68,7 +70,7 @@ public abstract class ChannelHandlerContext {
     }
 
     public void close() {
-        ChannelHandlerContext next = findContextOutbound();
+        AbstractChannelHandlerContext next = findContextOutbound(ChannelHandlerMask.MASK_CLOSE);
         if (next.handler() instanceof ChannelOutboundHandler out) {
             try {
                 out.close(next);
@@ -81,7 +83,7 @@ public abstract class ChannelHandlerContext {
     }
 
     public void read() {
-        ChannelHandlerContext next = findContextOutbound();
+        AbstractChannelHandlerContext next = findContextOutbound(ChannelHandlerMask.MASK_READ);
         if (next.handler() instanceof ChannelOutboundHandler out) {
             try {
                 out.read(next);
@@ -94,7 +96,7 @@ public abstract class ChannelHandlerContext {
     }
 
     public void write(Object msg) {
-        ChannelHandlerContext next = findContextOutbound();
+        AbstractChannelHandlerContext next = findContextOutbound(ChannelHandlerMask.MASK_WRITE);
         if (next.handler() instanceof ChannelOutboundHandler out) {
             try {
                 out.write(next, msg);
@@ -106,19 +108,19 @@ public abstract class ChannelHandlerContext {
         }
     }
 
-    private ChannelHandlerContext findContextOutbound() {
-        ChannelHandlerContext ctx = this;
+    private AbstractChannelHandlerContext findContextOutbound(int mask) {
+        AbstractChannelHandlerContext ctx = this;
         do {
             ctx = ctx.prev;
-        } while (!(ctx.handler() instanceof ChannelOutboundHandler));
+        } while ((ctx.executionMask & mask) == 0);
         return ctx;
     }
 
-    private ChannelHandlerContext findContextInbound() {
-        ChannelHandlerContext ctx = this;
+    private AbstractChannelHandlerContext findContextInbound(int mask) {
+        AbstractChannelHandlerContext ctx = this;
         do {
             ctx = ctx.next;
-        } while (!(ctx.handler() instanceof ChannelInboundHandler));
+        } while ((ctx.executionMask & mask) == 0);
         return ctx;
     }
 }
