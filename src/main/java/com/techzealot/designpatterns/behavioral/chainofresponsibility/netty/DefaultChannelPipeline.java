@@ -29,6 +29,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public ChannelPipeline fireChannelRead(Object msg) {
+        //head.fireChannelRead(msg)触发下一个ctx绑定的handler,与以下调用的区别是以下方法会触发head.channelRead
         ChannelHandlerContext.invokeChannelRead(head, msg);
         return this;
     }
@@ -41,6 +42,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public void close(ChannelHandlerContext ctx) throws Exception {
+        //tail直接操作的原因是tail本身无close逻辑需要执行,只需触发下一个outbound调用即可
         tail.close();
     }
 
@@ -70,26 +72,31 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            System.out.println("head exceptionCaught");
             ctx.fireExceptionCaught(cause);
         }
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            System.out.println("head channelRead");
             ctx.fireChannelRead(msg);
         }
 
         @Override
         public void close(ChannelHandlerContext ctx) throws Exception {
+            System.out.println("head close");
             unsafe.close();
         }
 
         @Override
         public void read(ChannelHandlerContext ctx) throws Exception {
+            System.out.println("head read");
             unsafe.read();
         }
 
         @Override
         public void write(ChannelHandlerContext ctx, Object msg) throws Exception {
+            System.out.println("head write");
             unsafe.write(msg);
         }
     }
