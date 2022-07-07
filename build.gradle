@@ -19,10 +19,10 @@ jcstress {
 }
 
 repositories {
+    mavenLocal()
     maven {
         url 'https://maven.aliyun.com/repository/public/'
     }
-    mavenLocal()
     mavenCentral()
 }
 
@@ -31,7 +31,7 @@ ext {
     groovyVersion = '3.0.10'
     spockVersion = '2.1-M2-groovy-3.0'
     eclipseCollectionsVersion = '11.0.0'
-    lombokVersion = '1.18.22'
+    lombokVersion = '1.18.24'
 }
 
 dependencies {
