@@ -1,4 +1,6 @@
 package com.techzealot.collection.list;
 
-public class ArrayDeque {
+import java.io.Serializable;
+
+public class ArrayDeque implements Serializable {
 }

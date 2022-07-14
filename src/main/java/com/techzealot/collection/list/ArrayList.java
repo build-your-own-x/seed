@@ -1,6 +1,7 @@
 package com.techzealot.collection.list;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.RandomAccess;
 
 /**
@@ -10,7 +11,37 @@ import java.util.RandomAccess;
  */
 public class ArrayList<E> implements RandomAccess, Serializable {
 
-    public boolean isEmpty() {
-        return true;
+    private transient E[] elementData;
+
+    private int size;
+
+    public E add(E e) {
+        return null;
     }
+
+    public void addAll(Collection<E> c) {
+
+    }
+
+    public E remove(int index) {
+        return null;
+    }
+
+    public void removeAll(Collection<E> c) {
+
+    }
+
+    public void set(int index, E element) {
+
+    }
+
+    public E get(int index) {
+        return null;
+    }
+
+    private void grow() {
+
+    }
+
+
 }
