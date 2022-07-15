@@ -11,12 +11,51 @@ import java.util.RandomAccess;
  */
 public class ArrayList<E> implements RandomAccess, Serializable {
 
-    private transient E[] elementData;
-
+    public static final int DEFAULT_CAPACITY = 10;
+    public static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+    /**
+     * 标记主动设置长度为0的空数组,与初始空数组区分开
+     */
+    private static final Object[] EMPTY_ELEMENTDATA = {};
+    private transient Object[] elementData;
     private int size;
 
-    public E add(E e) {
-        return null;
+    /**
+     * 初始时所有实例共享同一个空数组示例，节省内存
+     * 会在add时初始化为默认大小容量
+     */
+    public ArrayList() {
+        this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+    }
+
+    public ArrayList(int initialCapacity) {
+        if (initialCapacity > 0) {
+            elementData = new Object[initialCapacity];
+        } else if (initialCapacity == 0) {
+            elementData = EMPTY_ELEMENTDATA;
+        } else {
+            throw new IllegalArgumentException("illegal initialCapacity: " + initialCapacity);
+        }
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    public int getCapacity() {
+        return elementData.length;
+    }
+
+    public boolean add(E element) {
+        add(size, element);
+        return true;
+    }
+
+    public void add(int index, E element) {
     }
 
     public void addAll(Collection<E> c) {
