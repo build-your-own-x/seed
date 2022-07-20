@@ -1,4 +1,4 @@
 package com.techzealot.collection.list;
 
-public class PriorityQueue<E> {
+public interface MyStack<E> {
 }

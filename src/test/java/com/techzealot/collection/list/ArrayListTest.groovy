@@ -3,7 +3,7 @@ package com.techzealot.collection.list
 class ArrayListTest {
     def "test isEmpty"() {
         when:
-        ArrayList list = new ArrayList();
+        MyArrayList list = new MyArrayList();
         then:
         list.isEmpty()
     }

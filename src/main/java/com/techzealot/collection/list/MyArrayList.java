@@ -1,6 +1,10 @@
 package com.techzealot.collection.list;
 
+import lombok.NonNull;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.RandomAccess;
 
@@ -9,7 +13,7 @@ import java.util.RandomAccess;
  *
  * @param <E>
  */
-public class ArrayList<E> implements RandomAccess, Serializable {
+public class MyArrayList<E> implements RandomAccess, Serializable, Cloneable {
 
     public static final int DEFAULT_CAPACITY = 10;
     public static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
@@ -17,24 +21,45 @@ public class ArrayList<E> implements RandomAccess, Serializable {
      * 标记主动设置长度为0的空数组,与初始空数组区分开
      */
     private static final Object[] EMPTY_ELEMENTDATA = {};
+    /**
+     * 此处需要使用Object数组，因为无法使用泛型的形式(new E[size])创建数组
+     */
     private transient Object[] elementData;
+    /**
+     * 数组实际元素数量
+     */
     private int size;
 
     /**
      * 初始时所有实例共享同一个空数组示例，节省内存
      * 会在add时初始化为默认大小容量
      */
-    public ArrayList() {
+    public MyArrayList() {
         this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
     }
 
-    public ArrayList(int initialCapacity) {
+    public MyArrayList(int initialCapacity) {
         if (initialCapacity > 0) {
             elementData = new Object[initialCapacity];
         } else if (initialCapacity == 0) {
             elementData = EMPTY_ELEMENTDATA;
         } else {
             throw new IllegalArgumentException("illegal initialCapacity: " + initialCapacity);
+        }
+    }
+
+    public MyArrayList(@NonNull Collection<? extends E> c) {
+        Object[] a = c.toArray();
+        if ((size = a.length) != 0) {
+            //可以保证ArrayList的toArray方法会返回新的数组
+            if (c.getClass() == ArrayList.class) {
+                elementData = a;
+            } else {
+                //避免toArray方法未遵循规范返回新的数组
+                elementData = Arrays.copyOf(a, size, Object[].class);
+            }
+        } else {
+            elementData = EMPTY_ELEMENTDATA;
         }
     }
 
