@@ -3,9 +3,9 @@ package com.techzealot.collection.list;
 import lombok.NonNull;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.RandomAccess;
 
 /**
@@ -13,7 +13,8 @@ import java.util.RandomAccess;
  *
  * @param <E>
  */
-public class MyArrayList<E> implements RandomAccess, Serializable, Cloneable {
+public class MyArrayList<E> implements MyCollection<E>,
+        RandomAccess, Serializable, Cloneable {
 
     public static final int DEFAULT_CAPACITY = 10;
     public static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
@@ -48,11 +49,11 @@ public class MyArrayList<E> implements RandomAccess, Serializable, Cloneable {
         }
     }
 
-    public MyArrayList(@NonNull Collection<? extends E> c) {
+    public MyArrayList(@NonNull MyCollection<? extends E> c) {
         Object[] a = c.toArray();
         if ((size = a.length) != 0) {
             //可以保证ArrayList的toArray方法会返回新的数组
-            if (c.getClass() == ArrayList.class) {
+            if (c.getClass() == MyArrayList.class) {
                 elementData = a;
             } else {
                 //避免toArray方法未遵循规范返回新的数组
@@ -63,12 +64,9 @@ public class MyArrayList<E> implements RandomAccess, Serializable, Cloneable {
         }
     }
 
-    public int getSize() {
+    @Override
+    public int size() {
         return size;
-    }
-
-    public boolean isEmpty() {
-        return size == 0;
     }
 
     public int getCapacity() {
@@ -107,5 +105,13 @@ public class MyArrayList<E> implements RandomAccess, Serializable, Cloneable {
 
     }
 
+    @Override
+    public Object[] toArray() {
+        return Arrays.copyOf(elementData, size);
+    }
 
+    @Override
+    public Iterator<E> iterator() {
+        return null;
+    }
 }
