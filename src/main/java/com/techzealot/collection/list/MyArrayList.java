@@ -16,8 +16,9 @@ import java.util.RandomAccess;
 public class MyArrayList<E> implements MyCollection<E>,
         RandomAccess, Serializable, Cloneable {
 
-    public static final int DEFAULT_CAPACITY = 10;
-    public static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+    private static final int DEFAULT_CAPACITY = 10;
+    
+    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
     /**
      * 标记主动设置长度为0的空数组,与初始空数组区分开
      */
