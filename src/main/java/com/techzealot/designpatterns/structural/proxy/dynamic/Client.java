@@ -6,8 +6,9 @@ import com.techzealot.designpatterns.structural.proxy.ApiImpl;
 import java.util.Arrays;
 
 public class Client {
-    public static void main(String[] args) throws InterruptedException {
-        System.setProperty("jdk.proxy.ProxyGenerator.saveGeneratedFiles", "true");
+    public static void main(String[] args) {
+        //show proxy classes
+        System.setProperty("jdk.proxy.ProxyGenerator.saveGeneratedFiles", "false");
         Api api = ProxyFactory.getProxy(new ApiImpl(), new Class[]{Api.class});
         System.out.println(Arrays.toString(api.getClass().getInterfaces()));
         System.out.println(Arrays.toString(ApiImpl.class.getInterfaces()));
