@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'com.techzealot'
-version '1.0-SNAPSHOT'
+version '1.0.0-SNAPSHOT'
 
 java {
     toolchain {
@@ -62,10 +62,13 @@ dependencies {
     // you can remove this if your code does not rely on old JUnit 4 rules
 
     // optional dependencies for using Spock
-    testImplementation "org.hamcrest:hamcrest-core:2.2"   // only necessary if Hamcrest matchers are used
-    testRuntimeOnly 'net.bytebuddy:byte-buddy:1.12.8' // allows mocking of classes (in addition to interfaces)
-    testRuntimeOnly "org.objenesis:objenesis:3.2"
+    // only necessary if Hamcrest matchers are used
+    testImplementation "org.hamcrest:hamcrest-core:2.2"
+    // allows mocking of classes (in addition to interfaces)
+    testRuntimeOnly 'net.bytebuddy:byte-buddy:1.12.8'
     // allows mocking of classes without default constructor (together with ByteBuddy or CGLIB)
+    testRuntimeOnly 'org.objenesis:objenesis:3.2'
+    //reflect utils
     implementation 'org.jooq:joor:0.9.14'
 }
 
