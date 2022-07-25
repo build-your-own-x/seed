@@ -42,4 +42,20 @@ class MyArrayListSpec extends Specification {
     def "init with collection"(MyCollection<Integer> collection) {
 
     }
+
+    def "add at last"() {
+
+    }
+
+    def "add by index"() {
+
+    }
+
+    def "set by index"() {
+
+    }
+
+    def "get element by index"() {
+
+    }
 }
