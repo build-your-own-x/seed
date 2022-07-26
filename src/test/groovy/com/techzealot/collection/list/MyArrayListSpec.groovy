@@ -18,7 +18,7 @@ class MyArrayListSpec extends Specification {
 
     @Unroll
     def "init with initial capacity"(int initialCapacity) {
-        when:
+        when: "init with illegal capacity"
         new MyArrayList<Integer>(-1)
         then:
         thrown(IllegalArgumentException)
@@ -44,7 +44,27 @@ class MyArrayListSpec extends Specification {
     }
 
     def "add at last"() {
-
+        when: "init with no arg"
+        MyArrayList<Integer> c = new MyArrayList<>()
+        c.add(1)
+        then:
+        c.size() == 1
+        c.getCapacity() == 10
+        c.get(0) == 1
+        when: "init with capacity 0"
+        MyArrayList<Integer> c1 = new MyArrayList<>(0)
+        c1.add(1)
+        then:
+        c1.size() == 1
+        c1.getCapacity() == 1
+        c1.get(0) == 1
+        when: "init with capacity 16"
+        MyArrayList<Integer> c2 = new MyArrayList<>(-1)
+        c2.add(1)
+        then:
+        c2.size() == 1
+        c2.getCapacity() == 1
+        c2.get(0) == 1
     }
 
     def "add by index"() {

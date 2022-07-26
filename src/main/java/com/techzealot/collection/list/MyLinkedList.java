@@ -7,7 +7,7 @@ import java.io.Serializable;
  *
  * @param <E>
  */
-public class MyLinkedList<E> implements MyQueue<E>, MyStack<E>, Serializable, Cloneable {
+public class MyLinkedList<E> implements MyQueue<E>, MyDeque<E>, Serializable, Cloneable {
 
     static class Node<E> {
         Node<E> prev;

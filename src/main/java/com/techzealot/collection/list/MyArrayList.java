@@ -7,12 +7,13 @@ import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.RandomAccess;
 
 /**
  * 实现 增删改查 序列化优化 泛型支持 随机访问
+ * <p>
+ * 支持存放null
  *
  * @param <E>
  */
@@ -29,7 +30,7 @@ public class MyArrayList<E> implements MyCollection<E>,
      * 标记主动设置长度为0的空数组,与初始空数组区分开
      */
     private static final Object[] EMPTY_ELEMENTDATA = {};
-
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
     /**
      * 此处需要使用Object数组，因为无法使用泛型的形式(new E[size])创建数组
      */
@@ -38,7 +39,6 @@ public class MyArrayList<E> implements MyCollection<E>,
      * 数组实际元素数量
      */
     private int size = 0;
-
     /**
      * 修改次数
      * 避免迭代的同时被修改
@@ -79,6 +79,21 @@ public class MyArrayList<E> implements MyCollection<E>,
         }
     }
 
+    private static int calculateCapacity(Object[] elementData, int minCapacity) {
+        //采用无参构造器初始化时保证容量不小于默认容量
+        if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+            return Math.max(DEFAULT_CAPACITY, minCapacity);
+        }
+        return minCapacity;
+    }
+
+    private static int hugeCapacity(int minCapacity) {
+        if (minCapacity < 0) {
+            throw new OutOfMemoryError();
+        }
+        return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
+    }
+
     @Override
     public int size() {
         return size;
@@ -89,32 +104,115 @@ public class MyArrayList<E> implements MyCollection<E>,
     }
 
     public boolean add(E element) {
-        add(size, element);
+        ensureCapacityInternal(size + 1);
+        elementData[size++] = element;
         return true;
     }
 
-    public boolean add(int index, E element) {
-        return true;
+    private void ensureCapacityInternal(int minCapacity) {
+        ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
     }
 
-    public boolean addAll(Collection<E> c) {
-        return true;
+    private void ensureExplicitCapacity(int minCapacity) {
+        modCount++;
+        if (minCapacity - elementData.length > 0) {
+            grow(minCapacity);
+        }
     }
 
-    private void grow() {
+    public void add(int index, E element) {
+        rangeCheckForAdd(index);
+        //确保有足够空间
+        ensureCapacityInternal(size + 1);
+        //index开始后续所有元素向后移动一位留出空位
+        System.arraycopy(elementData, index, elementData, index + 1, size - index);
+        elementData[index] = element;
+        size++;
+    }
 
+    /**
+     * @param c
+     * @return true if the list is changed after called
+     */
+    public boolean addAll(MyCollection<? extends E> c) {
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        ensureCapacityInternal(size + numNew);
+        System.arraycopy(a, 0, elementData, size, numNew);
+        size += numNew;
+        return numNew != 0;
+    }
+
+    private void grow(int minCapacity) {
+        int oldCapacity = elementData.length;
+        int newCapacity = oldCapacity + (oldCapacity >> 1);
+        if (newCapacity - minCapacity < 0) {
+            newCapacity = minCapacity;
+        }
+        if (newCapacity - MAX_ARRAY_SIZE > 0) {
+            newCapacity = hugeCapacity(minCapacity);
+        }
+        elementData = Arrays.copyOf(elementData, newCapacity);
     }
 
     public E remove(int index) {
-        return null;
+        rangeCheck(index);
+        modCount++;
+        E oldValue = elementData(index);
+        int numMoved = size - index - 1;
+        if (numMoved > 0) {
+            System.arraycopy(elementData, index + 1, elementData, index, numMoved);
+        }
+        //let gc work
+        elementData[--size] = null;
+        return oldValue;
     }
 
+    /**
+     * remove the first one
+     *
+     * @param element
+     * @return
+     */
     public boolean remove(E element) {
-        return true;
+        if (element == null) {
+            for (int index = 0; index < size; index++) {
+                if (elementData[index] == null) {
+                    fastRemove(index);
+                    return true;
+                }
+            }
+        } else {
+            for (int index = 0; index < size; index++) {
+                if (element.equals(elementData[index])) {
+                    fastRemove(index);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-    public boolean removeAll(Collection<E> c) {
-        return true;
+    /**
+     * skip bounds check and return value
+     *
+     * @param index
+     */
+    private void fastRemove(int index) {
+        modCount++;
+        int numMoved = size - index - 1;
+        if (numMoved > 0) {
+            System.arraycopy(elementData, index + 1, elementData, index, numMoved);
+        }
+        elementData[--size] = null;
+    }
+
+    public boolean removeAll(@NonNull MyCollection<E> c) {
+        return batchRemove(c, false);
+    }
+
+    private boolean batchRemove(MyCollection<E> c, boolean complement) {
+        return false;
     }
 
     /**
@@ -134,6 +232,27 @@ public class MyArrayList<E> implements MyCollection<E>,
     public E get(int index) {
         rangeCheck(index);
         return elementData(index);
+    }
+
+    public boolean contains(E element) {
+        return indexOf(element) >= 0;
+    }
+
+    public int indexOf(E element) {
+        if (element == null) {
+            for (int i = 0; i < size; i++) {
+                if (elementData[i] == null) {
+                    return i;
+                }
+            }
+        } else {
+            for (int i = 0; i < size; i++) {
+                if (element.equals(elementData[i])) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
     /**
@@ -188,10 +307,12 @@ public class MyArrayList<E> implements MyCollection<E>,
         }
     }
 
+    @Serial
     private void writeObject(ObjectOutputStream oos) {
 
     }
 
+    @Serial
     private void readObject(ObjectInputStream ois) {
 
     }
