@@ -1,5 +1,7 @@
 package com.techzealot.collection.list;
 
+import com.techzealot.collection.MyCollection;
+import com.techzealot.collection.MyList;
 import lombok.NonNull;
 
 import java.io.ObjectInputStream;
@@ -17,7 +19,7 @@ import java.util.RandomAccess;
  *
  * @param <E>
  */
-public class MyArrayList<E> implements MyCollection<E>,
+public class MyArrayList<E> implements MyList<E>,
         RandomAccess, Serializable, Cloneable {
 
     @Serial
@@ -77,6 +79,21 @@ public class MyArrayList<E> implements MyCollection<E>,
         } else {
             elementData = EMPTY_ELEMENTDATA;
         }
+    }
+
+    /**
+     * 返回可变List
+     *
+     * @param elements
+     * @param <E>
+     * @return
+     */
+    public static <E> MyArrayList<E> of(@NonNull E... elements) {
+        MyArrayList<E> list = new MyArrayList<>(elements.length);
+        for (E element : elements) {
+            list.add(element);
+        }
+        return list;
     }
 
     private static int calculateCapacity(Object[] elementData, int minCapacity) {
@@ -211,8 +228,42 @@ public class MyArrayList<E> implements MyCollection<E>,
         return batchRemove(c, false);
     }
 
-    private boolean batchRemove(MyCollection<E> c, boolean complement) {
-        return false;
+    public boolean retainAll(@NonNull MyCollection<E> c) {
+        return batchRemove(c, true);
+    }
+
+    private boolean batchRemove(MyCollection<?> c, boolean complement) {
+        Object[] elements = this.elementData;
+        //读写双指针
+        int read = 0;
+        int write = 0;
+        boolean modified = false;
+        try {
+            for (; read < size; read++) {
+                //some collection impl may throw when call contains
+                if (c.contains(elements[read]) == complement) {
+                    elements[write++] = elements[read];
+                }
+            }
+        } finally {
+            //if MyCollection.contains throws,preserve behavior
+            //此时数据可能已经删除了一部分
+            if (read != size) {
+                //copy unhandled elements from exception point
+                System.arraycopy(elements, read, elements, write, size - read);
+                write += size - read;
+            }
+            if (write != size) {
+                //clear to let gc do its work
+                for (int i = write; i < size; i++) {
+                    elements[i] = null;
+                }
+                modCount += size - write;
+                size = write;
+                modified = true;
+            }
+        }
+        return modified;
     }
 
     /**
@@ -234,11 +285,17 @@ public class MyArrayList<E> implements MyCollection<E>,
         return elementData(index);
     }
 
-    public boolean contains(E element) {
+    /**
+     * 此处不使用泛型，使用泛型会导致适应性变差
+     *
+     * @param element
+     * @return
+     */
+    public boolean contains(Object element) {
         return indexOf(element) >= 0;
     }
 
-    public int indexOf(E element) {
+    public int indexOf(Object element) {
         if (element == null) {
             for (int i = 0; i < size; i++) {
                 if (elementData[i] == null) {
@@ -261,7 +318,8 @@ public class MyArrayList<E> implements MyCollection<E>,
      * @param index
      */
     private void rangeCheck(int index) {
-        if (index > size) {
+        //获取时index!=size
+        if (index >= size) {
             throw new IndexOutOfBoundsException(outOfBoundMsg(index));
         }
     }
@@ -272,6 +330,7 @@ public class MyArrayList<E> implements MyCollection<E>,
      * @param index
      */
     private void rangeCheckForAdd(int index) {
+        //index==size合法
         if (index > size || index < 0) {
             throw new IndexOutOfBoundsException(outOfBoundMsg(index));
         }
@@ -315,6 +374,30 @@ public class MyArrayList<E> implements MyCollection<E>,
     @Serial
     private void readObject(ObjectInputStream ois) {
 
+    }
+
+    /**
+     * todo
+     *
+     * @param o
+     * @return
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MyArrayList<?> that = (MyArrayList<?>) o;
+        return Arrays.equals(elementData, that.elementData);
+    }
+
+    /**
+     * todo
+     *
+     * @return
+     */
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(elementData);
     }
 
     private class Itr implements Iterator<E> {
