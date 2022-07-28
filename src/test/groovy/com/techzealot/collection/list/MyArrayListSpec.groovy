@@ -1,23 +1,24 @@
 package com.techzealot.collection.list
 
-
 import org.joor.Reflect
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
+import spock.util.mop.Use
 
 @Category(MyArrayList)
-class ListUtils {
+class MyArrayListExtensions {
     def <E> boolean listEquals(List<E> expected) {
         return this.toArray() == expected as E[]
     }
 }
 
+@Use(MyArrayListExtensions)
 class MyArrayListSpec extends Specification {
 
     def "init with no args"() {
         when:
-        MyArrayList<Integer> list = new MyArrayList<>()
+        def list = new MyArrayList<>()
         def elementData = Reflect.on(list).field("elementData")
         then:
         list.size() == 0
@@ -27,7 +28,7 @@ class MyArrayListSpec extends Specification {
     }
 
     @Unroll
-    def "init with initial capacity"(int initialCapacity) {
+    def "init with initial capacity"(int initialCapacity, int expected) {
         when: "init with illegal capacity"
         new MyArrayList<Integer>(-1)
         then:
@@ -38,28 +39,34 @@ class MyArrayListSpec extends Specification {
         then:
         elementData == Reflect.onClass(MyArrayList.class).field("EMPTY_ELEMENTDATA")
         when: "init with legal args"
-        MyArrayList<Integer> list = new MyArrayList<>(initialCapacity)
+        def list = new MyArrayList<>(initialCapacity)
         then:
         list.size() == 0
         list.getCapacity() == initialCapacity
         where:
-        initialCapacity | _
-        1               | _
-        10              | _
-        1024            | _
+        initialCapacity | expected
+        1               | 1
+        10              | 10
+        1024            | 1024
     }
 
     def "init with collection"() {
-        given:
-        MyArrayList<Integer> c = MyArrayList.of(1, 2, 3)
+        given: "empty collection and non-empty collection"
+        def empty = new MyArrayList<Integer>()
+        def c = MyArrayList.of(1, 2, 3)
+        //todo init with other collection type
         when:
-        MyArrayList<Number> mc = new MyArrayList<>(c);
+        def list = new MyArrayList<Integer>(empty)
+        then:
+        list.size() == 0
+        list.getCapacity() == 0
+        Reflect.on(list).field("elementData") == Reflect.onClass(MyArrayList.class).field("EMPTY_ELEMENTDATA")
+        when:
+        def mc = new MyArrayList<>(c);
         then:
         mc.getCapacity() == 3
         mc.size() == 3
-        use(ListUtils) {
-            mc.listEquals([1, 2, 3])
-        }
+        mc.listEquals([1, 2, 3])
         when:
         mc.get(3)
         then:
@@ -68,7 +75,7 @@ class MyArrayListSpec extends Specification {
 
     def "add at tail of array"() {
         given: "init with no arg"
-        MyArrayList<Integer> c = new MyArrayList<>()
+        def c = new MyArrayList<>()
         when:
         c.add(1)
         then:
@@ -76,21 +83,21 @@ class MyArrayListSpec extends Specification {
         c.getCapacity() == 10
         c.get(0) == 1
         when: "init with capacity 0"
-        MyArrayList<Integer> c1 = new MyArrayList<>(0)
+        def c1 = new MyArrayList<>(0)
         c1.add(1)
         then:
         c1.size() == 1
         c1.getCapacity() == 1
         c1.get(0) == 1
         when: "init with capacity 4"
-        MyArrayList<Integer> c2 = new MyArrayList<>(4)
+        def c2 = new MyArrayList<>(4)
         c2.add(1)
         c2.add(2)
         c2.add(3)
         then:
         c2.size() == 3
         c2.getCapacity() == 4
-        ListUtils.listEquals(c2, [1, 2, 3])
+        c2.listEquals([1, 2, 3])
         when: "get out of index"
         c2.get(3)
         then:
@@ -101,18 +108,18 @@ class MyArrayListSpec extends Specification {
         then:
         c2.size() == 5
         c2.getCapacity() == 6
-        ListUtils.listEquals(c2, [1, 2, 3, 4, 5])
+        c2.listEquals([1, 2, 3, 4, 5])
     }
 
     def "add by index"() {
         given:
-        MyArrayList<Integer> c = MyArrayList.of(1, 2, 3)
+        def c = MyArrayList.of(1, 2, 3)
         when: "add at head"
         c.add(0, 0)
         then:
         c.size() == 4
         c.getCapacity() == 4
-        ListUtils.listEquals(c, [0, 1, 2, 3])
+        c.listEquals([0, 1, 2, 3])
         when: "add at tail"
         c.add(4, 4)
         then:
@@ -124,86 +131,131 @@ class MyArrayListSpec extends Specification {
         then:
         c.size() == 6
         c.getCapacity() == 6
-        ListUtils.listEquals(c, [0, 1, 22, 2, 3, 4])
+        c.listEquals([0, 1, 22, 2, 3, 4])
         when: "add out of size"
         c.add(7, 7)
         then:
         thrown(IndexOutOfBoundsException)
     }
 
+    @Ignore("out of memory")
+    def "add on huge capacity"(int initialCapacity, int expected) {
+        given:
+        def mc = new MyArrayList<Byte>(initialCapacity)
+        when:
+        for (i in 0..<initialCapacity) {
+            mc.set(i, (byte) 1)
+        }
+        mc.add((byte) 0)
+        mc.add((byte) 0)
+        then:
+        mc.getCapacity() == expected
+        where:
+        initialCapacity         | expected
+        Integer.MAX_VALUE * 0.8 | Integer.MAX_VALUE - 8
+    }
+
+    def "hugeCapacity"(int minCapacity, int expected) {
+        given:
+        def reflect = Reflect.onClass(MyArrayList.class)
+        when:
+        reflect.call("hugeCapacity", Integer.MAX_VALUE + 1).get()
+        then:
+        def e = thrown(Exception)
+        e.asString().contains("java.lang.OutOfMemoryError")
+        when:
+        def r = reflect.call("hugeCapacity", minCapacity).get()
+        then:
+        r == expected
+        where:
+        minCapacity             | expected
+        Integer.MAX_VALUE       | Integer.MAX_VALUE
+        Integer.MAX_VALUE * 0.8 | Integer.MAX_VALUE - 8
+    }
+
+    def "out of memory"() {
+        when:
+        def mc = new MyArrayList<Byte>(Integer.MAX_VALUE)
+        then:
+        thrown(OutOfMemoryError)
+    }
+
     def "add all"() {
         given:
-        MyArrayList<Integer> c1 = MyArrayList.of(1, 2)
+        def c1 = MyArrayList.of(1, 2)
         when: "add to empty list"
-        MyArrayList<Number> c2 = new MyArrayList<>()
+        def c2 = new MyArrayList<>()
         c2.addAll(c1)
         then:
         c2.getCapacity() == 10
         c2.size() == 2
-        ListUtils.listEquals(c2, [1, 2])
+        c2.listEquals([1, 2])
         when: "add to list with elements"
-        MyArrayList<Integer> c3 = new MyArrayList<>(4)
+        def c3 = new MyArrayList<>(4)
         c3.add(3)
         c3.add(4)
         c3.addAll(c1)
         then:
         c3.size() == 4
         c3.getCapacity() == 4
-        ListUtils.listEquals(c3, [3, 4, 1, 2])
+        c3.listEquals([3, 4, 1, 2])
     }
 
     def "remove by index"() {
         given:
-        MyArrayList<Integer> m = MyArrayList.of(1, 2, 3, 4, 5)
+        def m = MyArrayList.of("a", "b", "c", "d", "e")
         when:
         m.remove(6)
         then:
         thrown(IndexOutOfBoundsException)
         when: "remove head"
-        m.remove(0)
+        def r = m.remove(0)
         then:
-        ListUtils.listEquals(m, [2, 3, 4, 5])
+        r == "a"
+        m.listEquals(["b", "c", "d", "e"])
         when: "remove tail"
-        m.remove(3)
+        r = m.remove(3)
         then:
-        ListUtils.listEquals(m, [2, 3, 4])
+        r == "e"
+        m.listEquals(["b", "c", "d"])
         when: "remove middle"
-        m.remove(1)
+        r = m.remove(1)
         then:
-        ListUtils.listEquals(m, [2, 4])
+        r == "c"
+        m.listEquals(["b", "d"])
     }
 
     def "remove by object"() {
         given:
-        MyArrayList<String> m = MyArrayList.of("a", "b", "c", "d", "d", "e", null)
+        def m = MyArrayList.of("a", "b", "c", "d", "d", "e", null)
         when:
-        m.remove("a")
+        def r = m.remove("a")
         then:
-        ListUtils.listEquals(m, ["b", "c", "d", "d", "e", null])
+        r
+        m.listEquals(["b", "c", "d", "d", "e", null])
         when:
-        m.remove("d")
+        r = m.remove("d")
         then:
-        ListUtils.listEquals(m, ["b", "c", "d", "e", null])
+        r
+        m.listEquals(["b", "c", "d", "e", null])
         when:
-        m.remove("d")
+        r = m.remove("d")
         then:
-        ListUtils.listEquals(m, ["b", "c", "e", null])
+        r
+        m.listEquals(["b", "c", "e", null])
         then: "validate return value"
         m.remove("b")
         !m.remove("x")
         when:
-        m.remove(null)
+        r = m.remove(null)
         then:
-        ListUtils.listEquals(m, ["c", "e"])
-    }
-
-    def "remove by collection"() {
-
+        r
+        m.listEquals(["c", "e"])
     }
 
     def "set by index"() {
         given:
-        MyArrayList<Integer> m = new MyArrayList<>(4)
+        def m = new MyArrayList<>(4)
         when:
         m.set(0, 0)
         then:
@@ -218,12 +270,12 @@ class MyArrayListSpec extends Specification {
         m.set(2, 1)
         m.set(3, null)
         then:
-        ListUtils.listEquals(m, [1, 1, 1, null])
+        m.listEquals([1, 1, 1, null])
     }
 
     def "get element by index"() {
         when:
-        MyArrayList<Integer> m = MyArrayList.of(1, 2, 3, 4, 5)
+        def m = MyArrayList.of(1, 2, 3, 4, 5)
         then:
         m.get(0) == 1
         m.get(1) == 2
@@ -234,14 +286,14 @@ class MyArrayListSpec extends Specification {
 
     def "to array"() {
         when:
-        MyArrayList<Integer> m = MyArrayList.of(1, 2, 3)
+        def m = MyArrayList.of(1, 2, 3)
         then:
-        ListUtils.listEquals(m, [1, 2, 3])
+        m.listEquals([1, 2, 3])
     }
 
     def "contains"() {
         when:
-        MyArrayList<Integer> m = MyArrayList.of(1, 2, 3, 4, 5, null)
+        def m = MyArrayList.of(1, 2, 3, 4, 5, null)
         then:
         m.contains(1)
         m.contains(2)
@@ -254,7 +306,7 @@ class MyArrayListSpec extends Specification {
 
     def "index of"() {
         when:
-        MyArrayList<Integer> m = MyArrayList.of(1, 2, 3, 4, 5, null)
+        def m = MyArrayList.of(1, 2, 3, 4, 5, null)
         then:
         m.indexOf(1) == 0
         m.indexOf(2) == 1
@@ -268,12 +320,21 @@ class MyArrayListSpec extends Specification {
 
     def "removeAll"() {
         given:
-        MyArrayList<Integer> mc = MyArrayList.of(1, 2, 3, 4, 5, 6)
-        MyArrayList<Integer> deleted = MyArrayList.of(1, 3, 5)
+        def mc = MyArrayList.of(1, 2, 3, 4, 5, 6, null)
+        def deleted = MyArrayList.of(1, 3, 5, null)
+        def empty = new MyArrayList()
+        when:
+        mc.removeAll(null)
+        then:
+        thrown(NullPointerException)
+        when:
+        mc.removeAll(empty)
+        then:
+        mc.listEquals((1..6) + null)
         when:
         mc.removeAll(deleted)
         then:
-        ListUtils.listEquals(mc, [2, 4, 6])
+        mc.listEquals([2, 4, 6])
     }
 
     @Ignore("TODO")
@@ -283,17 +344,22 @@ class MyArrayListSpec extends Specification {
 
     def "retainAll"() {
         given:
-        MyArrayList<Integer> mc = MyArrayList.of(1, 2, 3, 4, 5, 6)
-        MyArrayList<Integer> deleted = MyArrayList.of(1, 3, 5)
+        def mc = MyArrayList.of(1, 2, 3, 4, 5, 6, null)
+        def deleted = MyArrayList.of(1, 3, 5, null)
+        def empty = new MyArrayList()
         when:
         mc.retainAll(deleted)
         then:
-        ListUtils.listEquals(mc, [1, 3, 5])
+        mc.listEquals([1, 3, 5, null])
+        when:
+        mc.retainAll(empty)
+        then:
+        mc.listEquals([])
     }
 
     @Ignore("TODO")
     def "retainAll when contains throws"() {
-        
+
     }
 
     def "equals and hashcode"() {
