@@ -1,5 +1,6 @@
 package com.techzealot.collection.list
 
+
 import org.joor.Reflect
 import spock.lang.Ignore
 import spock.lang.Specification
@@ -360,6 +361,18 @@ class MyArrayListSpec extends Specification {
     @Ignore("TODO")
     def "retainAll when contains throws"() {
 
+    }
+
+    def "clear"() {
+        given:
+        def c = MyArrayList.<Integer> of(*1..5)
+        when:
+        c.clear()
+        def elements = Reflect.on(c).field("elementData").get() as Object[]
+        then:
+        c.size() == 0
+        c.getCapacity() == 5
+        elements == [null] * 5 as Object[]
     }
 
     def "equals and hashcode"() {

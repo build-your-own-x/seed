@@ -40,7 +40,7 @@ public class MyArrayList<E> implements MyList<E>,
     /**
      * 数组实际元素数量
      */
-    private int size = 0;
+    private transient int size = 0;
     /**
      * 修改次数
      * 避免迭代的同时被修改
@@ -120,6 +120,7 @@ public class MyArrayList<E> implements MyList<E>,
         return elementData.length;
     }
 
+    @Override
     public boolean add(E element) {
         ensureCapacityInternal(size + 1);
         elementData[size++] = element;
@@ -137,6 +138,7 @@ public class MyArrayList<E> implements MyList<E>,
         }
     }
 
+    @Override
     public void add(int index, E element) {
         rangeCheckForAdd(index);
         //确保有足够空间
@@ -151,6 +153,7 @@ public class MyArrayList<E> implements MyList<E>,
      * @param c
      * @return true if the list is changed after called
      */
+    @Override
     public boolean addAll(MyCollection<? extends E> c) {
         Object[] a = c.toArray();
         int numNew = a.length;
@@ -172,6 +175,7 @@ public class MyArrayList<E> implements MyList<E>,
         elementData = Arrays.copyOf(elementData, newCapacity);
     }
 
+    @Override
     public E remove(int index) {
         rangeCheck(index);
         modCount++;
@@ -186,12 +190,13 @@ public class MyArrayList<E> implements MyList<E>,
     }
 
     /**
-     * remove the first one
+     * remove the first equals one
      *
      * @param element
      * @return
      */
-    public boolean remove(E element) {
+    @Override
+    public boolean remove(Object element) {
         if (element == null) {
             for (int index = 0; index < size; index++) {
                 if (elementData[index] == null) {
@@ -224,12 +229,24 @@ public class MyArrayList<E> implements MyList<E>,
         elementData[--size] = null;
     }
 
-    public boolean removeAll(@NonNull MyCollection<E> c) {
+    @Override
+    public boolean removeAll(@NonNull MyCollection<?> c) {
         return batchRemove(c, false);
     }
 
-    public boolean retainAll(@NonNull MyCollection<E> c) {
+    @Override
+    public boolean retainAll(@NonNull MyCollection<?> c) {
         return batchRemove(c, true);
+    }
+
+    @Override
+    public void clear() {
+        modCount++;
+        //clear to let gc work
+        for (int i = 0; i < size; i++) {
+            elementData[i] = null;
+        }
+        size = 0;
     }
 
     private boolean batchRemove(MyCollection<?> c, boolean complement) {
@@ -273,6 +290,7 @@ public class MyArrayList<E> implements MyList<E>,
      * @param element
      * @return
      */
+    @Override
     public E set(int index, E element) {
         rangeCheck(index);
         E oldValue = elementData(index);
@@ -280,6 +298,7 @@ public class MyArrayList<E> implements MyList<E>,
         return oldValue;
     }
 
+    @Override
     public E get(int index) {
         rangeCheck(index);
         return elementData(index);
@@ -291,10 +310,12 @@ public class MyArrayList<E> implements MyList<E>,
      * @param element
      * @return
      */
+    @Override
     public boolean contains(Object element) {
         return indexOf(element) >= 0;
     }
 
+    @Override
     public int indexOf(Object element) {
         if (element == null) {
             for (int i = 0; i < size; i++) {

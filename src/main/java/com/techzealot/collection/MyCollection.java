@@ -2,8 +2,6 @@ package com.techzealot.collection;
 
 public interface MyCollection<E> extends Iterable<E> {
 
-    Object[] toArray();
-
     int size();
 
     default boolean isEmpty() {
@@ -11,4 +9,19 @@ public interface MyCollection<E> extends Iterable<E> {
     }
 
     boolean contains(Object element);
+
+    Object[] toArray();
+
+
+    boolean add(E e);
+
+    boolean remove(Object o);
+
+    boolean addAll(MyCollection<? extends E> c);
+
+    boolean removeAll(MyCollection<?> c);
+
+    boolean retainAll(MyCollection<?> c);
+
+    void clear();
 }
