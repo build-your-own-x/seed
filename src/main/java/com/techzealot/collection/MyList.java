@@ -1,12 +1,14 @@
 package com.techzealot.collection;
 
 public interface MyList<E> extends MyCollection<E> {
-    
+
     E get(int index);
 
     E set(int index, E element);
 
     void add(int index, E element);
+
+    boolean addAll(int index, MyCollection<? extends E> c);
 
     E remove(int index);
 

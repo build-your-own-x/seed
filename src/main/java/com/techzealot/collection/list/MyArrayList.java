@@ -149,18 +149,41 @@ public class MyArrayList<E> implements MyList<E>,
         size++;
     }
 
+    @Override
+    public boolean addAll(int index, @NonNull MyCollection<? extends E> c) {
+        rangeCheckForAdd(index);
+        if (c.size() == 0) {
+            modCount++;
+            return false;
+        }
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        ensureCapacityInternal(size + numNew);
+        int numMoved = size - index;
+        if (numMoved > 0) {
+            System.arraycopy(elementData, index, elementData, index + numNew, numMoved);
+        }
+        System.arraycopy(a, 0, elementData, index, numNew);
+        size += numNew;
+        return true;
+    }
+
     /**
      * @param c
      * @return true if the list is changed after called
      */
     @Override
-    public boolean addAll(MyCollection<? extends E> c) {
+    public boolean addAll(@NonNull MyCollection<? extends E> c) {
+        if (c.size() == 0) {
+            modCount++;
+            return false;
+        }
         Object[] a = c.toArray();
         int numNew = a.length;
         ensureCapacityInternal(size + numNew);
         System.arraycopy(a, 0, elementData, size, numNew);
         size += numNew;
-        return numNew != 0;
+        return true;
     }
 
     private void grow(int minCapacity) {

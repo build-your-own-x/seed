@@ -186,8 +186,9 @@ class MyArrayListSpec extends Specification {
         def c1 = MyArrayList.of(1, 2)
         when: "add to empty list"
         def c2 = new MyArrayList<>()
-        c2.addAll(c1)
+        def r = c2.addAll(c1)
         then:
+        r
         c2.getCapacity() == 10
         c2.size() == 2
         c2.listEquals([1, 2])
@@ -200,6 +201,36 @@ class MyArrayListSpec extends Specification {
         c3.size() == 4
         c3.getCapacity() == 4
         c3.listEquals([3, 4, 1, 2])
+        when: "add a empty collection"
+        def empty = new MyArrayList()
+        def list = MyArrayList.of(1, 2, 3)
+        r = list.addAll(empty)
+        then:
+        !r
+        list.listEquals([1, 2, 3])
+    }
+
+    def "add all at index"() {
+        given:
+        def empty = new MyArrayList();
+        def add = MyArrayList.of(1, 2, 3)
+        def list = MyArrayList.of(*1..6)
+        when:
+        list.addAll(list.size() + 1, empty)
+        then:
+        thrown(IndexOutOfBoundsException)
+        when:
+        def r = list.addAll(0, empty)
+        then:
+        !r
+        list.listEquals([*1..6])
+        when:
+        r = list.addAll(3, add)
+        then:
+        r
+        list.size() == 9
+        list.getCapacity() == 9
+        list.listEquals([*1..3, *1..3, *4..6])
     }
 
     def "remove by index"() {

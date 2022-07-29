@@ -214,6 +214,11 @@ public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Clo
     }
 
     @Override
+    public boolean addAll(int index, MyCollection<? extends E> c) {
+        return false;
+    }
+
+    @Override
     public E remove(int index) {
         return null;
     }
