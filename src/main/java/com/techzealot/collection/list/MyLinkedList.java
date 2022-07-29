@@ -5,6 +5,9 @@ import com.techzealot.collection.MyDeque;
 import com.techzealot.collection.MyList;
 import lombok.NonNull;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Iterator;
 
@@ -16,6 +19,8 @@ import java.util.Iterator;
  */
 public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Cloneable {
 
+    @Serial
+    private static final long serialVersionUID = 1538564936182943121L;
     /**
      * 链表的头尾指针要么全为空,要么全不为空
      * (first==null&&last==null)||(first!=null&&last!=null)
@@ -31,7 +36,15 @@ public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Clo
     }
 
     public MyLinkedList(@NonNull MyCollection<? extends E> c) {
-        //addAll(c);
+        addAll(c);
+    }
+
+    public static <E> MyLinkedList<E> of(E... elements) {
+        MyLinkedList<E> linkedList = new MyLinkedList<>();
+        for (E element : elements) {
+            linkedList.add(element);
+        }
+        return linkedList;
     }
 
     private void linkFirst(E e) {
@@ -61,13 +74,13 @@ public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Clo
     }
 
     private void linkBefore(E e, @NonNull Node<E> succ) {
-        Node<E> prev = succ.prev;
-        Node<E> newNode = new Node<>(prev, e, succ);
+        Node<E> pred = succ.prev;
+        Node<E> newNode = new Node<>(pred, e, succ);
         succ.prev = newNode;
-        if (prev == null) {
+        if (pred == null) {
             first = newNode;
         } else {
-            prev.next = newNode;
+            pred.next = newNode;
         }
         size++;
         modCount++;
@@ -129,12 +142,46 @@ public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Clo
     }
 
     private Node<E> node(int index) {
-        return null;
+        if (index < size >> 1) {
+            Node<E> x = first;
+            for (int i = 0; i < index; i++) {
+                x = x.next;
+            }
+            return x;
+        } else {
+            Node<E> x = last;
+            for (int i = size - 1; i > index; i--) {
+                x = x.next;
+            }
+            return x;
+        }
+    }
+
+    private void checkElementIndex(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+        }
+    }
+
+    private void checkPositionIndex(int index) {
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+        }
+    }
+
+
+    private String outOfBoundsMsg(int index) {
+        return "Index: " + index + ", Size: " + size;
     }
 
     @Override
     public Object[] toArray() {
-        return new Object[0];
+        Object[] result = new Object[size];
+        int i = 0;
+        for (Node<E> x = first; x != null; x = x.next) {
+            result[i++] = x.item;
+        }
+        return result;
     }
 
     @Override
@@ -164,23 +211,61 @@ public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Clo
     }
 
     @Override
-    public boolean addAll(MyCollection<? extends E> c) {
-        return false;
+    public boolean addAll(@NonNull MyCollection<? extends E> c) {
+        return addAll(size, c);
     }
 
+    //todo 由父类通过iterator实现
     @Override
-    public boolean removeAll(MyCollection<?> c) {
-        return false;
+    public boolean removeAll(@NonNull MyCollection<?> c) {
+        if (c.isEmpty()) {
+            modCount++;
+            return false;
+        }
+        int removed = 0;
+        for (Node<E> x = first; x != null; x = x.next) {
+            if (c.contains(x)) {
+                unlink(x);
+                removed++;
+            }
+        }
+        size -= removed;
+        modCount += removed;
+        return removed != 0;
     }
 
+    //todo 由父类通过iterator实现
     @Override
-    public boolean retainAll(MyCollection<?> c) {
-        return false;
+    public boolean retainAll(@NonNull MyCollection<?> c) {
+        if (c.isEmpty()) {
+            modCount++;
+            return false;
+        }
+        int removed = 0;
+        for (Node<E> x = first; x != null; x = x.next) {
+            if (!c.contains(x)) {
+                unlink(x);
+                removed++;
+            }
+        }
+        size -= removed;
+        modCount += removed;
+        return removed != 0;
     }
 
     @Override
     public void clear() {
-
+        //help gc
+        for (Node<E> x = first; x != null; ) {
+            Node<E> next = x.next;
+            x.prev = null;
+            x.item = null;
+            x.next = null;
+            x = next;
+        }
+        first = last = null;
+        size = 0;
+        modCount++;
     }
 
     @Override
@@ -200,33 +285,114 @@ public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Clo
 
     @Override
     public E get(int index) {
-        return null;
+        checkElementIndex(index);
+        return node(index).item;
     }
 
     @Override
     public E set(int index, E element) {
-        return null;
+        checkElementIndex(index);
+        Node<E> x = node(index);
+        E oldValue = x.item;
+        x.item = element;
+        return oldValue;
     }
 
     @Override
     public void add(int index, E element) {
-
+        checkPositionIndex(index);
+        if (index == size) {
+            linkLast(element);
+        } else {
+            linkBefore(element, node(index));
+        }
     }
 
     @Override
-    public boolean addAll(int index, MyCollection<? extends E> c) {
-        return false;
+    public boolean addAll(int index, @NonNull MyCollection<? extends E> c) {
+        checkPositionIndex(index);
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        if (numNew == 0) {
+            modCount++;
+            return false;
+        }
+        Node<E> pred, succ;
+        if (index == size) {
+            pred = last;
+            succ = null;
+        } else {
+            succ = node(index);
+            pred = succ.prev;
+        }
+        for (Object o : a) {
+            @SuppressWarnings("unchecked")
+            E e = (E) o;
+            Node<E> newNode = new Node<>(pred, e, succ);
+            if (pred == null) {
+                first = newNode;
+            } else {
+                pred.next = newNode;
+            }
+            pred = newNode;
+        }
+        if (succ == null) {
+            last = pred;
+        } else {
+            succ.prev = pred;
+            pred.next = succ;
+        }
+        size += numNew;
+        modCount++;
+        return true;
     }
 
     @Override
     public E remove(int index) {
-        return null;
+        checkElementIndex(index);
+        return unlink(node(index));
     }
 
     @Override
     public int indexOf(Object o) {
-        return 0;
+        Node<E> x = first;
+        if (o == null) {
+            for (int i = 0; i < size; i++, x = x.next) {
+                if (x.item == null) {
+                    return i;
+                }
+            }
+        } else {
+            for (int i = 0; i < size; i++, x = x.next) {
+                if (o.equals(x.item)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
+
+    @Override
+    public MyLinkedList<E> clone() {
+        try {
+            MyLinkedList clone = (MyLinkedList) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    @Serial
+    private void writeObject(ObjectOutputStream oos) {
+
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream ois) {
+
+    }
+
 
     private static class Node<E> {
         Node<E> prev;

@@ -1,5 +1,9 @@
 package com.techzealot.collection;
 
+import lombok.NonNull;
+
+import java.util.Iterator;
+
 public interface MyCollection<E> extends Iterable<E> {
 
     int size();
@@ -19,9 +23,29 @@ public interface MyCollection<E> extends Iterable<E> {
 
     boolean addAll(MyCollection<? extends E> c);
 
-    boolean removeAll(MyCollection<?> c);
+    default boolean removeAll(@NonNull MyCollection<?> c) {
+        Iterator<?> it = c.iterator();
+        boolean modified = false;
+        while (it.hasNext()) {
+            if (c.contains(it.next())) {
+                it.remove();
+                modified = true;
+            }
+        }
+        return modified;
+    }
 
-    boolean retainAll(MyCollection<?> c);
+    default boolean retainAll(@NonNull MyCollection<?> c) {
+        Iterator<?> it = c.iterator();
+        boolean modified = false;
+        while (it.hasNext()) {
+            if (!c.contains(it.next())) {
+                it.remove();
+                modified = true;
+            }
+        }
+        return modified;
+    }
 
     void clear();
 }
