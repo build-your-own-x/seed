@@ -9,7 +9,7 @@ import spock.util.mop.Use
 
 @Category(MyArrayList)
 class MyArrayListExtensions {
-    def <E> boolean listEquals(List<E> expected) {
+    def <E> boolean eq(List<E> expected) {
         return this.toArray() == expected as E[]
     }
 }
@@ -55,6 +55,10 @@ class MyArrayListSpec extends Specification {
         given: "empty collection and non-empty collection"
         def empty = new MyArrayList<Integer>()
         def c = MyArrayList.of(1, 2, 3)
+        when:
+        new MyLinkedList<Integer>(null)
+        then:
+        thrown(NullPointerException)
         //todo init with other collection type
         when:
         def list = new MyArrayList<Integer>(empty)
@@ -67,14 +71,14 @@ class MyArrayListSpec extends Specification {
         then:
         mc.getCapacity() == 3
         mc.size() == 3
-        mc.listEquals([1, 2, 3])
+        mc.eq([1, 2, 3])
         when:
-        mc.get(3)
+        mc.get(mc.size())
         then:
         thrown(IndexOutOfBoundsException)
     }
 
-    def "add at tail of array"() {
+    def "add at tail of list"() {
         given: "init with no arg"
         def c = new MyArrayList<>()
         when:
@@ -98,9 +102,9 @@ class MyArrayListSpec extends Specification {
         then:
         c2.size() == 3
         c2.getCapacity() == 4
-        c2.listEquals([1, 2, 3])
+        c2.eq([1, 2, 3])
         when: "get out of index"
-        c2.get(3)
+        c2.get(c2.size())
         then:
         thrown(IndexOutOfBoundsException)
         when:
@@ -109,7 +113,7 @@ class MyArrayListSpec extends Specification {
         then:
         c2.size() == 5
         c2.getCapacity() == 6
-        c2.listEquals([1, 2, 3, 4, 5])
+        c2.eq([1, 2, 3, 4, 5])
     }
 
     def "add by index"() {
@@ -120,7 +124,7 @@ class MyArrayListSpec extends Specification {
         then:
         c.size() == 4
         c.getCapacity() == 4
-        c.listEquals([0, 1, 2, 3])
+        c.eq([0, 1, 2, 3])
         when: "add at tail"
         c.add(4, 4)
         then:
@@ -132,9 +136,9 @@ class MyArrayListSpec extends Specification {
         then:
         c.size() == 6
         c.getCapacity() == 6
-        c.listEquals([0, 1, 22, 2, 3, 4])
+        c.eq([0, 1, 22, 2, 3, 4])
         when: "add out of size"
-        c.add(7, 7)
+        c.add(c.size() + 1, 7)
         then:
         thrown(IndexOutOfBoundsException)
     }
@@ -191,7 +195,7 @@ class MyArrayListSpec extends Specification {
         r
         c2.getCapacity() == 10
         c2.size() == 2
-        c2.listEquals([1, 2])
+        c2.eq([1, 2])
         when: "add to list with elements"
         def c3 = new MyArrayList<>(4)
         c3.add(3)
@@ -200,14 +204,14 @@ class MyArrayListSpec extends Specification {
         then:
         c3.size() == 4
         c3.getCapacity() == 4
-        c3.listEquals([3, 4, 1, 2])
+        c3.eq([3, 4, 1, 2])
         when: "add a empty collection"
         def empty = new MyArrayList()
         def list = MyArrayList.of(1, 2, 3)
         r = list.addAll(empty)
         then:
         !r
-        list.listEquals([1, 2, 3])
+        list.eq([1, 2, 3])
     }
 
     def "add all at index"() {
@@ -223,38 +227,38 @@ class MyArrayListSpec extends Specification {
         def r = list.addAll(0, empty)
         then:
         !r
-        list.listEquals([*1..6])
+        list.eq([*1..6])
         when:
         r = list.addAll(3, add)
         then:
         r
         list.size() == 9
         list.getCapacity() == 9
-        list.listEquals([*1..3, *1..3, *4..6])
+        list.eq([*1..3, *1..3, *4..6])
     }
 
     def "remove by index"() {
         given:
         def m = MyArrayList.of("a", "b", "c", "d", "e")
         when:
-        m.remove(6)
+        m.remove(m.size())
         then:
         thrown(IndexOutOfBoundsException)
         when: "remove head"
         def r = m.remove(0)
         then:
         r == "a"
-        m.listEquals(["b", "c", "d", "e"])
+        m.eq(["b", "c", "d", "e"])
         when: "remove tail"
         r = m.remove(3)
         then:
         r == "e"
-        m.listEquals(["b", "c", "d"])
+        m.eq(["b", "c", "d"])
         when: "remove middle"
         r = m.remove(1)
         then:
         r == "c"
-        m.listEquals(["b", "d"])
+        m.eq(["b", "d"])
     }
 
     def "remove by object"() {
@@ -264,17 +268,17 @@ class MyArrayListSpec extends Specification {
         def r = m.remove("a")
         then:
         r
-        m.listEquals(["b", "c", "d", "d", "e", null])
+        m.eq(["b", "c", "d", "d", "e", null])
         when:
         r = m.remove("d")
         then:
         r
-        m.listEquals(["b", "c", "d", "e", null])
+        m.eq(["b", "c", "d", "e", null])
         when:
         r = m.remove("d")
         then:
         r
-        m.listEquals(["b", "c", "e", null])
+        m.eq(["b", "c", "e", null])
         then: "validate return value"
         m.remove("b")
         !m.remove("x")
@@ -282,7 +286,7 @@ class MyArrayListSpec extends Specification {
         r = m.remove(null)
         then:
         r
-        m.listEquals(["c", "e"])
+        m.eq(["c", "e"])
     }
 
     def "set by index"() {
@@ -302,7 +306,7 @@ class MyArrayListSpec extends Specification {
         m.set(2, 1)
         m.set(3, null)
         then:
-        m.listEquals([1, 1, 1, null])
+        m.eq([1, 1, 1, null])
     }
 
     def "get element by index"() {
@@ -320,7 +324,7 @@ class MyArrayListSpec extends Specification {
         when:
         def m = MyArrayList.of(1, 2, 3)
         then:
-        m.listEquals([1, 2, 3])
+        m.eq([1, 2, 3])
     }
 
     def "contains"() {
@@ -362,11 +366,11 @@ class MyArrayListSpec extends Specification {
         when:
         mc.removeAll(empty)
         then:
-        mc.listEquals((1..6) + null)
+        mc.eq((1..6) + null)
         when:
         mc.removeAll(deleted)
         then:
-        mc.listEquals([2, 4, 6])
+        mc.eq([2, 4, 6])
     }
 
     @Ignore("TODO")
@@ -382,11 +386,11 @@ class MyArrayListSpec extends Specification {
         when:
         mc.retainAll(deleted)
         then:
-        mc.listEquals([1, 3, 5, null])
+        mc.eq([1, 3, 5, null])
         when:
         mc.retainAll(empty)
         then:
-        mc.listEquals([])
+        mc.eq([])
     }
 
     @Ignore("TODO")

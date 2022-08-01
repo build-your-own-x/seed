@@ -151,18 +151,28 @@ public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Clo
         } else {
             Node<E> x = last;
             for (int i = size - 1; i > index; i--) {
-                x = x.next;
+                x = x.prev;
             }
             return x;
         }
     }
 
+    /**
+     * check if a valid element index,for read
+     *
+     * @param index
+     */
     private void checkElementIndex(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
         }
     }
 
+    /**
+     * check if a valid position for add or iterate
+     *
+     * @param index
+     */
     private void checkPositionIndex(int index) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
@@ -223,14 +233,15 @@ public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Clo
             return false;
         }
         int removed = 0;
-        for (Node<E> x = first; x != null; x = x.next) {
-            if (c.contains(x)) {
+        for (Node<E> x = first; x != null; ) {
+            //迭代删除需注意先保存下一个元素指针
+            Node<E> next = x.next;
+            if (c.contains(x.item)) {
                 unlink(x);
                 removed++;
             }
+            x = next;
         }
-        size -= removed;
-        modCount += removed;
         return removed != 0;
     }
 
@@ -239,17 +250,19 @@ public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Clo
     public boolean retainAll(@NonNull MyCollection<?> c) {
         if (c.isEmpty()) {
             modCount++;
-            return false;
+            clear();
+            return true;
         }
         int removed = 0;
-        for (Node<E> x = first; x != null; x = x.next) {
-            if (!c.contains(x)) {
+        for (Node<E> x = first; x != null; ) {
+            //迭代删除需注意先保存下一个元素指针
+            Node<E> next = x.next;
+            if (!c.contains(x.item)) {
                 unlink(x);
                 removed++;
             }
+            x = next;
         }
-        size -= removed;
-        modCount += removed;
         return removed != 0;
     }
 
