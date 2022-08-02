@@ -1,8 +1,7 @@
 package com.techzealot.collection.list;
 
 import com.techzealot.collection.MyCollection;
-import com.techzealot.collection.MyDeque;
-import com.techzealot.collection.MyList;
+import com.techzealot.collection.deque.MyDeque;
 import lombok.NonNull;
 
 import java.io.ObjectInputStream;
@@ -17,7 +16,8 @@ import java.util.Iterator;
  *
  * @param <E>
  */
-public class MyLinkedList<E> implements MyList<E>, MyDeque<E>, Serializable, Cloneable {
+public class MyLinkedList<E> extends MyAbstractList<E>
+        implements MyList<E>, MyDeque<E>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1538564936182943121L;

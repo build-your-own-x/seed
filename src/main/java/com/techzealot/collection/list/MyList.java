@@ -1,4 +1,6 @@
-package com.techzealot.collection;
+package com.techzealot.collection.list;
+
+import com.techzealot.collection.MyCollection;
 
 public interface MyList<E> extends MyCollection<E> {
 

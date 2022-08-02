@@ -1,7 +1,7 @@
 package com.techzealot.collection.list;
 
 import com.techzealot.collection.MyCollection;
-import com.techzealot.collection.MyDeque;
+import com.techzealot.collection.deque.MyDeque;
 
 import java.io.Serializable;
 import java.util.Iterator;

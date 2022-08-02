@@ -1,7 +1,6 @@
 package com.techzealot.collection.list;
 
 import com.techzealot.collection.MyCollection;
-import com.techzealot.collection.MyList;
 import lombok.NonNull;
 
 import java.io.ObjectInputStream;
@@ -19,8 +18,8 @@ import java.util.RandomAccess;
  *
  * @param <E>
  */
-public class MyArrayList<E> implements MyList<E>,
-        RandomAccess, Serializable, Cloneable {
+public class MyArrayList<E> extends MyAbstractList<E>
+        implements MyList<E>, RandomAccess, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 4751541124667947110L;
