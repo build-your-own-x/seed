@@ -6,6 +6,20 @@ import java.util.Iterator;
 import java.util.Objects;
 
 public abstract class MyAbstractList<E> extends MyAbstractCollection<E> implements MyList<E> {
+
+    /**
+     * 修改次数
+     * 避免迭代的同时被修改
+     * fail-fast
+     */
+    protected transient int modCount = 0;
+
+    /**
+     * java中大部分hashcode都是采用类似设计
+     *
+     * @return
+     * @see java.util.Arrays#hashCode(Object[])
+     */
     @Override
     public int hashCode() {
         int hashCode = 1;

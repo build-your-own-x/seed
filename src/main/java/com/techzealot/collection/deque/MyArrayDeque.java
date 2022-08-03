@@ -6,8 +6,13 @@ import com.techzealot.collection.MyCollection;
 import java.io.Serializable;
 import java.util.Iterator;
 
-public class MyPriorityQueue<E> extends MyAbstractCollection<E>
-        implements MyQueue<E>, Serializable, Cloneable {
+/**
+ * 双端队列，可作为Stack和Queue使用，比LinkedList更高效且意义明确
+ * 不支持获取或设置非首尾元素
+ */
+public class MyArrayDeque<E> extends MyAbstractCollection<E>
+        implements MyDeque<E>, Serializable, Cloneable {
+
     @Override
     public int size() {
         return 0;

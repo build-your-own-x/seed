@@ -1,1 +1,3 @@
-类是skywalking插件体系 类arthas动态插件
+类似skywalking插件体系
+
+类似arthas动态插件

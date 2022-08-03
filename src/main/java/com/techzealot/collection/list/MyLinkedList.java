@@ -4,10 +4,7 @@ import com.techzealot.collection.MyCollection;
 import com.techzealot.collection.deque.MyDeque;
 import lombok.NonNull;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serial;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Iterator;
 
 /**
@@ -29,8 +26,7 @@ public class MyLinkedList<E> extends MyAbstractList<E>
      */
     private transient Node<E> first;
     private transient Node<E> last;
-    private transient int size = 0;
-    private transient int modCount = 0;
+    private int size = 0;
 
     public MyLinkedList() {
     }
@@ -225,47 +221,6 @@ public class MyLinkedList<E> extends MyAbstractList<E>
         return addAll(size, c);
     }
 
-    //todo 由父类通过iterator实现
-    @Override
-    public boolean removeAll(@NonNull MyCollection<?> c) {
-        if (c.isEmpty()) {
-            modCount++;
-            return false;
-        }
-        int removed = 0;
-        for (Node<E> x = first; x != null; ) {
-            //迭代删除需注意先保存下一个元素指针
-            Node<E> next = x.next;
-            if (c.contains(x.item)) {
-                unlink(x);
-                removed++;
-            }
-            x = next;
-        }
-        return removed != 0;
-    }
-
-    //todo 由父类通过iterator实现
-    @Override
-    public boolean retainAll(@NonNull MyCollection<?> c) {
-        if (c.isEmpty()) {
-            modCount++;
-            clear();
-            return true;
-        }
-        int removed = 0;
-        for (Node<E> x = first; x != null; ) {
-            //迭代删除需注意先保存下一个元素指针
-            Node<E> next = x.next;
-            if (!c.contains(x.item)) {
-                unlink(x);
-                removed++;
-            }
-            x = next;
-        }
-        return removed != 0;
-    }
-
     @Override
     public void clear() {
         //help gc
@@ -385,20 +340,33 @@ public class MyLinkedList<E> extends MyAbstractList<E>
         return -1;
     }
 
+    /**
+     * shadow copy
+     *
+     * @return
+     */
     @Override
-    public MyLinkedList<E> clone() {
+    public Object clone() {
         try {
-            MyLinkedList clone = (MyLinkedList) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            MyLinkedList<E> clone = (MyLinkedList<E>) super.clone();
+            //put clone into "virgin" state
+            clone.first = clone.last = null;
+            clone.size = 0;
+            clone.modCount = 0;
+            //initialize elements
+            for (Node<E> x = first; x != null; x = x.next) {
+                clone.add(x.item);
+            }
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+            throw new InternalError();
         }
     }
 
     @Serial
-    private void writeObject(ObjectOutputStream oos) {
-
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        int expectedModCount = modCount;
+        oos.defaultWriteObject();
     }
 
     @Serial

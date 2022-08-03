@@ -12,7 +12,7 @@ class MyLinkedListExtensions {
 }
 
 @Use(MyLinkedListExtensions.class)
-class MyLinkedListSpec extends Specification {
+class MyLinkedListTest extends Specification {
     def "test init with no args"() {
         when:
         MyLinkedList<Integer> list = new MyLinkedList<>()

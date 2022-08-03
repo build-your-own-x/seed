@@ -1,11 +1,6 @@
 package com.techzealot.juc;
 
-import org.openjdk.jcstress.annotations.Actor;
-import org.openjdk.jcstress.annotations.JCStressTest;
-import org.openjdk.jcstress.annotations.Mode;
-import org.openjdk.jcstress.annotations.Outcome;
-import org.openjdk.jcstress.annotations.Signal;
-import org.openjdk.jcstress.annotations.State;
+import org.openjdk.jcstress.annotations.*;
 
 import static org.openjdk.jcstress.annotations.Expect.ACCEPTABLE;
 import static org.openjdk.jcstress.annotations.Expect.ACCEPTABLE_INTERESTING;

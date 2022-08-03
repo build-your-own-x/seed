@@ -3,15 +3,12 @@ package com.techzealot.collection.list;
 import com.techzealot.collection.MyCollection;
 import lombok.NonNull;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.RandomAccess;
+import java.io.*;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
+ * IntArrayList实现:内部Object[]换为[],其他思路类似
  * 实现 增删改查 序列化优化 泛型支持 随机访问
  * <p>
  * 支持存放null
@@ -39,13 +36,7 @@ public class MyArrayList<E> extends MyAbstractList<E>
     /**
      * 数组实际元素数量
      */
-    private transient int size = 0;
-    /**
-     * 修改次数
-     * 避免迭代的同时被修改
-     * fail-fast
-     */
-    private transient int modCount = 0;
+    private int size = 0;
 
     /**
      * 初始时所有实例共享同一个空数组示例，节省内存
@@ -398,61 +389,139 @@ public class MyArrayList<E> extends MyAbstractList<E>
         return new Itr();
     }
 
+    /**
+     * shadow copy
+     *
+     * @return
+     */
     @Override
-    public MyArrayList<E> clone() {
+    public Object clone() {
         try {
-            MyArrayList clone = (MyArrayList) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
+            //默认的clone实现原理 bitwise copy
+            MyArrayList<?> v = (MyArrayList<?>) super.clone();
+            //切断新旧List联系
+            v.elementData = Arrays.copyOf(elementData, size);
+            v.modCount = 0;
+            return v;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+            throw new InternalError(e);
         }
     }
 
     @Serial
-    private void writeObject(ObjectOutputStream oos) {
-
+    private void writeObject(ObjectOutputStream s) throws IOException {
+        int expectedModCount = modCount;
+        s.defaultWriteObject();
+        //compatibility with clone
+        s.writeInt(size);
+        //优化:仅序列化有效元素(<size)
+        for (int i = 0; i < size; i++) {
+            s.writeObject(elementData[i]);
+        }
+        if (expectedModCount != modCount) {
+            throw new ConcurrentModificationException();
+        }
     }
 
     @Serial
-    private void readObject(ObjectInputStream ois) {
-
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+        s.defaultReadObject();
+        //ignored
+        s.readInt();
+        if (size > 0) {
+            //allocate size array
+            Object[] elements = new Object[size];
+            for (int i = 0; i < size; i++) {
+                elements[i] = s.readObject();
+            }
+            elementData = elements;
+        } else if (size == 0) {
+            elementData = EMPTY_ELEMENTDATA;
+        } else {
+            throw new InvalidObjectException("Invalid size: " + size);
+        }
     }
 
     /**
-     * todo
-     *
-     * @param o
-     * @return
+     * List使用迭代器进行遍历时增加并发修改检测
      */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MyArrayList<?> that = (MyArrayList<?>) o;
-        return Arrays.equals(elementData, that.elementData);
-    }
-
-    /**
-     * todo
-     *
-     * @return
-     */
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(elementData);
-    }
-
     private class Itr implements Iterator<E> {
+
+        int cursor;//next index to return
+        int lastRet = -1;//last returned index,-1 if no such
+        int expectedModCount = modCount;
 
         @Override
         public boolean hasNext() {
-            return false;
+            return cursor != size;
         }
 
         @Override
         public E next() {
-            return null;
+            checkForComodification();
+            int i = cursor;
+            if (i >= size) {
+                throw new NoSuchElementException();
+            }
+            //局部变量更高效
+            Object[] elementData = MyArrayList.this.elementData;
+            if (i >= elementData.length) {
+                throw new ConcurrentModificationException();
+            }
+            cursor = i + 1;
+            return (E) elementData[lastRet = i];
+        }
+
+        /**
+         * 必须在调用一次next之后才能调用
+         *
+         * @return
+         */
+        @Override
+        public void remove() {
+            if (lastRet < 0) {
+                throw new IllegalStateException();
+            }
+            try {
+                checkForComodification();
+                MyArrayList.this.remove(lastRet);
+                cursor = lastRet;
+                lastRet = -1;
+                expectedModCount = modCount;
+            } catch (IndexOutOfBoundsException e) {
+                throw new ConcurrentModificationException();
+            }
+        }
+
+        /**
+         * 增加边界检查和并发修改检测
+         */
+        @Override
+        public void forEachRemaining(@NonNull Consumer<? super E> action) {
+            int size = MyArrayList.this.size;
+            //使用局部变量进行迭代可以避免多次访问堆中变量，栈中更新代价更低
+            int i = cursor;
+            if (i >= size) {
+                return;
+            }
+            if (i >= elementData.length) {
+                throw new ConcurrentModificationException();
+            }
+            Object[] elementData = MyArrayList.this.elementData;
+            while (i != size && modCount == expectedModCount) {
+                action.accept((E) elementData[i++]);
+            }
+            //由于剩余元素的迭代是不可中断的，可以一次性更新cursor,lastRet,避免在上面的while种多次无效更新
+            //指向未发生修改时最后一个元素的下一个索引
+            cursor = i;
+            lastRet = i - 1;
+            checkForComodification();
+        }
+
+        final void checkForComodification() {
+            if (expectedModCount != modCount) {
+                throw new ConcurrentModificationException();
+            }
         }
     }
 }

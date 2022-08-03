@@ -15,7 +15,7 @@ class MyArrayListExtensions {
 }
 
 @Use(MyArrayListExtensions)
-class MyArrayListSpec extends Specification {
+class MyArrayListTest extends Specification {
 
     def "init with no args"() {
         when:
@@ -59,7 +59,11 @@ class MyArrayListSpec extends Specification {
         new MyLinkedList<Integer>(null)
         then:
         thrown(NullPointerException)
-        //todo init with other collection type
+        when:
+        def linklist = MyLinkedList.<Integer> of(*1..5)
+        def l = new MyArrayList<Integer>(linklist)
+        then:
+        l.eq([*1..5])
         when:
         def list = new MyArrayList<Integer>(empty)
         then:
@@ -410,20 +414,130 @@ class MyArrayListSpec extends Specification {
         elements == [null] * 5 as Object[]
     }
 
-    def "equals and hashcode"() {
+    def "test toString"() {
+        given:
+        def empty = new MyArrayList<Integer>()
+        def list = MyArrayList.of(*1..5)
+        when:
+        def s1 = empty.toString()
+        def s2 = list.toString()
+        then:
+        s1 == "[]"
+        s2 == "[1, 2, 3, 4, 5]"
+    }
 
+    def "test equals"() {
+        when:
+        def empty1 = new MyArrayList()
+        def empty2 = new MyArrayList()
+        def list1 = MyArrayList.of(*1..10)
+        def list2 = MyArrayList.of(*1..10)
+        def list3 = MyArrayList.of(*1..9)
+        def list4 = MyLinkedList.of(*1..9)
+        then:
+        empty1 == empty2
+        empty2 == empty1
+        list1 == list2
+        list2 == list1
+        //todo
+        //list3 == list4
+        list1 != list3
+    }
+
+    def "test hashCode"() {
+        when:
+        def empty = new MyArrayList()
+        def list = MyArrayList.of(*1..10)
+        then:
+        empty.hashCode() == [].hashCode()
+        list.hashCode() == [*1..10].hashCode()
     }
 
     def "clone"() {
-
+        given:
+        def list = MyArrayList.of(*1..10)
+        when:
+        def clone = list.clone() as MyArrayList
+        def cloneElements = Reflect.on(list).field("elementData").get()
+        def listElements = Reflect.on(clone).field("elementData").get()
+        then:
+        clone !== list
+        clone.size() == 10
+        clone.modCount == 0
+        listElements !== cloneElements
+        listElements == [*1..10]
     }
 
-    def "serialize and deserialize"() {
+    def "serialize and deserialize"(MyArrayList input) {
+        when:
+        def bos = new ByteArrayOutputStream()
+        ObjectOutputStream oos = new ObjectOutputStream(bos)
+        oos.writeObject(input)
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))
+        def out = (MyArrayList) ois.readObject()
+        then:
+        out !== input
+        out.toArray() == input.toArray()
+        where:
+        input                  | _
+        new MyArrayList()      | _
+        MyArrayList.of(*1..10) | _
+    }
+
+    def "iterator for concurrent modify"() {
 
     }
 
     def "iterator"() {
-
+        given:
+        def empty = new MyArrayList()
+        def list = MyArrayList.<Integer> of(*1..10)
+        def emptyItr = empty.iterator()
+        when:
+        emptyItr.next()
+        then:
+        thrown(NoSuchElementException)
+        when:
+        def r1 = emptyItr.hasNext()
+        then:
+        !r1
+        when:
+        def list1 = []
+        def it = list.iterator()
+        while (it.hasNext()) {
+            list1 += it.next()
+        }
+        then:
+        list1 == [*1..10]
+        when:
+        def list2 = []
+        for (Integer e : list) {
+            list2 += e
+        }
+        then:
+        list2 == [*1..10]
+        when: "remove"
+        it = list.iterator()
+        while (it.hasNext()) {
+            if (it.next() % 2 == 0) {
+                it.remove()
+            }
+        }
+        then:
+        list.toArray() == (1..10).step(2).toArray()
+        when: "test remaining"
+        it = list.iterator()
+        while (it.hasNext()) {
+            if (it.next() > 5) {
+                break;
+            }
+        }
+        def list3 = []
+        it.forEachRemaining {
+            list3 += it
+        }
+        then:
+        list3 == [9]
+        !it.hasNext()
     }
-
 }
