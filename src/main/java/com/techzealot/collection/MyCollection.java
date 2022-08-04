@@ -24,7 +24,7 @@ public interface MyCollection<E> extends Iterable<E> {
     boolean addAll(MyCollection<? extends E> c);
 
     default boolean removeAll(@NonNull MyCollection<?> c) {
-        Iterator<?> it = c.iterator();
+        Iterator<?> it = iterator();
         boolean modified = false;
         while (it.hasNext()) {
             if (c.contains(it.next())) {
@@ -36,7 +36,7 @@ public interface MyCollection<E> extends Iterable<E> {
     }
 
     default boolean retainAll(@NonNull MyCollection<?> c) {
-        Iterator<?> it = c.iterator();
+        Iterator<?> it = iterator();
         boolean modified = false;
         while (it.hasNext()) {
             if (!c.contains(it.next())) {

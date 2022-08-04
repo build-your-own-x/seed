@@ -5,7 +5,10 @@ import com.techzealot.collection.deque.MyDeque;
 import lombok.NonNull;
 
 import java.io.*;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 /**
  * 可实现Queue和stack功能
@@ -26,7 +29,7 @@ public class MyLinkedList<E> extends MyAbstractList<E>
      */
     private transient Node<E> first;
     private transient Node<E> last;
-    private int size = 0;
+    private transient int size = 0;
 
     public MyLinkedList() {
     }
@@ -248,7 +251,7 @@ public class MyLinkedList<E> extends MyAbstractList<E>
 
     @Override
     public Iterator<E> iterator() {
-        return null;
+        return new Itr(0);
     }
 
     @Override
@@ -363,15 +366,32 @@ public class MyLinkedList<E> extends MyAbstractList<E>
         }
     }
 
+    /**
+     * 优化:仅需要依次输出节点中的数据即可，无需序列化Node本身
+     *
+     * @param s
+     * @throws IOException
+     */
     @Serial
-    private void writeObject(ObjectOutputStream oos) throws IOException {
+    private void writeObject(ObjectOutputStream s) throws IOException {
         int expectedModCount = modCount;
-        oos.defaultWriteObject();
+        s.defaultWriteObject();
+        s.writeInt(size);
+        for (Node<E> x = first; x != null; x = x.next) {
+            s.writeObject(x.item);
+        }
+        if (expectedModCount != modCount) {
+            throw new ConcurrentModificationException();
+        }
     }
 
     @Serial
-    private void readObject(ObjectInputStream ois) {
-
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+        s.defaultReadObject();
+        int size = s.readInt();
+        for (int i = 0; i < size; i++) {
+            linkLast((E) s.readObject());
+        }
     }
 
 
@@ -384,6 +404,65 @@ public class MyLinkedList<E> extends MyAbstractList<E>
             this.prev = prev;
             this.item = item;
             this.next = next;
+        }
+    }
+
+    private class Itr implements Iterator<E> {
+        private Node<E> next;
+        private Node<E> lastReturned;
+        private int nextIndex;
+        private int expectedModCount = modCount;
+
+        public Itr(int index) {
+            checkPositionIndex(index);
+            this.nextIndex = index;
+            next = index == size ? null : node(index);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return nextIndex < size;
+        }
+
+        @Override
+        public E next() {
+            checkForComodification();
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            lastReturned = next;
+            nextIndex++;
+            next = next.next;
+            return lastReturned.item;
+        }
+
+        @Override
+        public void remove() {
+            checkForComodification();
+            if (lastReturned == null) {
+                throw new NoSuchElementException();
+            }
+            //todo jdk源码写法解读
+            unlink(lastReturned);
+            lastReturned = null;
+            nextIndex--;
+            expectedModCount++;
+        }
+
+        @Override
+        public void forEachRemaining(@NonNull Consumer<? super E> action) {
+            while (modCount == expectedModCount && nextIndex < size) {
+                action.accept(next.item);
+                lastReturned = next;
+                next = next.next;
+                nextIndex++;
+            }
+            checkForComodification();
+        }
+
+        final void checkForComodification() {
+            if (modCount != expectedModCount)
+                throw new ConcurrentModificationException();
         }
     }
 }

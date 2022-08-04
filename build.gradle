@@ -3,6 +3,7 @@ plugins {
     id 'groovy'
     id "io.github.reyerizo.gradle.jcstress" version "0.8.13"
     id "me.champeau.jmh" version "0.6.6"
+    id 'jacoco'
 }
 
 group 'com.techzealot'
@@ -74,6 +75,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
 }
 
 jmh {

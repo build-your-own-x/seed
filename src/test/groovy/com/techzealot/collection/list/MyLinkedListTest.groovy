@@ -149,7 +149,7 @@ class MyLinkedListTest extends Specification {
         list.eq([*1..3, *1..3, *1..6, *1..3])
     }
 
-    def "test remove(int)"() {
+    def "test removeAt(int)"() {
         given:
         def list = MyLinkedList.of("a", "b", "c", null, null)
         when:
@@ -248,6 +248,8 @@ class MyLinkedListTest extends Specification {
         empty.clear()
         list.clear()
         then:
+        empty.size() == 0
+        list.size() == 0
         empty.eq([])
         list.eq([])
     }
@@ -336,5 +338,159 @@ class MyLinkedListTest extends Specification {
         then:
         list.eq([null, 2, null, 4, null])
     }
+
+    def "test clone"() {
+        given:
+        def list = MyLinkedList.of(*1..10)
+        when:
+        def clone = list.clone() as MyLinkedList
+        def f1 = Reflect.on(list).field("first").get()
+        def l1 = Reflect.on(list).field("last").get()
+        def f2 = Reflect.on(clone).field("first").get()
+        def l2 = Reflect.on(clone).field("last").get()
+        then:
+        clone !== list
+        clone == list
+        clone.size() == list.size()
+        f1 !== f2
+        l1 !== l2
+    }
+
+    def "test equals"() {
+        when:
+        def empty = new MyLinkedList()
+        def emptyArray = new MyLinkedList()
+        def list1 = MyLinkedList.of(*1..10)
+        def list2 = MyLinkedList.of(*1..10)
+        def array = MyArrayList.of(*1..10)
+        then:
+        empty != list1
+        empty == emptyArray
+        emptyArray == empty
+        list1 == array
+        array == list1
+        list1 == list2
+        list2 == list1
+    }
+
+    def "test hashCode"() {
+        when:
+        def empty = new MyLinkedList()
+        def list = MyLinkedList.of(*1..10)
+        then:
+        empty.hashCode() == [].hashCode()
+        list.hashCode() == [*1..10].hashCode()
+    }
+
+    def "test toString"() {
+        when:
+        def empty = new MyLinkedList()
+        def list = MyLinkedList.of(*1..10)
+        then:
+        empty.toString() == [].toString()
+        list.toString() == [*1..10].toString()
+    }
+
+    def "test serialize and deserialize"(MyLinkedList input) {
+        when:
+        def bos = new ByteArrayOutputStream()
+        ObjectOutputStream oos = new ObjectOutputStream(bos)
+        oos.writeObject(input)
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))
+        def out = (MyLinkedList) ois.readObject()
+        then:
+        out !== input
+        out.toArray() == input.toArray()
+        where:
+        input                   | _
+        new MyLinkedList<>()    | _
+        MyLinkedList.of(*1..10) | _
+    }
+
+    def "test iterator"() {
+        given:
+        def empty = new MyLinkedList()
+        def list = MyLinkedList.of(*1..10)
+        def emptyItr = empty.iterator()
+        when:
+        emptyItr.next()
+        then:
+        !emptyItr.hasNext()
+        thrown(NoSuchElementException)
+        when:
+        for (final def e in empty) {
+
+        }
+        then:
+        noExceptionThrown()
+        when:
+        def it1 = list.iterator()
+        def out1 = []
+        while (it1.hasNext()) {
+            out1 += it1.next()
+        }
+        then:
+        out1 == [*1..10]
+        when:
+        def out2 = []
+        for (final def e in list) {
+            out2 += e
+        }
+        then:
+        out2 == [*1..10]
+        when:
+        def it3 = list.iterator()
+        while (it3.hasNext()) {
+            if (it3.next() % 2 == 0) {
+                it3.remove()
+            }
+        }
+        then:
+        list.eq((1..10).step(2))
+    }
+
+    def "test iterator for comodification"() {
+        given:
+        def list1 = MyLinkedList.of(*1..10)
+        def list2 = MyLinkedList.of(*1..10)
+        when:
+        for (final def e in list1) {
+            if (e % 2 == 0) {
+                list1.remove(e)
+            }
+        }
+        then:
+        thrown(ConcurrentModificationException)
+        list1.eq([1, *3..10])
+        when:
+        for (i in 0..<list2.size()) {
+            if (i == 4) {
+                list2.removeAt(i)
+            }
+            list2.get(i)
+        }
+        then:
+        thrown(IndexOutOfBoundsException)
+        list2.eq([*1..4, *6..10])
+    }
+
+    def "test iterator#forEachRemaining"() {
+        given:
+        def list = MyLinkedList.of(*1..10)
+        when:
+        def it = list.iterator()
+        def out = []
+        while (it.hasNext()) {
+            if (it.next() == 5) {
+                break;
+            }
+        }
+        it.forEachRemaining {
+            out += it
+        }
+        then:
+        out == [*6..10]
+    }
+
 
 }
