@@ -153,30 +153,30 @@ class MyLinkedListTest extends Specification {
         given:
         def list = MyLinkedList.of("a", "b", "c", null, null)
         when:
-        list.remove(-1)
+        list.removeAt(-1)
         then:
         thrown(IndexOutOfBoundsException)
         when:
-        list.remove(list.size())
+        list.removeAt(list.size())
         then:
         thrown(IndexOutOfBoundsException)
         when: "remove first half"
-        def r1 = list.remove(1)
+        def r1 = list.removeAt(1)
         then:
         r1 == "b"
         list.eq(["a", "c", null, null])
         when: "remove first"
-        def r2 = list.remove(0)
+        def r2 = list.removeAt(0)
         then:
         r2 == "a"
         list.eq(["c", null, null])
         when: "remove last half"
-        def r3 = list.remove(1)
+        def r3 = list.removeAt(1)
         then:
         r3 === null
         list.eq(["c", null])
         when: "remove last"
-        def r4 = list.remove(1)
+        def r4 = list.removeAt(1)
         then:
         r4 === null
         list.eq(["c"])

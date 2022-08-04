@@ -189,7 +189,7 @@ public class MyArrayList<E> extends MyAbstractList<E>
     }
 
     @Override
-    public E remove(int index) {
+    public E removeAt(int index) {
         rangeCheck(index);
         modCount++;
         E oldValue = elementData(index);
@@ -484,7 +484,7 @@ public class MyArrayList<E> extends MyAbstractList<E>
             }
             try {
                 checkForComodification();
-                MyArrayList.this.remove(lastRet);
+                MyArrayList.this.removeAt(lastRet);
                 cursor = lastRet;
                 lastRet = -1;
                 expectedModCount = modCount;

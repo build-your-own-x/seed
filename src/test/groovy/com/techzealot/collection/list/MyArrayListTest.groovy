@@ -245,21 +245,21 @@ class MyArrayListTest extends Specification {
         given:
         def m = MyArrayList.of("a", "b", "c", "d", "e")
         when:
-        m.remove(m.size())
+        m.removeAt(m.size())
         then:
         thrown(IndexOutOfBoundsException)
         when: "remove head"
-        def r = m.remove(0)
+        def r = m.removeAt(0)
         then:
         r == "a"
         m.eq(["b", "c", "d", "e"])
         when: "remove tail"
-        r = m.remove(3)
+        r = m.removeAt(3)
         then:
         r == "e"
         m.eq(["b", "c", "d"])
         when: "remove middle"
-        r = m.remove(1)
+        r = m.removeAt(1)
         then:
         r == "c"
         m.eq(["b", "d"])
@@ -485,7 +485,28 @@ class MyArrayListTest extends Specification {
     }
 
     def "iterator for concurrent modify"() {
-
+        given:
+        def list1 = MyArrayList.of(*1..10)
+        def list2 = MyArrayList.of(*1..10)
+        when:
+        for (def e1 in list1) {
+            if (e1 == 5) {
+                list1.remove(e1)
+            }
+        }
+        then:
+        list1.eq([*1..4, *6..10])
+        thrown(ConcurrentModificationException)
+        when:
+        for (i in 0..<list2.size()) {
+            if (i == 4) {
+                list2.removeAt(i)
+            }
+            list2.get(i)
+        }
+        then:
+        list2.eq([*1..4, *6..10])
+        thrown(IndexOutOfBoundsException)
     }
 
     def "iterator"() {

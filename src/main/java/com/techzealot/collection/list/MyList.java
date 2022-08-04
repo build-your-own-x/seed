@@ -12,7 +12,7 @@ public interface MyList<E> extends MyCollection<E> {
 
     boolean addAll(int index, MyCollection<? extends E> c);
 
-    E remove(int index);
+    E removeAt(int index);
 
     int indexOf(Object o);
 }

@@ -316,7 +316,7 @@ public class MyLinkedList<E> extends MyAbstractList<E>
     }
 
     @Override
-    public E remove(int index) {
+    public E removeAt(int index) {
         checkElementIndex(index);
         return unlink(node(index));
     }
