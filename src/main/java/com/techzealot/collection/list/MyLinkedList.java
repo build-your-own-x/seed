@@ -7,6 +7,7 @@ import lombok.NonNull;
 import java.io.*;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
@@ -414,6 +415,7 @@ public class MyLinkedList<E> extends MyAbstractList<E>
         private int expectedModCount = modCount;
 
         public Itr(int index) {
+            //此处index==size时为合法条件,也可应对空集合的场景
             checkPositionIndex(index);
             this.nextIndex = index;
             next = index == size ? null : node(index);
@@ -436,16 +438,27 @@ public class MyLinkedList<E> extends MyAbstractList<E>
             return lastReturned.item;
         }
 
+        /**
+         * @see LinkedList.ListItr#remove()
+         */
         @Override
         public void remove() {
             checkForComodification();
             if (lastReturned == null) {
                 throw new NoSuchElementException();
             }
-            //todo jdk源码写法解读
+            //考虑前向遍历,前向遍历时不变式:lastReturned==next,删除后nextIndex不能--
+            Node<E> lastNext = lastReturned.next;
+            //remove last returned node
             unlink(lastReturned);
+            //前向遍历
+            if (lastReturned == next) {
+                next = lastNext;
+            } else {
+                //后向遍历
+                nextIndex--;
+            }
             lastReturned = null;
-            nextIndex--;
             expectedModCount++;
         }
 
