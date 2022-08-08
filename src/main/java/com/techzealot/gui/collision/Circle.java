@@ -2,17 +2,14 @@ package com.techzealot.gui.collision;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.experimental.Accessors;
-import lombok.experimental.FieldNameConstants;
 
 import java.awt.*;
 
 @AllArgsConstructor
 @Data()
 public class Circle {
-    public int x, y;
     private final int r;
+    public int x, y;
     public int vx, vy;
 
     private boolean filled = false;
@@ -43,7 +40,8 @@ public class Circle {
     }
 
     /**
-     * (x-x0)^2 +(y-y0)^2< r^2 说明点在圆内
+     * (x-x0)^2 +(y-y0)^2 &lt; r^2 说明点在圆内
+     *
      * @param point
      * @return
      */

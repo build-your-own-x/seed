@@ -29,6 +29,31 @@ public class MyPriorityQueue<E> extends MyAbstractCollection<E>
     }
 
     @Override
+    public boolean offer(E e) {
+        return false;
+    }
+
+    @Override
+    public E remove() {
+        return null;
+    }
+
+    @Override
+    public E poll() {
+        return null;
+    }
+
+    @Override
+    public E element() {
+        return null;
+    }
+
+    @Override
+    public E peek() {
+        return null;
+    }
+
+    @Override
     public boolean remove(Object o) {
         return false;
     }

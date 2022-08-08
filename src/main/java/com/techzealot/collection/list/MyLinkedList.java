@@ -1,7 +1,6 @@
 package com.techzealot.collection.list;
 
 import com.techzealot.collection.MyCollection;
-import com.techzealot.collection.deque.MyDeque;
 import lombok.NonNull;
 
 import java.io.*;
@@ -12,13 +11,13 @@ import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 /**
- * 可实现Queue和stack功能
+ * 未实现Queue和Deque功能,主要是LinkedList支持元素为null,Deque中null表示集合已经为空，存在歧义
  * elements can be null
  *
  * @param <E>
  */
 public class MyLinkedList<E> extends MyAbstractList<E>
-        implements MyList<E>, MyDeque<E>, Serializable, Cloneable {
+        implements MyList<E>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1538564936182943121L;

@@ -103,3 +103,9 @@ tasks.withType(Test) {
 tasks.withType(JavaExec) {
     jvmArgs += '--enable-preview'
 }
+
+javadoc.options {
+    addStringOption('Xdoclint:none', "-quiet")
+    addBooleanOption('-enable-preview', true)
+    addStringOption('-release', '17')
+}
