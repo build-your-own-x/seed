@@ -26,7 +26,7 @@ class JdkDequeTest extends Specification {
     }
 
     /**
-     *
+     * 建议使用ArrayDeque,遵循接口定义
      */
     def "test ArrayDeque as Deque"() {
         given:
