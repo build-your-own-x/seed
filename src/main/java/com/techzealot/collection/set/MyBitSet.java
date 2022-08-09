@@ -1,4 +1,4 @@
 package com.techzealot.collection.set;
 
-public class BitSet {
+public class MyBitSet {
 }

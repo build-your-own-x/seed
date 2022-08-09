@@ -1,4 +1,4 @@
 package com.techzealot.collection.map;
 
-public class TreeMap {
+public class MyHashMap {
 }
