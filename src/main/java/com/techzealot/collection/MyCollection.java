@@ -12,7 +12,7 @@ public interface MyCollection<E> extends Iterable<E> {
         return size() == 0;
     }
 
-    boolean contains(Object element);
+    boolean contains(Object o);
 
     Object[] toArray();
 
@@ -21,7 +21,15 @@ public interface MyCollection<E> extends Iterable<E> {
 
     boolean remove(Object o);
 
-    boolean addAll(MyCollection<? extends E> c);
+    default boolean addAll(MyCollection<? extends E> c) {
+        boolean modified = false;
+        for (E e : c) {
+            if (add(e)) {
+                modified = true;
+            }
+        }
+        return modified;
+    }
 
     default boolean removeAll(@NonNull MyCollection<?> c) {
         Iterator<?> it = iterator();

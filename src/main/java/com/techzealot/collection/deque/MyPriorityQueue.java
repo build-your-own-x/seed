@@ -14,7 +14,7 @@ public class MyPriorityQueue<E> extends MyAbstractCollection<E>
     }
 
     @Override
-    public boolean contains(Object element) {
+    public boolean contains(Object o) {
         return false;
     }
 

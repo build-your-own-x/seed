@@ -245,8 +245,8 @@ public class MyLinkedList<E> extends MyAbstractList<E>
     }
 
     @Override
-    public boolean contains(Object element) {
-        return indexOf(element) >= 0;
+    public boolean contains(Object o) {
+        return indexOf(o) >= 0;
     }
 
     @Override

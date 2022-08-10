@@ -320,17 +320,17 @@ public class MyArrayList<E> extends MyAbstractList<E>
     /**
      * 此处不使用泛型，使用泛型会导致适应性变差
      *
-     * @param element
+     * @param o
      * @return
      */
     @Override
-    public boolean contains(Object element) {
-        return indexOf(element) >= 0;
+    public boolean contains(Object o) {
+        return indexOf(o) >= 0;
     }
 
     @Override
-    public int indexOf(Object element) {
-        if (element == null) {
+    public int indexOf(Object o) {
+        if (o == null) {
             for (int i = 0; i < size; i++) {
                 if (elementData[i] == null) {
                     return i;
@@ -338,7 +338,7 @@ public class MyArrayList<E> extends MyAbstractList<E>
             }
         } else {
             for (int i = 0; i < size; i++) {
-                if (element.equals(elementData[i])) {
+                if (o.equals(elementData[i])) {
                     return i;
                 }
             }

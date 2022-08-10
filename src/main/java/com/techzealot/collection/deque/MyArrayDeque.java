@@ -2,18 +2,19 @@ package com.techzealot.collection.deque;
 
 import com.techzealot.collection.MyAbstractCollection;
 import com.techzealot.collection.MyCollection;
+import lombok.NonNull;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serial;
-import java.io.Serializable;
+import java.io.*;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 /**
  * 双端队列，可作为Stack和Queue使用，比LinkedList更高效且符合接口定义
  * 不支持获取或设置非首尾元素
  * 不支持null值，返回null表示集合已无更多元素
+ * ArrayDeque少有需要equals和hashCode的场景,故采用默认实现
  */
 public class MyArrayDeque<E> extends MyAbstractCollection<E>
         implements MyDeque<E>, Serializable, Cloneable {
@@ -36,9 +37,17 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
         allocateElements(numElements);
     }
 
-    public MyArrayDeque(MyCollection<? extends E> c) {
+    public MyArrayDeque(@NonNull MyCollection<? extends E> c) {
         allocateElements(c.size());
         addAll(c);
+    }
+
+    public static <E> MyArrayDeque<E> of(@NonNull E... elements) {
+        MyArrayDeque<E> deque = new MyArrayDeque<>(elements.length);
+        for (E e : elements) {
+            deque.add(e);
+        }
+        return deque;
     }
 
     private void allocateElements(int numElements) {
@@ -46,8 +55,8 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
     }
 
     /**
-     * 求出大于等于给定整数的最小2^n
-     * 巧妙利用当m=2^k时,x%m==x&(m-1)且左右移动时仍然符合该条件
+     * 求出大于给定整数的最小2^n,为保证add前有足够空间不能等于
+     * 巧妙利用当m=2^k时,(x++)%m==(x++)&(m-1)且左右循环移动时仍然符合该条件
      *
      * @param numElements
      * @return
@@ -55,13 +64,14 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
     private int calculateSize(int numElements) {
         int initialCapacity = MIN_INITIAL_CAPACITY;
         if (numElements >= initialCapacity) {
-            initialCapacity = numElements - 1;
+            initialCapacity = numElements;
             //思路为将最高位后所有二进制位变为1，然后再+1即为所求
             initialCapacity |= (initialCapacity >>> 1);
             initialCapacity |= (initialCapacity >>> 2);
             initialCapacity |= (initialCapacity >>> 4);
             initialCapacity |= (initialCapacity >>> 8);
             initialCapacity |= (initialCapacity >>> 16);
+            initialCapacity++;
             //overflow back off,此时必为-2^31
             if (initialCapacity < 0) {
                 initialCapacity >>>= 1;//此时大小为2^30
@@ -80,14 +90,42 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
         return (tail - head) & (elements.length - 1);
     }
 
+    public int capacity() {
+        return elements.length;
+    }
+
     @Override
-    public boolean contains(Object element) {
+    public boolean contains(Object o) {
+        if (o == null) {
+            return false;
+        }
+        int i = head;
+        int mask = elements.length - 1;
+        //此处也可以使用elements[i]!=null作为循环条件
+        while (i != tail) {
+            if (o.equals(elements[i])) {
+                return true;
+            }
+            i = (i + 1) & mask;
+        }
         return false;
     }
 
     @Override
     public Object[] toArray() {
-        return new Object[0];
+        return copyElementsTo(new Object[size()]);
+    }
+
+    private <T> T[] copyElementsTo(T[] a) {
+        if (head < tail) {
+            System.arraycopy(elements, head, a, 0, size());
+        } else if (head > tail) {
+            int headPortionLen = elements.length - head;
+            System.arraycopy(elements, head, a, 0, headPortionLen);
+            System.arraycopy(elements, 0, a, headPortionLen, tail);
+        }
+        //head==tail 返回传入空数组
+        return a;
     }
 
     @Override
@@ -123,12 +161,7 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
 
     @Override
     public boolean remove(Object o) {
-        return false;
-    }
-
-    @Override
-    public boolean addAll(MyCollection<? extends E> c) {
-        return false;
+        return removeFirstOccurrence(o);
     }
 
     @Override
@@ -148,7 +181,7 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
 
     @Override
     public Iterator<E> iterator() {
-        return null;
+        return new DeqIterator();
     }
 
     @Override
@@ -183,7 +216,7 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
     }
 
     //底层真正实现为:addFirst,addLast,pollFirst,pollLast
-
+    //从设计上可以保证添加之前集合一定有足够剩余空间
     @Override
     public void addLast(E e) {
         if (e == null) {
@@ -281,11 +314,54 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
 
     @Override
     public boolean removeFirstOccurrence(Object o) {
+        if (o == null) {
+            return false;
+        }
+        int mask = elements.length - 1;
+        for (int i = head; i != tail; i = (i + 1) & mask) {
+            if (o.equals(elements[i])) {
+                delete(i);
+                return true;
+            }
+        }
         return false;
+    }
+
+    private void delete(int i) {
+        checkInvariants();
+        Object[] elements = this.elements;
+        int h = head;
+        int t = tail;
+        int mask = elements.length - 1;
+
+    }
+
+    private void checkInvariants() {
+        //队尾必为空
+        assert elements[tail] == null;
+        //队列为空时队头也为空 队列不为空时队头不为空且队尾前一个元素必为空
+        assert head == tail ? elements[head] == null :
+                (elements[head] != null && elements[(tail - 1) & elements.length - 1] == null);
+        //队头的前一个必为空
+        assert elements[(head - 1) & elements.length - 1] == null;
     }
 
     @Override
     public boolean removeLastOccurrence(Object o) {
+        if (o == null) {
+            return false;
+        }
+        //特意实现一种与removeFirstOccurrence不同的方式,开阔思路
+        int mask = elements.length - 1;
+        int i = head;
+        Object x;
+        while ((x = elements[i]) != null) {
+            if (o.equals(x)) {
+                delete(i);
+                return true;
+            }
+            i = (i + 1) & mask;
+        }
         return false;
     }
 
@@ -301,28 +377,72 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
 
     @Override
     public Iterator<E> descendingIterator() {
-        return null;
+        return new DescendingIterator();
     }
 
+    /**
+     * 无法像数组一样优化,所有空间都是必要的
+     *
+     * @return
+     */
     @Override
     public MyArrayDeque<E> clone() {
         try {
-            MyArrayDeque clone = (MyArrayDeque) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
+            MyArrayDeque result = (MyArrayDeque) super.clone();
+            result.elements = Arrays.copyOf(elements, elements.length);
+            return result;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }
 
     @Serial
-    private void readObject(ObjectInputStream s) {
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+        s.defaultReadObject();
+        int size = s.readInt();
+        allocateElements(size);
+        head = 0;
+        tail = size;
+        for (int i = 0; i < size; i++) {
+            elements[i] = s.readObject();
+        }
     }
 
     @Serial
-    private void writeObject(ObjectOutputStream s) {
+    private void writeObject(ObjectOutputStream s) throws IOException {
+        s.defaultWriteObject();
+        s.writeInt(size());
+        int mask = elements.length - 1;
+        for (int i = head; i != tail; i = (i + 1) & mask) {
+            s.writeObject(elements[i]);
+        }
+    }
+
+    private class DeqIterator<E> implements Iterator<E> {
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public E next() {
+            return null;
+        }
+
+        @Override
+        public void remove() {
+            Iterator.super.remove();
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super E> action) {
+            Iterator.super.forEachRemaining(action);
+        }
+    }
+
+    private class DescendingIterator<E> extends DeqIterator<E> {
 
     }
 
-    //ArrayDeque少有需要equals和hashCode的场景,故采用默认实现
 }
