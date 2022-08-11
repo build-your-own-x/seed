@@ -6,6 +6,7 @@ import lombok.NonNull;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
@@ -333,7 +334,22 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
         int h = head;
         int t = tail;
         int mask = elements.length - 1;
-
+        //索引i之前元素个数
+        int front = (i - h) & mask;
+        //索引i之后元素个数
+        int back = (t - i) & mask;
+        int size = (t - h) & mask;
+        if (front >= size) {
+            throw new ConcurrentModificationException();
+        }
+        //优化:比较以索引作为分割的前后两部分数量,尽量移动最少量数据
+        if (front < back) {
+            if (h <= i) {
+                System.arraycopy(elements, h, elements, h + 1, front);
+            } else {
+                //System.arraycopy(elements,0,elements,);
+            }
+        }
     }
 
     private void checkInvariants() {
