@@ -51,10 +51,6 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
         return deque;
     }
 
-    private void allocateElements(int numElements) {
-        elements = new Object[calculateSize(numElements)];
-    }
-
     /**
      * 求出大于给定整数的最小2^n,为保证add前有足够空间不能等于
      * 巧妙利用当m=2^k时,(x++)%m==(x++)&(m-1)且左右循环移动时仍然符合该条件
@@ -62,7 +58,7 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
      * @param numElements
      * @return
      */
-    private int calculateSize(int numElements) {
+    private static int calculateSize(int numElements) {
         int initialCapacity = MIN_INITIAL_CAPACITY;
         if (numElements >= initialCapacity) {
             initialCapacity = numElements;
@@ -79,6 +75,10 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
             }
         }
         return initialCapacity;
+    }
+
+    private void allocateElements(int numElements) {
+        elements = new Object[calculateSize(numElements)];
     }
 
     /**
@@ -328,7 +328,11 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
         return false;
     }
 
-    private void delete(int i) {
+    /**
+     * @param i
+     * @return true if elements move backwards
+     */
+    private boolean delete(int i) {
         checkInvariants();
         Object[] elements = this.elements;
         int h = head;
@@ -343,15 +347,39 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
             throw new ConcurrentModificationException();
         }
         //优化:比较以索引作为分割的前后两部分数量,尽量移动最少量数据
+        //head<tail:元素一定在head,tail之间;head>tail:元素一定分为两部分首尾相连;由deque的添加操作决定前面的条件成立,head相对tail的位置一定在元素增长方向的左边
         if (front < back) {
             if (h <= i) {
                 System.arraycopy(elements, h, elements, h + 1, front);
             } else {
-                //System.arraycopy(elements,0,elements,);
+                System.arraycopy(elements, 0, elements, 1, i);
+                elements[0] = elements[mask];
+                System.arraycopy(elements, h, elements, h + 1, mask - h);
             }
+            elements[h] = null;
+            head = (h + 1) & mask;
+            return false;
+        } else {
+            //copy null tail as well
+            if (i < t) {
+                System.arraycopy(elements, i + 1, elements, i, back);
+                tail = t - 1;
+            } else {
+                System.arraycopy(elements, i + 1, elements, i, mask - i);
+                elements[mask] = elements[0];
+                System.arraycopy(elements, 1, elements, 0, t);
+                tail = (t - 1) & mask;
+            }
+            //elements[t] = null; //unnecessary, tail is always null
+            return true;
         }
     }
 
+    /**
+     * 若有元素:
+     * head之后必有元素且转动方向保持,之前必无元素
+     * tail之前必有元素且转动方向保持,之后必无元素
+     */
     private void checkInvariants() {
         //队尾必为空
         assert elements[tail] == null;
@@ -369,14 +397,14 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
         }
         //特意实现一种与removeFirstOccurrence不同的方式,开阔思路
         int mask = elements.length - 1;
-        int i = head;
+        int i = (tail - 1) & mask;
         Object x;
         while ((x = elements[i]) != null) {
             if (o.equals(x)) {
                 delete(i);
                 return true;
             }
-            i = (i + 1) & mask;
+            i = (i - 1) & mask;
         }
         return false;
     }
@@ -435,30 +463,98 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
     }
 
     private class DeqIterator<E> implements Iterator<E> {
+        private int cursor = head;
+        private int fence = tail;
+        private int lastRet = -1;
 
         @Override
         public boolean hasNext() {
-            return false;
+            return cursor != fence;
         }
 
         @Override
         public E next() {
-            return null;
+            if (cursor == fence) {
+                throw new NoSuchElementException();
+            }
+            E result = (E) elements[cursor];
+            if (result == null || tail != fence) {
+                throw new ConcurrentModificationException();
+            }
+            lastRet = cursor;
+            cursor = (cursor + 1) & (elements.length - 1);
+            return result;
         }
 
         @Override
         public void remove() {
-            Iterator.super.remove();
+            if (lastRet < 0) {
+                throw new IllegalStateException();
+            }
+            //后半部分移动需要调整,cursor-1
+            if (delete(lastRet)) {
+                cursor = (cursor - 1) & (elements.length - 1);
+                fence = tail;
+            }
+            lastRet = -1;
         }
 
         @Override
-        public void forEachRemaining(Consumer<? super E> action) {
-            Iterator.super.forEachRemaining(action);
+        public void forEachRemaining(@NonNull Consumer<? super E> action) {
+            Object[] a = elements;
+            int mask = a.length - 1;
+            int f = fence;
+            int i = cursor;
+            while (i != f) {
+                E e = (E) elements[i];
+                if (e == null) {
+                    throw new ConcurrentModificationException();
+                }
+                action.accept(e);
+                i = (i + 1) & mask;
+            }
         }
     }
 
-    private class DescendingIterator<E> extends DeqIterator<E> {
+    private class DescendingIterator<E> implements Iterator<E> {
+        /**
+         * this class is nearly a mirror-image of DeqIterator
+         */
+        private int cursor = tail;
+        private int fence = head;
+        private int lastRet = -1;
 
+        @Override
+        public boolean hasNext() {
+            return cursor != fence;
+        }
+
+        @Override
+        public E next() {
+            if (cursor == fence) {
+                throw new NoSuchElementException();
+            }
+            cursor = (cursor - 1) & (elements.length - 1);
+            E result = (E) elements[cursor];
+            if (result == null || fence != head) {
+                throw new ConcurrentModificationException();
+            }
+            lastRet = cursor;
+            return result;
+        }
+
+        @Override
+        public void remove() {
+            if (lastRet < 0) {
+                throw new IllegalStateException();
+            }
+            //未遍历数据被移动,需要回退,cursor+1
+            if (!delete(lastRet)) {
+                cursor = (cursor + 1) & (elements.length - 1);
+                fence = head;
+            }
+            lastRet = -1;
+        }
     }
 
 }

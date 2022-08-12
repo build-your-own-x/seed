@@ -20,6 +20,10 @@ class MyArrayDequeExtensions {
     <E> boolean eq(List<E> list) {
         return this.toArray() == list.toArray()
     }
+
+    <E> boolean eleEq(List<E> list) {
+        return Reflect.on(this).field("elements").get() == list.toArray()
+    }
 }
 
 @Use(MyArrayDequeExtensions)
@@ -58,12 +62,34 @@ class MyArrayDequeTest extends Specification {
         then:
         deque.size() == c.size()
         deque.eq(expected)
+        when: "collection contains null"
+        c.add(null)
+        new MyArrayDeque<>(c)
+        then:
+        thrown(NullPointerException)
         where:
         c                      | expected
         new MyArrayDeque()     | []
         MyArrayList.of(*1..2)  | [*1..2]
         MyLinkedList.of(*1..3) | [*1..3]
         MyArrayDeque.of(*1..4) | [*1..4]
+    }
+
+    def "calculateSize"(int nums, int expected) {
+        when:
+        def capacity = Reflect.onClass(MyArrayDeque.class).call("calculateSize", nums).get()
+        then:
+        capacity == expected
+        where:
+        nums              | expected
+        Integer.MIN_VALUE | 8
+        -1                | 8
+        0                 | 8
+        7                 | 8
+        8                 | 16
+        32                | 64
+        31                | 32
+        Integer.MAX_VALUE | 0x40000000
     }
 
 
@@ -97,33 +123,37 @@ class MyArrayDequeTest extends Specification {
         MyArrayDeque.of(*1..16) | 32
         MyArrayDeque.of(*1..31) | 32
     }
-//
-//    def "test contains"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test toArray"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test add"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
+
+    def "test contains"() {
+        when:
+        def empty = new MyArrayDeque()
+        def deque = MyArrayDeque.of(*1..5)
+        then:
+        !empty.contains(null)
+        !empty.contains(new Object())
+        deque.contains(1)
+        deque.contains(2)
+        deque.contains(3)
+        deque.contains(4)
+        deque.contains(5)
+        !deque.contains(null)
+        !deque.contains(new Object())
+    }
+
+    def "test toArray"(MyArrayDeque deque, List expected) {
+        when:
+        def arr = deque.toArray()
+        then:
+        arr == expected.toArray()
+        where:
+        deque                   | expected
+        new MyArrayDeque()      | []
+        MyArrayDeque.of(*1..10) | [*1..10]
+    }
+
+    def "test add"() {
+
+    }
 //
 //    def "test offer"() {
 //        given:
@@ -197,23 +227,51 @@ class MyArrayDequeTest extends Specification {
 //        // TODO implement assertions
 //    }
 //
-//    def "test addFirst"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test addLast"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
+    /**
+     * 底层实现,详细测试
+     */
+    def "test addFirst"() {
+        given:
+        def deque = new MyArrayDeque(4)
+        when:
+        deque.addFirst(0)
+        deque.addFirst(1)
+        then:
+        deque.eleEq([null] * 6 + [1, 0])
+        when:
+        (2..6).each {
+            deque.addFirst(it)
+        }
+        then:
+        deque.eleEq([null] + [*6..0])
+        when: "test capacity expand"
+        deque.addFirst(7)
+        then: "扩容后重排列"
+        deque.eleEq([*7..0] + [null] * 8)
+    }
+
+    /**
+     * 底层实现,详细测试
+     */
+    def "test addLast"() {
+        given:
+        def deque = new MyArrayDeque(4)
+        when:
+        deque.addLast(0)
+        deque.addLast(1)
+        then:
+        deque.eleEq([0, 1] + [null] * 6)
+        when:
+        (2..6).each {
+            deque.addLast(it)
+        }
+        then:
+        deque.eleEq([*0..6] + [null])
+        when: "test capacity expand"
+        deque.addLast(7)
+        then:
+        deque.eleEq([*0..7] + [null] * 8)
+    }
 //
 //    def "test offerFirst"() {
 //        given:
@@ -251,50 +309,95 @@ class MyArrayDequeTest extends Specification {
 //        // TODO implement assertions
 //    }
 //
-//    def "test pollFirst"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test pollLast"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test getFirst"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test getLast"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test peekFirst"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
+    def "test pollFirst"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.pollFirst() == 1
+        deque.pollFirst() == 2
+        deque.pollFirst() == 3
+        deque.pollFirst() == null
+        deque.pollFirst() == null
+    }
+
+
+    def "test pollLast"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.pollLast() == 3
+        deque.pollLast() == 2
+        deque.pollLast() == 1
+        deque.pollLast() == null
+        deque.pollLast() == null
+    }
+
+    def "test use as stack"() {
+
+    }
+
+    def "test use as queue"() {
+
+    }
+
+    def "test getFirst"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.getFirst() == 1
+        when:
+        deque.pollFirst()
+        then:
+        deque.getFirst() == 2
+        when:
+        deque.pollFirst()
+        then:
+        deque.getFirst() == 3
+        when:
+        deque.pollFirst()
+        deque.getFirst()
+        then:
+        thrown(NoSuchElementException)
+    }
+
+    def "test getLast"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.getLast() == 3
+        when:
+        deque.pollLast()
+        then:
+        deque.getLast() == 2
+        when:
+        deque.pollLast()
+        then:
+        deque.getLast() == 1
+        when:
+        deque.pollLast()
+        deque.getLast()
+        then:
+        thrown(NoSuchElementException)
+    }
+
+    def "test peekFirst"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.peekFirst() == 1
+        when:
+        deque.pollFirst()
+        then:
+        deque.peekFirst() == 2
+        when:
+        deque.pollFirst()
+        then:
+        deque.peekFirst() == 3
+        when:
+        deque.pollFirst()
+        then:
+        deque.peekFirst() == null
+    }
 //
 //    def "test peekLast"() {
 //        given:
