@@ -23,7 +23,7 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
     @Serial
     private static final long serialVersionUID = -1042548399068950370L;
     /**
-     * 必须为2^n,便于快速计算size
+     * 必须为2^n,便于快速计算head,tail移动后索引
      */
     private static final int MIN_INITIAL_CAPACITY = 8;
     private transient int head;
@@ -383,9 +383,9 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
     private void checkInvariants() {
         //队尾必为空
         assert elements[tail] == null;
-        //队列为空时队头也为空 队列不为空时队头不为空且队尾前一个元素必为空
+        //队列为空时队头也为空 队列不为空时队头不为空且队尾前一个元素必不为空
         assert head == tail ? elements[head] == null :
-                (elements[head] != null && elements[(tail - 1) & elements.length - 1] == null);
+                (elements[head] != null && elements[(tail - 1) & elements.length - 1] != null);
         //队头的前一个必为空
         assert elements[(head - 1) & elements.length - 1] == null;
     }
@@ -505,6 +505,8 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
             int mask = a.length - 1;
             int f = fence;
             int i = cursor;
+            //一次性调整遍历指针到末尾,提升性能
+            cursor = f;
             while (i != f) {
                 E e = (E) elements[i];
                 if (e == null) {
@@ -548,7 +550,7 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
             if (lastRet < 0) {
                 throw new IllegalStateException();
             }
-            //未遍历数据被移动,需要回退,cursor+1
+            //前半部分未遍历数据被移动,需要回退,cursor+1
             if (!delete(lastRet)) {
                 cursor = (cursor + 1) & (elements.length - 1);
                 fence = head;

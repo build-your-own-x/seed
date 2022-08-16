@@ -414,18 +414,6 @@ class MyArrayListTest extends Specification {
         elements == [null] * 5 as Object[]
     }
 
-    def "test toString"() {
-        given:
-        def empty = new MyArrayList<Integer>()
-        def list = MyArrayList.of(*1..5)
-        when:
-        def s1 = empty.toString()
-        def s2 = list.toString()
-        then:
-        s1 == "[]"
-        s2 == "[1, 2, 3, 4, 5]"
-    }
-
     def "test equals"() {
         when:
         def empty1 = new MyArrayList()
@@ -439,8 +427,7 @@ class MyArrayListTest extends Specification {
         empty2 == empty1
         list1 == list2
         list2 == list1
-        //todo
-        //list3 == list4
+        list3 == list4
         list1 != list3
     }
 

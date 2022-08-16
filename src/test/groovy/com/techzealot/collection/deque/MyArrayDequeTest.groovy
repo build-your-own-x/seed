@@ -152,81 +152,98 @@ class MyArrayDequeTest extends Specification {
     }
 
     def "test add"() {
-
+        given:
+        def deque = new MyArrayDeque()
+        when:
+        (0..16).each {
+            deque.add(it)
+        }
+        then:
+        deque.size() == 17
+        deque.eq([*0..16])
     }
-//
-//    def "test offer"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test remove"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test poll"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test element"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test peek"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test testRemove"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test clear"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test iterator"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
+
+    def "test offer"() {
+        given:
+        def deque = new MyArrayDeque()
+        when:
+        (0..16).each {
+            deque.offer(it)
+        }
+        then:
+        deque.size() == 17
+        deque.eq([*0..16])
+    }
+
+    def "test remove"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.remove() == 1
+        deque.remove() == 2
+        deque.remove() == 3
+        when:
+        deque.remove()
+        then:
+        thrown(NoSuchElementException)
+    }
+
+    def "test poll"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.poll() == 1
+        deque.poll() == 2
+        deque.poll() == 3
+        deque.poll() == null
+    }
+
+    def "test element"() {
+        when:
+        def deque = MyArrayDeque.of(1)
+        then:
+        deque.element() == 1
+        when:
+        deque.poll()
+        deque.element()
+        then:
+        thrown(NoSuchElementException)
+    }
+
+    def "test peek"() {
+        when:
+        def deque = MyArrayDeque.of(1)
+        then:
+        deque.peek() == 1
+        when:
+        deque.poll()
+        then:
+        deque.peek() == null
+    }
+
+    def "test clear"() {
+        given:
+        def deque = MyArrayDeque.of(*1..16)
+        when:
+        deque.clear()
+        then:
+        deque.size() == 0
+        deque.eleEq([null] * 32)
+    }
+
+    def "test remove(Object)"() {
+        when:
+        def deque = MyArrayDeque.of(*1..16)
+        then:
+        !deque.remove(null)
+        !deque.remove(new Object())
+        !deque.remove(17)
+        deque.size() == 16
+        deque.remove(10)
+        deque.size() == 15
+        deque.eleEq([*1..9] + [*11..16] + [null] * 17)
+    }
+
     /**
      * 底层实现,详细测试
      */
@@ -272,43 +289,57 @@ class MyArrayDequeTest extends Specification {
         then:
         deque.eleEq([*0..7] + [null] * 8)
     }
-//
-//    def "test offerFirst"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test offerLast"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test removeFirst"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test removeLast"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
+
+    def "test offerFirst"() {
+        given:
+        def deque = new MyArrayDeque<Integer>()
+        when:
+        (0..16).each {
+            deque.offerFirst(it)
+        }
+        then:
+        deque.size() == 17
+        deque.eq([*16..0])
+    }
+
+    def "test offerLast"() {
+        given:
+        def deque = new MyArrayDeque<Integer>()
+        when:
+        (0..16).each {
+            deque.offerLast(it)
+        }
+        then:
+        deque.size() == 17
+        deque.eq([*0..16])
+    }
+
+    def "test removeFirst"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.removeFirst() == 1
+        deque.removeFirst() == 2
+        deque.removeFirst() == 3
+        when:
+        deque.removeFirst()
+        then:
+        thrown(NoSuchElementException)
+    }
+
+    def "test removeLast"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.removeLast() == 3
+        deque.removeLast() == 2
+        deque.removeLast() == 1
+        when:
+        deque.removeLast()
+        then:
+        thrown(NoSuchElementException)
+    }
+
     def "test pollFirst"() {
         when:
         def deque = MyArrayDeque.of(*1..3)
@@ -333,11 +364,38 @@ class MyArrayDequeTest extends Specification {
     }
 
     def "test use as stack"() {
-
+        given:
+        def stack = new MyArrayDeque()
+        when:
+        stack.push(1)
+        stack.push(2)
+        stack.push(3)
+        stack.push(4)
+        then:
+        stack.pop() == 4
+        stack.pop() == 3
+        stack.pop() == 2
+        stack.pop() == 1
+        when:
+        stack.pop()
+        then:
+        thrown(NoSuchElementException)
     }
 
     def "test use as queue"() {
-
+        given:
+        def queue = new MyArrayDeque()
+        when:
+        queue.offer(1)
+        queue.offer(2)
+        queue.offer(3)
+        queue.offer(4)
+        then:
+        queue.poll() == 1
+        queue.poll() == 2
+        queue.poll() == 3
+        queue.poll() == 4
+        queue.poll() == null
     }
 
     def "test getFirst"() {
@@ -398,67 +456,205 @@ class MyArrayDequeTest extends Specification {
         then:
         deque.peekFirst() == null
     }
-//
-//    def "test peekLast"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test removeFirstOccurrence"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test removeLastOccurrence"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test push"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test pop"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test descendingIterator"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test clone"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
+
+    def "test peekLast"() {
+        when:
+        def deque = MyArrayDeque.of(*1..3)
+        then:
+        deque.peekLast() == 3
+        when:
+        deque.pollLast()
+        then:
+        deque.peekLast() == 2
+        when:
+        deque.pollLast()
+        then:
+        deque.peekLast() == 1
+        when:
+        deque.pollLast()
+        then:
+        deque.peekLast() == null
+    }
+
+    /**
+     * todo 增加各种场景保证覆盖率
+     * @return
+     */
+    def "test removeFirstOccurrence"() {
+        given:
+        def deque = MyArrayDeque.of(1, 1, 2, 2)
+        when:
+        def b1 = deque.removeFirstOccurrence(null)
+        def b2 = deque.removeFirstOccurrence(new Object())
+        def b3 = deque.removeFirstOccurrence(3)
+        then:
+        !(b1 || b2 || b3)
+        deque.size() == 4
+        deque.removeFirstOccurrence(1)
+        deque.eleEq([null] + [1, 2, 2] + [null] * 4)
+        deque.size() == 3
+        deque.removeFirstOccurrence(1)
+        deque.eleEq([null] * 2 + [2, 2] + [null] * 4)
+        deque.size() == 2
+        deque.removeFirstOccurrence(2)
+        deque.eleEq([null] * 3 + [2] + [null] * 4)
+        deque.size() == 1
+        deque.removeFirstOccurrence(2)
+        deque.eleEq([null] * 8)
+        deque.size() == 0
+        !deque.removeFirstOccurrence(1)
+        deque.size() == 0
+    }
+
+    def "test removeLastOccurrence"() {
+        when:
+        def deque = MyArrayDeque.of(1, 1, 2, 2)
+        then:
+        !deque.removeLastOccurrence(null)
+        !deque.removeLastOccurrence(new Object())
+        !deque.removeLastOccurrence(11)
+        deque.removeLastOccurrence(1)
+        deque.removeLastOccurrence(1)
+        deque.removeLastOccurrence(2)
+        deque.removeLastOccurrence(2)
+        deque.isEmpty()
+        !deque.removeLastOccurrence(1)
+        !deque.removeLastOccurrence(2)
+    }
+
+    def "test push"() {
+        given:
+        def deque = new MyArrayDeque<Integer>(7)
+        when:
+        (0..6).each {
+            deque.push(it)
+        }
+        then:
+        deque.size() == 7
+        deque.eleEq([null] + [*6..0])
+        when:
+        deque.push(7)
+        deque.push(8)
+        then:
+        deque.size() == 9
+        deque.eleEq([*7..0] + [null] * 7 + [8])
+    }
+
+    def "test pop"() {
+        when:
+        def deque = MyArrayDeque.of(*1..4)
+        then:
+        deque.pop() == 1
+        deque.pop() == 2
+        deque.pop() == 3
+        deque.pop() == 4
+        when:
+        deque.pop()
+        then:
+        thrown(NoSuchElementException)
+    }
+
+    def "test descendingIterator"() {
+        given:
+        def deque = MyArrayDeque.of(*1..16)
+        when:
+        def it = deque.descendingIterator()
+        def out = []
+        while (it.hasNext()) {
+            def next = it.next()
+            out += next
+            if (next == 10) {
+                it.remove()
+            }
+        }
+        then:
+        !it.hasNext()
+        out == [*16..1]
+        deque.eq([*1..9] + [*11..16])
+        when:
+        it.next()
+        then:
+        thrown(NoSuchElementException)
+    }
+
+
+    def "test iterator"() {
+        given:
+        def deque = MyArrayDeque.of(*1..16)
+        when:
+        def it = deque.iterator()
+        def out = []
+        while (it.hasNext()) {
+            def next = it.next()
+            out += next
+            if (next == 10) {
+                it.remove()
+            }
+        }
+        then:
+        !it.hasNext()
+        out == [*1..16]
+        deque.eq([*1..9] + [*11..16])
+        when:
+        it.next()
+        then:
+        thrown(NoSuchElementException)
+    }
+
+    def "test iterator.forEachRemaining"() {
+        given:
+        def deque = MyArrayDeque.of(*1..16)
+        when:
+        def it = deque.iterator()
+        def out = []
+        while (it.hasNext()) {
+            if (it.next() == 10) {
+                break;
+            }
+        }
+        it.forEachRemaining { e ->
+            out += e
+        }
+        then:
+        !it.hasNext()
+        out == [*11..16]
+    }
+
+    def "test clone"() {
+        given:
+        def deque = MyArrayDeque.of(*1..4)
+        when:
+        def clone = deque.clone()
+        then:
+        clone !== deque
+        clone.toArray() == deque.toArray()
+    }
+
+    def "test serialize and deserialize"(MyArrayDeque input) {
+        when:
+        def bos = new ByteArrayOutputStream()
+        ObjectOutputStream oos = new ObjectOutputStream(bos)
+        oos.writeObject(input)
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))
+        def out = (MyArrayDeque) ois.readObject()
+        then:
+        out !== input
+        out.toArray() == input.toArray()
+        where:
+        input                   | _
+        new MyArrayDeque<>()    | _
+        MyArrayDeque.of(*1..32) | _
+    }
+
+    def "test toString"() {
+
+    }
+
+    def "test removeAll"() {
+
+    }
+
+    def "test retainAll"() {
+
+    }
 }

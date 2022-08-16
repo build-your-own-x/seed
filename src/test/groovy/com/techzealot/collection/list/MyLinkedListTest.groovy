@@ -382,31 +382,6 @@ class MyLinkedListTest extends Specification {
         list.hashCode() == [*1..10].hashCode()
     }
 
-    def "test toString"() {
-        when:
-        def empty = new MyLinkedList()
-        def list = MyLinkedList.of(*1..10)
-        then:
-        empty.toString() == [].toString()
-        list.toString() == [*1..10].toString()
-    }
-
-    def "test serialize and deserialize"(MyLinkedList input) {
-        when:
-        def bos = new ByteArrayOutputStream()
-        ObjectOutputStream oos = new ObjectOutputStream(bos)
-        oos.writeObject(input)
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))
-        def out = (MyLinkedList) ois.readObject()
-        then:
-        out !== input
-        out.toArray() == input.toArray()
-        where:
-        input                   | _
-        new MyLinkedList<>()    | _
-        MyLinkedList.of(*1..10) | _
-    }
-
     def "test iterator"() {
         given:
         def empty = new MyLinkedList()
