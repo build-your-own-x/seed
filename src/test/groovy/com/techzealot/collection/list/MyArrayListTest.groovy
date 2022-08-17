@@ -1,20 +1,13 @@
 package com.techzealot.collection.list
 
-
+import com.techzealot.collection.MyAbstractCollectionExtensions
 import org.joor.Reflect
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.mop.Use
 
-@Category(MyArrayList)
-class MyArrayListExtensions {
-    def <E> boolean eq(List<E> expected) {
-        return this.toArray() == expected as E[]
-    }
-}
-
-@Use(MyArrayListExtensions)
+@Use(MyAbstractCollectionExtensions)
 class MyArrayListTest extends Specification {
 
     def "init with no args"() {
@@ -324,26 +317,6 @@ class MyArrayListTest extends Specification {
         m.get(4) == 5
     }
 
-    def "to array"() {
-        when:
-        def m = MyArrayList.of(1, 2, 3)
-        then:
-        m.eq([1, 2, 3])
-    }
-
-    def "contains"() {
-        when:
-        def m = MyArrayList.of(1, 2, 3, 4, 5, null)
-        then:
-        m.contains(1)
-        m.contains(2)
-        m.contains(3)
-        m.contains(4)
-        m.contains(5)
-        m.contains(Integer.valueOf(1))
-        m.contains(null)
-    }
-
     def "index of"() {
         when:
         def m = MyArrayList.of(1, 2, 3, 4, 5, null)
@@ -358,43 +331,9 @@ class MyArrayListTest extends Specification {
         m.indexOf(10) == -1
     }
 
-    def "removeAll"() {
-        given:
-        def mc = MyArrayList.of(1, 2, 3, 4, 5, 6, null)
-        def deleted = MyArrayList.of(1, 3, 5, null)
-        def empty = new MyArrayList()
-        when:
-        mc.removeAll(null)
-        then:
-        thrown(NullPointerException)
-        when:
-        mc.removeAll(empty)
-        then:
-        mc.eq((1..6) + null)
-        when:
-        mc.removeAll(deleted)
-        then:
-        mc.eq([2, 4, 6])
-    }
-
     @Ignore("TODO")
     def "removeAll when contains throws"() {
 
-    }
-
-    def "retainAll"() {
-        given:
-        def mc = MyArrayList.of(1, 2, 3, 4, 5, 6, null)
-        def deleted = MyArrayList.of(1, 3, 5, null)
-        def empty = new MyArrayList()
-        when:
-        mc.retainAll(deleted)
-        then:
-        mc.eq([1, 3, 5, null])
-        when:
-        mc.retainAll(empty)
-        then:
-        mc.eq([])
     }
 
     @Ignore("TODO")
@@ -453,22 +392,6 @@ class MyArrayListTest extends Specification {
         clone.modCount == 0
         listElements !== cloneElements
         listElements == [*1..10]
-    }
-
-    def "serialize and deserialize"(MyArrayList input) {
-        when:
-        def bos = new ByteArrayOutputStream()
-        ObjectOutputStream oos = new ObjectOutputStream(bos)
-        oos.writeObject(input)
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))
-        def out = (MyArrayList) ois.readObject()
-        then:
-        out !== input
-        out.toArray() == input.toArray()
-        where:
-        input                  | _
-        new MyArrayList()      | _
-        MyArrayList.of(*1..10) | _
     }
 
     def "iterator for concurrent modify"() {

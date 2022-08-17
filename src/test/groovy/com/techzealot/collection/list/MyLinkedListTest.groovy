@@ -1,17 +1,11 @@
 package com.techzealot.collection.list
 
+import com.techzealot.collection.MyAbstractCollectionExtensions
 import org.joor.Reflect
 import spock.lang.Specification
 import spock.util.mop.Use
 
-@Category(MyLinkedList.class)
-class MyLinkedListExtensions {
-    public <E> boolean eq(List<E> expected) {
-        return this.toArray() == expected.toArray()
-    }
-}
-
-@Use(MyLinkedListExtensions.class)
+@Use(MyAbstractCollectionExtensions)
 class MyLinkedListTest extends Specification {
     def "test init with no args"() {
         when:

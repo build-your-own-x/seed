@@ -1,5 +1,6 @@
 package com.techzealot.collection.deque
 
+import com.techzealot.collection.MyAbstractCollectionExtensions
 import com.techzealot.collection.MyCollection
 import com.techzealot.collection.list.MyArrayList
 import com.techzealot.collection.list.MyLinkedList
@@ -17,16 +18,13 @@ class MyArrayDequeExtensions {
         return Reflect.on(this).field("tail").get()
     }
 
-    <E> boolean eq(List<E> list) {
-        return this.toArray() == list.toArray()
-    }
-
     <E> boolean eleEq(List<E> list) {
         return Reflect.on(this).field("elements").get() == list.toArray()
     }
 }
 
 @Use(MyArrayDequeExtensions)
+@Use(MyAbstractCollectionExtensions)
 class MyArrayDequeTest extends Specification {
     def "init with on arg"() {
         when:
@@ -122,33 +120,6 @@ class MyArrayDequeTest extends Specification {
         MyArrayDeque.of(*1..9)  | 16
         MyArrayDeque.of(*1..16) | 32
         MyArrayDeque.of(*1..31) | 32
-    }
-
-    def "test contains"() {
-        when:
-        def empty = new MyArrayDeque()
-        def deque = MyArrayDeque.of(*1..5)
-        then:
-        !empty.contains(null)
-        !empty.contains(new Object())
-        deque.contains(1)
-        deque.contains(2)
-        deque.contains(3)
-        deque.contains(4)
-        deque.contains(5)
-        !deque.contains(null)
-        !deque.contains(new Object())
-    }
-
-    def "test toArray"(MyArrayDeque deque, List expected) {
-        when:
-        def arr = deque.toArray()
-        then:
-        arr == expected.toArray()
-        where:
-        deque                   | expected
-        new MyArrayDeque()      | []
-        MyArrayDeque.of(*1..10) | [*1..10]
     }
 
     def "test add"() {
@@ -618,43 +589,5 @@ class MyArrayDequeTest extends Specification {
         then:
         !it.hasNext()
         out == [*11..16]
-    }
-
-    def "test clone"() {
-        given:
-        def deque = MyArrayDeque.of(*1..4)
-        when:
-        def clone = deque.clone()
-        then:
-        clone !== deque
-        clone.toArray() == deque.toArray()
-    }
-
-    def "test serialize and deserialize"(MyArrayDeque input) {
-        when:
-        def bos = new ByteArrayOutputStream()
-        ObjectOutputStream oos = new ObjectOutputStream(bos)
-        oos.writeObject(input)
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))
-        def out = (MyArrayDeque) ois.readObject()
-        then:
-        out !== input
-        out.toArray() == input.toArray()
-        where:
-        input                   | _
-        new MyArrayDeque<>()    | _
-        MyArrayDeque.of(*1..32) | _
-    }
-
-    def "test toString"() {
-
-    }
-
-    def "test removeAll"() {
-
-    }
-
-    def "test retainAll"() {
-
     }
 }
