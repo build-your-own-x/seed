@@ -461,5 +461,69 @@ class MyLinkedListTest extends Specification {
         out == [*6..10]
     }
 
+    def "test addFirst"() {
+        given:
+        def list = new MyLinkedList()
+        when:
+        list.addFirst(1)
+        then:
+        list.eq([1])
+        when:
+        list.addFirst(2)
+        then:
+        list.eq([2, 1])
+        when:
+        list.addFirst(3)
+        then:
+        list.eq([3, 2, 1])
+        when:
+        list.addFirst(null)
+        then:
+        list.eq([null, 3, 2, 1])
+    }
+
+    def "test addLast"() {
+        given:
+        def list = new MyLinkedList()
+        when:
+        list.addLast(1)
+        then:
+        list.eq([1])
+        when:
+        list.addLast(2)
+        then:
+        list.eq([1, 2])
+        when:
+        list.addLast(3)
+        then:
+        list.eq([1, 2, 3])
+        when:
+        list.addLast(null)
+        then:
+        list.eq([1, 2, 3, null])
+    }
+
+    def "test pollFirst"() {
+        when:
+        def list = MyLinkedList.of(*1..3, null)
+        then:
+        list.pollFirst() == 1
+        list.pollFirst() == 2
+        list.pollFirst() == 3
+        list.pollFirst() == null
+        list.pollFirst() == null
+    }
+
+    def "test pollLast"() {
+        when:
+        def list = MyLinkedList.of(*1..3, null)
+        then:
+        list.pollLast() == null
+        list.pollLast() == 3
+        list.pollLast() == 2
+        list.pollLast() == 1
+        list.pollLast() == null
+    }
+
 
 }

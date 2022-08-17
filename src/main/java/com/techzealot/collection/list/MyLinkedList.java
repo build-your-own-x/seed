@@ -394,6 +394,31 @@ public class MyLinkedList<E> extends MyAbstractList<E>
         }
     }
 
+    /**
+     * 增加双端队列能力但不实现接口,仅为了测试相关link和unlink方法
+     * <p>
+     * 不推荐作为Deque,Queue,Stack使用,因为LinkedList可以存储null,不符合取出元素返回null时集合为空的接口定义
+     *
+     * @param e
+     */
+    public void addFirst(E e) {
+        linkFirst(e);
+    }
+
+    public void addLast(E e) {
+        linkLast(e);
+    }
+
+    public E pollFirst() {
+        Node<E> f = first;
+        return f == null ? null : unlinkFirst(f);
+    }
+
+    public E pollLast() {
+        Node<E> l = last;
+        return l == null ? null : unlinkLast(l);
+    }
+
 
     private static class Node<E> {
         Node<E> prev;

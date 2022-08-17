@@ -452,45 +452,96 @@ class MyArrayDequeTest extends Specification {
      * @return
      */
     def "test removeFirstOccurrence"() {
-        given:
-        def deque = MyArrayDeque.of(1, 1, 2, 2)
         when:
-        def b1 = deque.removeFirstOccurrence(null)
-        def b2 = deque.removeFirstOccurrence(new Object())
-        def b3 = deque.removeFirstOccurrence(3)
+        def deque = MyArrayDeque.of(1, 1)
         then:
-        !(b1 || b2 || b3)
-        deque.size() == 4
-        deque.removeFirstOccurrence(1)
-        deque.eleEq([null] + [1, 2, 2] + [null] * 4)
-        deque.size() == 3
-        deque.removeFirstOccurrence(1)
-        deque.eleEq([null] * 2 + [2, 2] + [null] * 4)
+        !deque.removeFirstOccurrence(null)
+        !deque.removeFirstOccurrence(new Object())
+        !deque.removeFirstOccurrence(3)
         deque.size() == 2
-        deque.removeFirstOccurrence(2)
-        deque.eleEq([null] * 3 + [2] + [null] * 4)
+        deque.removeFirstOccurrence(1)
+        deque.eleEq([null] + [1] + [null] * 6)
         deque.size() == 1
-        deque.removeFirstOccurrence(2)
+        deque.removeFirstOccurrence(1)
         deque.eleEq([null] * 8)
         deque.size() == 0
-        !deque.removeFirstOccurrence(1)
-        deque.size() == 0
+    }
+
+    def "test removeFirstOccurrence:front<back,head<i"() {
+        when:
+        def deque = MyArrayDeque.of(*1..10)
+        then:
+        deque.eleEq([*1..10] + [null] * 6)
+        when:
+        deque.removeFirstOccurrence(3)
+        then:
+        deque.eq([*1..2, *4..10])
+        deque.eleEq([null, *1..2, *4..10] + [null] * 6)
+    }
+
+    def "test removeFirstOccurrence:front<back,head>i"() {
+        when:
+        def deque = new MyArrayDeque()
+        deque.addFirst(-1)
+        deque.addFirst(-2)
+        deque.addFirst(-3)
+        (1..10).each {
+            deque.addLast(it)
+        }
+        then:
+        deque.eleEq([*1..10] + [null] * 3 + [-3, -2, -1])
+        when:
+        deque.removeFirstOccurrence(1)
+        then:
+        deque.eq([*-3..-1] + [*2..10])
+        deque.eleEq([-1, *2..10] + [null] * 3 + [null] + [-3, -2])
+    }
+
+    def "test removeFirstOccurrence:front>back,head<i"() {
+        when:
+        def deque = MyArrayDeque.of(*1..10)
+        then:
+        deque.eleEq([*1..10] + [null] * 6)
+        when:
+        deque.removeFirstOccurrence(6)
+        then:
+        deque.eq([*1..5, *7..10])
+        deque.eleEq([*1..5, *7..10] + [null] * 6 + [null])
+    }
+
+
+    def "test removeFirstOccurrence:front>back,head>i"() {
+        when:
+        def deque = new MyArrayDeque()
+        deque.addLast(-1)
+        deque.addLast(-1)
+        deque.addLast(-1)
+        (1..10).each {
+            deque.addFirst(it)
+        }
+        then:
+        deque.eleEq([-1] * 3 + [null] * 3 + [*10..1])
+        when:
+        deque.removeFirstOccurrence(2)
+        then:
+        deque.eq([*10..3, 1] + [-1] * 3)
+        deque.eleEq([-1] * 2 + [null] * 4 + [*10..3, 1] + [-1])
     }
 
     def "test removeLastOccurrence"() {
         when:
-        def deque = MyArrayDeque.of(1, 1, 2, 2)
+        def deque = MyArrayDeque.of(1, 1)
         then:
         !deque.removeLastOccurrence(null)
         !deque.removeLastOccurrence(new Object())
         !deque.removeLastOccurrence(11)
+        deque.size() == 2
         deque.removeLastOccurrence(1)
+        deque.size() == 1
         deque.removeLastOccurrence(1)
-        deque.removeLastOccurrence(2)
-        deque.removeLastOccurrence(2)
+        deque.size() == 0
         deque.isEmpty()
         !deque.removeLastOccurrence(1)
-        !deque.removeLastOccurrence(2)
     }
 
     def "test push"() {
