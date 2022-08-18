@@ -1,4 +1,6 @@
 package com.techzealot.collection.set;
 
-public interface MySet {
+import com.techzealot.collection.MyCollection;
+
+public interface MySet<E> extends MyCollection<E> {
 }

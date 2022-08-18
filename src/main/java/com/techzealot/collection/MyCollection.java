@@ -12,7 +12,23 @@ public interface MyCollection<E> extends Iterable<E> {
         return size() == 0;
     }
 
-    boolean contains(Object o);
+    default boolean contains(Object o) {
+        Iterator<E> it = iterator();
+        if (o == null) {
+            while (it.hasNext()) {
+                if (it.next() == null) {
+                    return true;
+                }
+            }
+        } else {
+            while (it.hasNext()) {
+                if (o.equals(it.next())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     Object[] toArray();
 

@@ -3,7 +3,7 @@ package com.techzealot.collection.list
 import spock.lang.Specification
 
 
-class JdkDequeTest extends Specification {
+class JdkCollectionTest extends Specification {
     /**
      * LinkedList作为Queue和Deque返回null值时具有歧义
      * @return
@@ -45,5 +45,29 @@ class JdkDequeTest extends Specification {
         deque.poll() == 3
         deque.poll() == null
         deque.isEmpty()
+    }
+
+    def "test init PriorityQueue with TreeSet which contains null"() {
+        when:
+        def arr = new TreeSet<Integer>((a, b) -> {
+            if (a == null && b == null) {
+                return 0;
+            }
+            if (b == null) {
+                return 1;
+            }
+            if (a == null) {
+                return -1;
+            }
+            return a - b
+        });
+        arr.add(1)
+        //自定义支持null值的Comparator在有序集合中可以存放null
+        arr.add(null)
+        def pq = new PriorityQueue(arr)
+        then:
+        true
+        def e = thrown(NullPointerException)
+        e.asString().contains("PriorityQueue.initElementsFromCollection")
     }
 }
