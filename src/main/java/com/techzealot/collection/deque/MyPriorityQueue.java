@@ -3,12 +3,16 @@ package com.techzealot.collection.deque;
 import com.techzealot.collection.MyCollection;
 import com.techzealot.collection.list.MyArrayList;
 import com.techzealot.collection.set.MySortedSet;
+import lombok.NonNull;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.*;
 
+/**
+ * 可接受相同元素,不接受null值
+ *
+ * @param <E>
+ */
 public class MyPriorityQueue<E> extends MyAbstractQueue<E>
         implements Serializable {
     @Serial
@@ -41,7 +45,7 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
         this.comparator = comparator;
     }
 
-    public MyPriorityQueue(MyCollection<? extends E> c) {
+    public MyPriorityQueue(@NonNull MyCollection<? extends E> c) {
         if (c instanceof MySortedSet<?> ss) {
             this.comparator = (Comparator<? super E>) ss.comparator();
             initElementsFromCollection(c);
@@ -54,14 +58,18 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
         }
     }
 
-    public MyPriorityQueue(MySortedSet<? extends E> c) {
+    public MyPriorityQueue(@NonNull MySortedSet<? extends E> c) {
         this.comparator = (Comparator<? super E>) c.comparator();
         initElementsFromCollection(c);
     }
 
-    public MyPriorityQueue(MyPriorityQueue<? extends E> c) {
+    public MyPriorityQueue(@NonNull MyPriorityQueue<? extends E> c) {
         this.comparator = (Comparator<? super E>) c.comparator;
         initFromPriorityQueue(c);
+    }
+
+    public static <E> MyPriorityQueue<E> of(@NonNull E... elements) {
+        return new MyPriorityQueue<>(MyArrayList.of(elements));
     }
 
     private Object[] ensureNonEmpty(Object[] arr) {
@@ -137,7 +145,7 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
 
     private void siftDownUsingComparator(int k, E e) {
         while (k < size >>> 1) {
-            int child = (size << 1) + 1;
+            int child = (k << 1) + 1;
             Object least = queue[child];
             int right = child + 1;
             if (right < size && comparator.compare((E) queue[right], (E) least) < 0) {
@@ -167,7 +175,7 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
             Object least = queue[child];
             //r<size表示有右孩子
             // 当右孩子小于左孩子时,重新赋值最小的孩子
-            if (child < size && ((Comparable) queue[right]).compareTo(least) < 0) {
+            if (right < size && ((Comparable) queue[right]).compareTo(least) < 0) {
                 //重新绑定最小孩子及其索引
                 least = queue[child = right];
             }
@@ -195,7 +203,7 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
 
     @Override
     public boolean contains(Object o) {
-        return indexOf(0) != -1;
+        return indexOf(o) != -1;
     }
 
     private int indexOf(Object o) {
@@ -226,11 +234,15 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
         }
         modCount++;
         int i = size;
-        if (i > queue.length) {
+        if (i >= queue.length) {
             grow(i + 1);
         }
-        siftUp(i, e);
         size = i + 1;
+        if (i == 0) {
+            queue[0] = e;
+        } else {
+            siftUp(i, e);
+        }
         return true;
     }
 
@@ -243,12 +255,12 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
     }
 
     private void siftUpComparable(int k, E e) {
+        Comparable x = (Comparable) e;
         while (k > 0) {
             int p = (k - 1) >> 1;
             E parent = (E) queue[p];
-            if (comparator.compare(e, parent) > 0) {
+            if (x.compareTo(parent) > 0) {
                 break;
-
             }
             queue[k] = parent;
             k = p;
@@ -257,7 +269,16 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
     }
 
     private void siftUpUsingComparator(int k, E e) {
-
+        while (k > 0) {
+            int p = (k - 1) >> 1;
+            E parent = (E) queue[p];
+            if (comparator.compare(e, parent) > 0) {
+                break;
+            }
+            queue[k] = parent;
+            k = p;
+        }
+        queue[k] = e;
     }
 
     private void grow(int minCapacity) {
@@ -309,9 +330,33 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
         }
     }
 
-    private void removeAt(int i) {
+    /**
+     * 如果删除后替换元素(last)排到了索引i前面则需要返回替换元素,否则返回null
+     * 此返回值是为了后续迭代删除时不丢失元素
+     *
+     * @param i
+     * @return
+     */
+    private E removeAt(int i) {
         modCount++;
         int s = --size;
+        //just remove last
+        if (s == i) {
+            queue[i] = null;
+        } else {
+            E moved = (E) queue[s];
+            queue[s] = null;
+            //先向下筛选
+            siftDown(i, moved);
+            if (queue[i] == moved) {
+                //再向上筛选
+                siftUp(i, moved);
+                if (queue[i] != moved) {
+                    return moved;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -325,7 +370,7 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
 
     @Override
     public Iterator<E> iterator() {
-        return null;
+        return new Itr();
     }
 
     public Comparator<? super E> comparator() {
@@ -365,5 +410,80 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
         E result = (E) queue[0];
         siftDown(0, e);
         return result;
+    }
+
+    private boolean removeEq(Object o) {
+        for (int i = 0; i < size; i++) {
+            if (o == queue[i]) {
+                removeAt(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 不保障特定的遍历顺序,由于存在删除操作不一定按照底层数组返回
+     */
+    private class Itr implements Iterator<E> {
+        private int cursor = 0;
+        private int lastRet = -1;
+        private E lastRetElt = null;
+        private ArrayDeque<E> forgetMeNot = null;
+        private int expectedCount = modCount;
+
+        @Override
+        public boolean hasNext() {
+            return cursor < size || (forgetMeNot != null && !forgetMeNot.isEmpty());
+        }
+
+        @Override
+        public E next() {
+            if (expectedCount != modCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (cursor < size) {
+                return (E) queue[lastRet = cursor++];
+            }
+            if (forgetMeNot != null) {
+                lastRet = -1;
+                lastRetElt = forgetMeNot.poll();
+                if (lastRetElt != null) {
+                    return lastRetElt;
+                }
+            }
+            throw new NoSuchElementException();
+        }
+
+        /**
+         * remove一定在next之后调用
+         */
+        @Override
+        public void remove() {
+            if (expectedCount != modCount) {
+                throw new ConcurrentModificationException();
+            }
+            //调用next后若为-1则一定表示开始遍历之前删除的集合
+            if (lastRet != -1) {
+                E moved = MyPriorityQueue.this.removeAt(lastRet);
+                lastRet = -1;
+                if (moved == null) {
+                    //删除元素后补充元素仍在未遍历过部分，遍历指针后移
+                    cursor--;
+                } else {
+                    //删除后补充元素排到已遍历部分需要记录起来最后接着遍历
+                    if (forgetMeNot == null) {
+                        forgetMeNot = new ArrayDeque<>();
+                    }
+                    forgetMeNot.add(moved);
+                }
+            } else if (lastRetElt != null) {
+                MyPriorityQueue.this.removeEq(lastRetElt);
+                lastRetElt = null;
+            } else {
+                throw new IllegalStateException();
+            }
+            expectedCount = modCount;
+        }
     }
 }

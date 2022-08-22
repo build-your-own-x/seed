@@ -39,7 +39,7 @@ public abstract class MyAbstractQueue<E> extends MyAbstractCollection<E>
                 modified = true;
             }
         }
-        return false;
+        return modified;
     }
 
     @Override
