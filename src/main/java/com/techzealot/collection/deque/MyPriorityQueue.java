@@ -72,6 +72,13 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
         return new MyPriorityQueue<>(MyArrayList.of(elements));
     }
 
+    private static int hugeCapacity(int minCapacity) {
+        if (minCapacity < 0) {
+            throw new OutOfMemoryError();
+        }
+        return minCapacity > MAX_ARRAY_SIZE ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
+    }
+
     private Object[] ensureNonEmpty(Object[] arr) {
         return arr.length > 0 ? arr : new Object[1];
     }
@@ -121,6 +128,10 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
 
     /**
      * 堆化原理:从最后一个非叶子节点(size >>> 1) - 1开始依次对所有非叶子节点向下筛选直到根节点
+     * 堆化方式有两种:
+     * 1.从上到下上滤:最大操作数=所有结点深度之和,O(nlogn)
+     * 2.从下到上下滤:最大操作数=所有结点高度之和,O(n)
+     * 因此采用由下到上下滤
      */
     private void heapify() {
         //size==1时不做筛选操作
@@ -144,6 +155,7 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
     }
 
     private void siftDownUsingComparator(int k, E e) {
+        //第一个叶子结点的索引为size>>>1
         while (k < size >>> 1) {
             int child = (k << 1) + 1;
             Object least = queue[child];
@@ -291,13 +303,6 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
         queue = Arrays.copyOf(queue, newCapacity);
     }
 
-    private int hugeCapacity(int minCapacity) {
-        if (minCapacity < 0) {
-            throw new OutOfMemoryError();
-        }
-        return minCapacity > MAX_ARRAY_SIZE ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
-    }
-
     @Override
     public E poll() {
         if (size == 0) {
@@ -405,6 +410,10 @@ public class MyPriorityQueue<E> extends MyAbstractQueue<E>
         if (size == 0) {
             offer(e);
             return null;
+        }
+        //当size=1时,不会调用siftDown因此不会触发NPE,此处需要显式判断
+        if (e == null) {
+            throw new NullPointerException();
         }
         modCount++;
         E result = (E) queue[0];

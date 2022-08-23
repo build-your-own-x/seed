@@ -1,10 +1,15 @@
 package com.techzealot.collection.deque
 
+import com.techzealot.collection.MyAbstractCollectionExtensions
 import com.techzealot.collection.MyCollection
 import com.techzealot.collection.list.MyArrayList
+import com.techzealot.collection.list.MyLinkedList
+import org.joor.Reflect
 import spock.lang.Ignore
 import spock.lang.Specification
+import spock.util.mop.Use
 
+@Use(MyAbstractCollectionExtensions)
 class MyPriorityQueueTest extends Specification {
 
     def "test constructor()"() {
@@ -73,16 +78,18 @@ class MyPriorityQueueTest extends Specification {
     //todo add MySortedSet
     def "test constructor(MyCollection:no null)"(MyCollection c, List list) {
         when:
-        def pq = new MyPriorityQueue(c)
+        //需要向上转型否则会调错构造函数
+        def pq = new MyPriorityQueue(c as MyCollection)
         then:
         pq.size() == c.size()
         pq.capacity() == (c.size() == 0 ? 1 : c.size())
-        pq.toArray() == list.toArray()
+        pq.eq(list)
         where:
         c                                      | list
         new MyArrayList()                      | []
         MyArrayList.of(1)                      | [1]
         MyArrayList.of(*5..1)                  | [1, 2, 3, 5, 4]
+        MyLinkedList.of(*5..1)                 | [1, 2, 3, 5, 4]
         MyPriorityQueue.of(*5..1)              | [1, 2, 3, 5, 4]
         MyArrayList.of(5, 5, 4, 3, 3, 2, 1, 1) | [1, 3, 1, 5, 3, 2, 4, 5]
     }
@@ -128,7 +135,7 @@ class MyPriorityQueueTest extends Specification {
         then:
         pq.size() == mpq.size()
         pq.capacity() == expectedCapacity
-        pq.toArray() == list.toArray()
+        pq.eq(list)
         where:
         mpq                       | expectedCapacity | list
         new MyPriorityQueue()     | 1                | []
@@ -154,7 +161,7 @@ class MyPriorityQueueTest extends Specification {
         }
         then:
         mpq.size() == expectedSize
-        mpq.toArray() == list.toArray()
+        mpq.eq(list)
         where:
         mpq                                            | added         | expectedSize | list
         new MyPriorityQueue()                          | [5, 2]        | 2            | [2, 5]
@@ -192,6 +199,27 @@ class MyPriorityQueueTest extends Specification {
         thrown(NoSuchElementException)
     }
 
+    def "test remove(Object)"() {
+        when:
+        def pq = MyPriorityQueue.of(1, 2, 20, 3, 4, 21, 22, 5, 6, 7, 8, 23, 24, 26, 25, 9, 30)
+        then: "return null"
+        !pq.remove(10000)
+        !pq.remove(null)
+        !pq.remove(new Object())
+        then: "siftDown"
+        pq.remove(22)
+        pq.eq([1, 2, 20, 3, 4, 21, 25, 5, 6, 7, 8, 23, 24, 26, 30, 9])
+        then: "siftUp"
+        pq.remove(25)
+        pq.eq([1, 2, 9, 3, 4, 21, 20, 5, 6, 7, 8, 23, 24, 26, 30])
+        when: "siftDownComparing:right>left"
+        def pqc = new MyPriorityQueue(Comparator.naturalOrder())
+        pqc.addAll(MyArrayList.of(1, 3, 2, 5, 4))
+        pqc.poll()
+        then:
+        pqc.eq([2, 3, 4, 5])
+    }
+
     def "test peek"() {
         when:
         def pq = MyPriorityQueue.of(*5..1)
@@ -210,35 +238,130 @@ class MyPriorityQueueTest extends Specification {
         pq.poll() == null
     }
 
+    def "test element"() {
+        when:
+        def pq = MyPriorityQueue.of(*5..1)
+        then:
+        pq.element() == 1
+        pq.poll() == 1
+        pq.element() == 2
+        pq.poll() == 2
+        pq.element() == 3
+        pq.poll() == 3
+        pq.element() == 4
+        pq.poll() == 4
+        pq.element() == 5
+        pq.poll() == 5
+        pq.poll() == null
+        when:
+        pq.element()
+        then:
+        thrown(NoSuchElementException)
+
+    }
+
     def "test clear"() {
         when:
         def empty = new MyPriorityQueue()
         def mpq = MyPriorityQueue.of(*5..1)
         then:
-        mpq.toArray() == [1, 2, 3, 5, 4]
+        mpq.eq([1, 2, 3, 5, 4])
         when:
         mpq.clear()
         then:
-        mpq.toArray() == []
+        mpq.eq([])
         mpq.capacity() == 5
         mpq.size() == 0
+        when:
+        empty.clear()
+        then:
+        empty.size() == 0
+        empty.eq([])
     }
-//
-//    def "test iterator"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test replace"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
+
+    def "test iterator:iterate"() {
+        given:
+        def pq = MyPriorityQueue.of(*5..1)
+        def it = pq.iterator()
+        def out = []
+        when:
+        while (it.hasNext()) {
+            out += it.next()
+        }
+        then:
+        out == [1, 2, 3, 5, 4]
+    }
+
+    def "test iterator:remove"() {
+        given:
+        def pq = MyPriorityQueue.of(1, 2, 20, 3, 4, 21, 22, 5, 6, 7, 8, 23, 24, 26, 25, 9, 30)
+        def it = pq.iterator()
+        when:
+        while (it.hasNext()) {
+            def e = it.next()
+            //22:删除后替换元素在未遍历部分
+            //25:删除后替换元素在已遍历部分
+            //9:删除在已遍历部分元素
+            if (e == 22 || e == 25 || e == 9) {
+                it.remove()
+            }
+        }
+        then:
+        pq.eq([1, 2, 20, 3, 4, 21, 26, 5, 6, 7, 8, 23, 24, 30])
+    }
+
+    def "test iterator:forEachRemaining"() {
+        given:
+        def pq = MyPriorityQueue.of(*5..1)
+        def it = pq.iterator()
+        def out = []
+        when:
+        while (it.hasNext()) {
+            if (it.next() == 3) {
+                break;
+            }
+        }
+        it.forEachRemaining {
+            out += it
+        }
+        then:
+        out == [5, 4]
+    }
+
+    def "test replace"() {
+        when:
+        def pq = MyPriorityQueue.of(*5..1)
+        then:
+        pq.eq([1, 2, 3, 5, 4])
+        pq.replace(6) == 1
+        pq.eq([2, 4, 3, 5, 6])
+        pq.replace(2) == 2
+        pq.eq([2, 4, 3, 5, 6])
+        when:
+        pq.replace(null)
+        then:
+        thrown(NullPointerException)
+        when: "size=0"
+        def pq0 = new MyPriorityQueue()
+        pq0.replace(1)
+        then:
+        pq0.eq([1])
+        when:
+        pq0.replace(null)
+        then:
+        thrown(NullPointerException)
+    }
+
+    def "test hugeCapacity"(int minCapacity, int expected) {
+        given:
+        def mpq = Reflect.onClass(MyPriorityQueue.class)
+        when:
+        def capacity = mpq.call("hugeCapacity", minCapacity).get()
+        then:
+        capacity == expected
+        where:
+        minCapacity                   | expected
+        Integer.MAX_VALUE - 4         | Integer.MAX_VALUE
+        (Integer.MAX_VALUE >> 1) + 10 | Integer.MAX_VALUE - 8
+    }
 }
