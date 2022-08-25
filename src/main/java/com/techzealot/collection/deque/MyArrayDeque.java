@@ -62,7 +62,7 @@ public class MyArrayDeque<E> extends MyAbstractCollection<E>
         int initialCapacity = MIN_INITIAL_CAPACITY;
         if (numElements >= initialCapacity) {
             initialCapacity = numElements;
-            //思路为将最高位后所有二进制位变为1，然后再+1即为所求
+            //思路为将二进制第一个1后所有二进制位变为1，然后再+1
             initialCapacity |= (initialCapacity >>> 1);
             initialCapacity |= (initialCapacity >>> 2);
             initialCapacity |= (initialCapacity >>> 4);
