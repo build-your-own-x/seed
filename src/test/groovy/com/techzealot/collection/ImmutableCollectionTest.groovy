@@ -11,6 +11,7 @@ class ImmutableCollectionTest extends Specification {
      */
     def "test eclipse-collections"() {
         when: "创建集合"
+        //返回的集合与JCF不兼容
         def list = Lists.immutable.of(*1..10)
         then:
         list == [*1..10]
