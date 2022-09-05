@@ -37,17 +37,30 @@ public class BST<E extends Comparable<E>> {
         return modified;
     }
 
-    public boolean add0(@NonNull E e) {
-        if (root == null) {
-            root = new Node(e);
-            size++;
-            return true;
-        }
-        return add0(root, e);
-    }
-
     public boolean addNoRecursive(@NonNull E e) {
-        return true;
+        Node cur = root;
+        while (cur != null) {
+            if (e.compareTo(cur.e) == 0) {
+                return false;
+            } else if (e.compareTo(cur.e) > 0) {
+                Node right = cur.right;
+                if (right == null) {
+                    cur.right = new Node(e);
+                    size++;
+                    return true;
+                }
+                cur = right;
+            } else {
+                Node left = cur.left;
+                if (left == null) {
+                    cur.left = new Node(e);
+                    size++;
+                    return true;
+                }
+                cur = left;
+            }
+        }
+        return false;
     }
 
     /**
@@ -71,34 +84,6 @@ public class BST<E extends Comparable<E>> {
             node.right = add(node.right, e, modified);
         }
         return node;
-    }
-
-    /**
-     * 比较复杂的递归，不够简洁
-     *
-     * @param node
-     * @param e
-     * @return
-     */
-    private boolean add0(Node node, E e) {
-        if (e.compareTo(node.e) < 0) {
-            if (node.left != null) {
-                return add0(node.left, e);
-            } else {
-                node.left = new Node(e);
-                size++;
-                return true;
-            }
-        } else if (e.compareTo(node.e) > 0) {
-            if (node.right != null) {
-                return add0(node.right, e);
-            } else {
-                node.right = new Node(e);
-                size++;
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -335,8 +320,64 @@ public class BST<E extends Comparable<E>> {
         return node;
     }
 
-    //todo
-    // predecessor,successor,floor,ceil,rank,select,
+    public E floor(E e) {
+        Node node = floor(root, e);
+        if (node == null) {
+            return null;
+        }
+        return node.e;
+    }
+
+    private Node floor(Node node, E e) {
+        if (node == null) return null;
+        if (e.compareTo(node.e) == 0) {
+            return node;
+        } else if (e.compareTo(node.e) > 0) {
+            Node x = floor(node.right, e);
+            if (x == null) {
+                return node;
+            }
+            return x;
+        } else {
+            Node x = floor(node.left, e);
+            if (x == null) {
+                return node;
+            }
+            return x;
+        }
+    }
+
+    public E ceiling(E e) {
+        Node node = ceiling(root, e);
+        return null;
+    }
+
+    private Node ceiling(Node node, E e) {
+        if (node == null) return null;
+        if (e.compareTo(node.e) == 0) {
+            return node;
+        } else if (e.compareTo(node.e) > 0) {
+            Node x = ceiling(node.right, e);
+            if (x == null) {
+                return null;
+            }
+            return x;
+        } else {
+
+        }
+        return null;
+    }
+
+    public E predecessor(E e) {
+        return null;
+    }
+
+    public E successor(E e) {
+        return null;
+    }
+
+    //若要实现rank,select需在Node中维护以当前节点为根节点的子树大小的字段，并在添加删除时维护该字段
+
 
     private class Node {
         E e;
