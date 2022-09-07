@@ -1,4 +1,5 @@
-package com.techzealot.collection.tree
+package com.techzealot.collection.tree.bst
+
 
 import spock.lang.Specification
 
@@ -182,26 +183,34 @@ class BSTTest extends Specification {
 
     }
 
-    def "test of and toList"() {
+    def "test of and toList"(Object[] from, List expected) {
         when:
-        def empty = BaseBST.of()
+        def baseBST = BaseBST.of(from)
         then:
-        empty.toList() == []
+        baseBST.toList() == expected
         when:
-        def bst = BaseBST.of(4, 2, 6, 1, 3, 5, 7)
+        def rankedBST = RankedBST.of(from)
         then:
-        bst.toList() == [*1..7]
+        rankedBST.toList() == expected
+        where:
+        from                  | expected
+        []                    | []
+        [4, 2, 6, 1, 3, 5, 7] | [*1..7]
+        [*1..7]               | [*1..7]
+    }
+
+    def "test of from null array or null element"(Object[] array) {
         when:
-        def bst1 = BaseBST.of(*1..7)
-        then:
-        bst.toList() == [*1..7]
-        when:
-        BaseBST.of(null)
+        BaseBST.of(array)
         then:
         thrown(NullPointerException)
         when:
-        BaseBST.of(1, 2, null)
+        RankedBST.of(array)
         then:
         thrown(NullPointerException)
+        where:
+        array           | _
+        null            | _
+        [1, 2, 3, null] | _
     }
 }

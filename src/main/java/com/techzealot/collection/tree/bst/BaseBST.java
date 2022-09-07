@@ -1,4 +1,4 @@
-package com.techzealot.collection.tree;
+package com.techzealot.collection.tree.bst;
 
 import lombok.NonNull;
 
@@ -13,6 +13,9 @@ import java.util.Comparator;
  * 若显式定义比较器则使用比较器，若未定义比较器则元素本身必须为Comparable否则强转异常
  */
 public class BaseBST<E> extends AbstractBST<E> {
+
+    private int size;
+    private Node root;
 
     public BaseBST() {
     }
@@ -29,6 +32,16 @@ public class BaseBST<E> extends AbstractBST<E> {
         return bst;
     }
 
+    @Override
+    protected BST.Node<E> root() {
+        return root;
+    }
+
+    @Override
+    public int size() {
+        return size;
+    }
+
     /**
      * @param e
      * @return false if e already exists
@@ -41,12 +54,12 @@ public class BaseBST<E> extends AbstractBST<E> {
     }
 
     public boolean addNoRecursive(@NonNull E e) {
-        Node<E> cur = root;
+        Node cur = root;
         while (cur != null) {
             if (compare(e, cur.e) == 0) {
                 return false;
             } else if (compare(e, cur.e) > 0) {
-                Node<E> right = cur.right;
+                Node right = cur.right;
                 if (right == null) {
                     cur.right = new Node(e);
                     size++;
@@ -54,7 +67,7 @@ public class BaseBST<E> extends AbstractBST<E> {
                 }
                 cur = right;
             } else {
-                Node<E> left = cur.left;
+                Node left = cur.left;
                 if (left == null) {
                     cur.left = new Node(e);
                     size++;
@@ -75,7 +88,7 @@ public class BaseBST<E> extends AbstractBST<E> {
      * @param e
      * @return
      */
-    private Node<E> add(Node<E> node, E e, Boolean modified) {
+    private Node add(Node node, E e, Boolean modified) {
         if (node == null) {
             size++;
             modified = true;
@@ -104,7 +117,7 @@ public class BaseBST<E> extends AbstractBST<E> {
         return removed;
     }
 
-    private Node<E> remove(Node<E> node, Object o, Boolean removed) {
+    private Node remove(Node node, Object o, Boolean removed) {
         if (node == null) return null;
         if (compare((E) o, node.e) > 0) {
             node.right = remove(node.right, o, removed);
@@ -115,12 +128,12 @@ public class BaseBST<E> extends AbstractBST<E> {
         } else {
             removed = true;
             if (node.right == null) {
-                Node<E> left = node.left;
+                Node left = node.left;
                 node.left = null;
                 size--;
                 return left;
             } else {
-                Node<E> rightMin = minimum(node.right);
+                Node rightMin = (Node) minimum(node.right);
                 rightMin.right = removeMin(node.right);
                 rightMin.left = node.left;
                 node.right = node.left = null;
@@ -143,9 +156,9 @@ public class BaseBST<E> extends AbstractBST<E> {
      * @param node
      * @return
      */
-    protected Node<E> removeMin(Node<E> node) {
+    protected Node removeMin(Node node) {
         if (node.left == null) {
-            Node<E> rightNode = node.right;
+            Node rightNode = node.right;
             size--;
             node.right = null;
             return rightNode;
@@ -162,14 +175,42 @@ public class BaseBST<E> extends AbstractBST<E> {
         return ret;
     }
 
-    protected Node<E> removeMax(Node<E> node) {
+    protected Node removeMax(Node node) {
         if (node.right == null) {
-            Node<E> leftNode = node.left;
+            Node leftNode = node.left;
             node.left = null;
             size--;
             return leftNode;
         }
         node.right = removeMax(node.right);
         return node;
+    }
+
+    private class Node implements BST.Node<E> {
+
+        Node left;
+        E e;
+        Node right;
+
+        public Node(E e) {
+            this.left = null;
+            this.e = e;
+            this.right = null;
+        }
+
+        @Override
+        public Node left() {
+            return left;
+        }
+
+        @Override
+        public E value() {
+            return e;
+        }
+
+        @Override
+        public Node right() {
+            return right;
+        }
     }
 }

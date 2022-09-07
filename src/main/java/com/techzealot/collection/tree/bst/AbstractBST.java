@@ -1,12 +1,10 @@
-package com.techzealot.collection.tree;
+package com.techzealot.collection.tree.bst;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class AbstractBST<E> implements BST<E> {
     protected final Comparator<E> comparator;
-    protected Node<E> root;
-    protected int size;
 
     public AbstractBST() {
         this(null);
@@ -16,14 +14,11 @@ public abstract class AbstractBST<E> implements BST<E> {
         this.comparator = comparator;
     }
 
-    @Override
-    public int size() {
-        return size;
-    }
+    protected abstract Node<E> root();
 
     @Override
     public boolean isEmpty() {
-        return size == 0;
+        return size() == 0;
     }
 
     protected int compare(E o1, E o2) {
@@ -38,19 +33,19 @@ public abstract class AbstractBST<E> implements BST<E> {
         if (o == null) {
             return false;
         }
-        return contains(root, o);
+        return contains(root(), o);
     }
 
     private boolean contains(Node<E> node, Object o) {
         if (node == null) {
             return false;
         }
-        if (compare((E) o, node.e) == 0) {
+        if (compare((E) o, node.value()) == 0) {
             return true;
-        } else if (compare((E) o, node.e) < 0) {
-            return contains(node.left, o);
+        } else if (compare((E) o, node.value()) < 0) {
+            return contains(node.left(), o);
         } else {
-            return contains(node.right, o);
+            return contains(node.right(), o);
         }
     }
 
@@ -62,7 +57,7 @@ public abstract class AbstractBST<E> implements BST<E> {
      */
     @Override
     public void preOrder(Consumer<? super E> action) {
-        preOrder(root, action);
+        preOrder(root(), action);
     }
 
     /**
@@ -71,9 +66,9 @@ public abstract class AbstractBST<E> implements BST<E> {
      */
     private void preOrder(Node<E> node, Consumer<? super E> action) {
         if (node == null) return;
-        action.accept(node.e);
-        preOrder(node.left, action);
-        preOrder(node.right, action);
+        action.accept(node.value());
+        preOrder(node.left(), action);
+        preOrder(node.right(), action);
     }
 
     /**
@@ -84,14 +79,14 @@ public abstract class AbstractBST<E> implements BST<E> {
      */
     @Override
     public void inOrder(Consumer<? super E> action) {
-        inOrder(root, action);
+        inOrder(root(), action);
     }
 
     private void inOrder(Node<E> node, Consumer<? super E> action) {
         if (node == null) return;
-        inOrder(node.left, action);
-        action.accept(node.e);
-        inOrder(node.right, action);
+        inOrder(node.left(), action);
+        action.accept(node.value());
+        inOrder(node.right(), action);
     }
 
     /**
@@ -101,14 +96,14 @@ public abstract class AbstractBST<E> implements BST<E> {
      */
     @Override
     public void postOrder(Consumer<? super E> action) {
-        postOrder(root, action);
+        postOrder(root(), action);
     }
 
     private void postOrder(Node<E> node, Consumer<? super E> action) {
         if (node == null) return;
-        postOrder(node.left, action);
-        postOrder(node.right, action);
-        action.accept(node.e);
+        postOrder(node.left(), action);
+        postOrder(node.right(), action);
+        action.accept(node.value());
     }
 
     /**
@@ -118,87 +113,87 @@ public abstract class AbstractBST<E> implements BST<E> {
      */
     @Override
     public void levelOrder(Consumer<? super E> action) {
-        if (root == null) return;
-        Queue<Node> queue = new ArrayDeque<>();
-        queue.add(root);
+        if (root() == null) return;
+        Queue<Node<E>> queue = new ArrayDeque<>();
+        queue.add(root());
         while (!queue.isEmpty()) {
             Node<E> cur = queue.remove();
-            action.accept(cur.e);
-            if (cur.left != null) {
-                queue.add(cur.left);
+            action.accept(cur.value());
+            if (cur.left() != null) {
+                queue.add(cur.left());
             }
-            if (cur.right != null) {
-                queue.add(cur.right);
+            if (cur.right() != null) {
+                queue.add(cur.right());
             }
         }
     }
 
     @Override
     public E minimum() {
-        if (size == 0) {
+        if (size() == 0) {
             return null;
         }
-        return minimum(root).e;
+        return minimum(root()).value();
     }
 
-    protected Node<E> minimum(Node<E> node) {
-        if (node.left == null) {
+    protected final Node<E> minimum(Node<E> node) {
+        if (node.left() == null) {
             return node;
         }
-        return minimum(node.left);
+        return minimum(node.left());
     }
 
 
     @Override
     public E maximum() {
-        if (size == 0) return null;
-        return maximum(root).e;
+        if (size() == 0) return null;
+        return maximum(root()).value();
     }
 
-    protected Node<E> maximum(Node<E> node) {
-        if (node.right == null) return node;
-        return maximum(node.right);
+    protected final Node<E> maximum(Node<E> node) {
+        if (node.right() == null) return node;
+        return maximum(node.right());
     }
 
     @Override
     public E floor(E e) {
-        Node<E> node = floor(root, e);
+        Node<E> node = floor(root(), e);
         if (node == null) {
             return null;
         }
-        return node.e;
+        return node.value();
     }
 
     protected Node<E> floor(Node<E> node, E e) {
         if (node == null) return null;
-        if (compare(e, node.e) == 0) {
+        if (compare(e, node.value()) == 0) {
             return node;
-        } else if (compare(e, node.e) > 0) {
-            Node<E> x = floor(node.right, e);
+        } else if (compare(e, node.value()) > 0) {
+            Node<E> x = floor(node.right(), e);
             if (x == null) {
                 return node;
             }
             return x;
         } else {
-            return floor(node.left, e);
+            return floor(node.left(), e);
         }
     }
 
     @Override
     public E ceiling(E e) {
-        Node<E> node = ceiling(root, e);
+        Node<E> node = ceiling(root(), e);
         if (node == null) return null;
-        return node.e;
+        return node.value();
     }
 
     protected Node<E> ceiling(Node<E> node, E e) {
         if (node == null) return null;
-        if (compare(e, node.e) == 0) {
+        if (compare(e, node.value()) == 0) {
             return node;
-        } else if (compare(e, node.e) > 0) {
-            return ceiling(node.right, e);
+        } else if (compare(e, node.value()) > 0) {
+            return ceiling(node.right(), e);
         } else {
-            Node<E> x = ceiling(node.left, e);
+            Node<E> x = ceiling(node.left(), e);
             if (x == null) {
                 return node;
             }
@@ -212,17 +207,17 @@ public abstract class AbstractBST<E> implements BST<E> {
      * @param action
      */
     public void preOrderNR(Consumer<? super E> action) {
-        if (root == null) return;
-        Deque<Node> stack = new ArrayDeque<>();
-        stack.push(root);
+        if (root() == null) return;
+        Deque<Node<E>> stack = new ArrayDeque<>();
+        stack.push(root());
         while (!stack.isEmpty()) {
             Node<E> current = stack.pop();
-            action.accept(current.e);
-            if (current.left != null) {
-                stack.push(current.left);
+            action.accept(current.value());
+            if (current.left() != null) {
+                stack.push(current.left());
             }
-            if (current.right != null) {
-                stack.push(current.right);
+            if (current.right() != null) {
+                stack.push(current.right());
             }
         }
     }
@@ -235,40 +230,16 @@ public abstract class AbstractBST<E> implements BST<E> {
 
     }
 
+    //对于未存储父节点引用的Node，无法简单求出前驱和后继节点
     @Override
     public E predecessor(E e) {
-        Node<E> node = predecessor(root, null, e);
-        if (node == null) return null;
-        return node.e;
-    }
-
-    private Node<E> predecessor(Node<E> node, Node<E> parent, E e) {
-        if (node == null) return null;
-        if (compare(e, node.e) == 0) {
-            if (node.left == null) {
-                if (parent == null) {
-                    return null;
-                }
-                if (parent.left == node) {
-                    return null;
-                } else {
-                    return parent;
-                }
-            } else {
-                return maximum(node.left);
-            }
-        } else if (compare(e, node.e) < 0) {
-            return predecessor(node.left, node, e);
-        } else {
-            return predecessor(node.right, node, e);
-        }
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public E successor(E e) {
-        return null;
+        throw new UnsupportedOperationException();
     }
-
 
     /**
      * 按照中序遍历顺序返回(从小到大)
@@ -277,7 +248,7 @@ public abstract class AbstractBST<E> implements BST<E> {
      */
     @Override
     public List<E> toList() {
-        List<E> list = new ArrayList<>(size);
+        List<E> list = new ArrayList<>(size());
         inOrder((e) -> {
             list.add(e);
         });

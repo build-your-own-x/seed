@@ -1,9 +1,10 @@
-package com.techzealot.collection.tree;
+package com.techzealot.collection.tree.bst;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 public interface BST<E> {
+
     int size();
 
     boolean isEmpty();
@@ -41,15 +42,11 @@ public interface BST<E> {
 
     List<E> toList();
 
-    class Node<E> {
-        Node<E> left;
-        E e;
-        Node<E> right;
+    interface Node<E> {
+        Node<E> left();
 
-        public Node(E e) {
-            this.left = null;
-            this.e = e;
-            this.right = null;
-        }
+        E value();
+
+        Node<E> right();
     }
 }
