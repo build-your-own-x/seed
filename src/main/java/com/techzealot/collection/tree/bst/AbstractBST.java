@@ -206,6 +206,7 @@ public abstract class AbstractBST<E> implements BST<E> {
      *
      * @param action
      */
+    @Override
     public void preOrderNR(Consumer<? super E> action) {
         if (root() == null) return;
         Deque<Node<E>> stack = new ArrayDeque<>();
@@ -222,15 +223,18 @@ public abstract class AbstractBST<E> implements BST<E> {
         }
     }
 
+    @Override
     public void inOrderNR(Consumer<? super E> action) {
 
     }
 
+    @Override
     public void postOrderNR(Consumer<? super E> action) {
 
     }
 
     //对于未存储父节点引用的Node，无法简单求出前驱和后继节点
+    //对于存储了size的Node,可以比较容易计算前驱和后继
     @Override
     public E predecessor(E e) {
         throw new UnsupportedOperationException();

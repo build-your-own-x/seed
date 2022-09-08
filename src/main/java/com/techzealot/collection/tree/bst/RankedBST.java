@@ -25,7 +25,7 @@ public class RankedBST<E> extends AbstractBST<E> {
     public static <T> RankedBST<T> of(@NonNull T... elements) {
         RankedBST<T> bst = new RankedBST<>();
         for (T element : elements) {
-            bst.add(element);
+            bst.put(element);
         }
         return bst;
     }
@@ -41,11 +41,11 @@ public class RankedBST<E> extends AbstractBST<E> {
     }
 
     @Override
-    public boolean add(@NonNull E e) {
-        return false;
+    public void put(@NonNull E e) {
+
     }
 
-    private Node add(Node node, E e) {
+    private Node put(Node node, E e) {
         if (node == null) {
             //todo size
             return new Node(e);
@@ -53,10 +53,10 @@ public class RankedBST<E> extends AbstractBST<E> {
         if (compare(e, node.e) == 0) {
             return node;
         } else if (compare(e, node.e) < 0) {
-            node.left = add(node.left, e);
+            node.left = put(node.left, e);
             return node;
         } else {
-            node.right = add(node.right, e);
+            node.right = put(node.right, e);
             return node;
         }
     }
@@ -106,6 +106,9 @@ public class RankedBST<E> extends AbstractBST<E> {
     }
 
     private class Node implements BST.Node<E> {
+        /**
+         * 以该节点作为根节点的子树节点个数
+         */
         int size;
         Node left;
         E e;
