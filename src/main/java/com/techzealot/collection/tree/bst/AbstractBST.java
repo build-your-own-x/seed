@@ -33,6 +33,9 @@ public abstract class AbstractBST<E> implements BST<E> {
         if (o == null) {
             return false;
         }
+        if (comparator == null && !(o instanceof Comparable<?>)) {
+            return false;
+        }
         return contains(root(), o);
     }
 

@@ -3,7 +3,6 @@ package com.techzealot.collection.tree.bst;
 import lombok.NonNull;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -18,6 +17,7 @@ public class BaseBST<E> extends AbstractBST<E> {
 
     private int size;
     private Node root;
+    private boolean check = true;
 
     public BaseBST() {
     }
@@ -29,8 +29,9 @@ public class BaseBST<E> extends AbstractBST<E> {
     public static <T> BaseBST of(@NonNull T... elements) {
         BaseBST bst = new BaseBST();
         for (T element : elements) {
-            bst.put(element);
+            bst.add(element);
         }
+        bst.validate();
         return bst;
     }
 
@@ -38,7 +39,8 @@ public class BaseBST<E> extends AbstractBST<E> {
      * 除根节点外所有节点的parent设置正确
      */
     private void validate() {
-
+        if (check)
+            validate(root);
     }
 
     private void validate(Node node) {
@@ -51,11 +53,13 @@ public class BaseBST<E> extends AbstractBST<E> {
         if (right != null) {
             checkEquals(right.parent, node);
         }
+        validate(node.left);
+        validate(node.right);
     }
 
     private void checkEquals(Node n1, Node n2) {
         if (n1 != n2) {
-            throw new IllegalStateException(MessageFormat.format("{0} != {}", n1, n2));
+            throw new IllegalStateException(MessageFormat.format("{0} != {1}", n1, n2));
         }
     }
 
@@ -71,36 +75,41 @@ public class BaseBST<E> extends AbstractBST<E> {
 
     /**
      * @param e
+     * @return
      */
     @Override
-    public void put(@NonNull E e) {
-        root = put(root, e);
+    public boolean add(@NonNull E e) {
+        boolean[] modified = new boolean[]{false};
+        root = add(root, e, modified);
+        validate();
+        return modified[0];
     }
 
     /**
      * 优化：空节点视作空树
      * 递归实现插入节点
      * 返回当前子树的根节点
+     * <p>
+     * 无法直接通过传递Boolean参数在方法内修改原始变量，可以通过数组来间接实现传递boolean引用的效果
      *
      * @param node
      * @param e
      * @return
      */
-    private Node put(Node node, E e) {
+    private Node add(Node node, E e, boolean[] modified) {
         if (node == null) {
             size++;
+            modified[0] = true;
             return new Node(e);
         }
         if (compare(e, node.e) < 0) {
-            Node left = put(node.left, e);
+            Node left = add(node.left, e, modified);
             node.left = left;
             left.parent = node;
         } else if (compare(e, node.e) > 0) {
-            Node right = put(node.right, e);
+            Node right = add(node.right, e, modified);
             node.right = right;
             right.parent = node;
-        } else {
-            node.e = e;
         }
         return node;
     }
@@ -113,40 +122,50 @@ public class BaseBST<E> extends AbstractBST<E> {
      */
     @Override
     public boolean remove(Object o) {
-        if (o == null || !(o instanceof Comparable)) return false;
+        if (o == null) return false;
+        if (comparator == null && !(o instanceof Comparable)) return false;
         if (size == 0) return false;
-        Boolean removed = false;
+        boolean[] removed = new boolean[]{false};
         root = remove(root, o, removed);
-        return removed;
+        validate();
+        return removed[0];
     }
 
-    private Node remove(Node node, Object o, Boolean removed) {
+    private Node remove(Node node, Object o, boolean[] removed) {
         if (node == null) return null;
         if (compare((E) o, node.e) > 0) {
             Node right = remove(node.right, o, removed);
             node.right = right;
-            right.parent = node;
+            if (right != null) {
+                right.parent = node;
+            }
             return node;
         } else if (compare((E) o, node.e) < 0) {
             Node left = remove(node.left, o, removed);
             node.left = left;
-            left.parent = node;
+            if (left != null) {
+                left.parent = node;
+            }
             return node;
         } else {
-            removed = true;
+            removed[0] = true;
             if (node.right == null) {
                 Node left = node.left;
-                node.left = null;
+                node.left = node.parent = null;
                 size--;
                 return left;
             } else {
                 Node rightMin = (Node) minimum(node.right);
-                rightMin.right = removeMin(node.right);
-                rightMin.left = node.left;
-                if (node.left.parent != null) {
-                    node.left.parent = rightMin.left;
+                Node right = removeMin(node.right);
+                rightMin.right = right;
+                if (right != null) {
+                    right.parent = rightMin;
                 }
-                node.right = node.left = null;
+                rightMin.left = node.left;
+                if (node.left != null) {
+                    node.left.parent = rightMin;
+                }
+                node.right = node.left = node.parent = null;
                 return rightMin;
             }
         }
@@ -154,9 +173,10 @@ public class BaseBST<E> extends AbstractBST<E> {
 
     @Override
     public E removeMin() {
+        if (size == 0) return null;
         E ret = minimum();
-        if (ret == null) return null;
         root = removeMin(root);
+        validate();
         return ret;
     }
 
@@ -166,14 +186,18 @@ public class BaseBST<E> extends AbstractBST<E> {
      * @param node
      * @return
      */
-    protected Node removeMin(Node node) {
+    protected Node removeMin(@NonNull Node node) {
         if (node.left == null) {
             Node rightNode = node.right;
             size--;
-            node.right = null;
+            node.right = node.parent = null;
             return rightNode;
         }
-        node.left = removeMin(node.left);
+        Node left = removeMin(node.left);
+        node.left = left;
+        if (left != null) {
+            left.parent = node;
+        }
         return node;
     }
 
@@ -182,18 +206,29 @@ public class BaseBST<E> extends AbstractBST<E> {
         if (size == 0) return null;
         E ret = maximum();
         root = removeMax(root);
+        validate();
         return ret;
     }
 
-    protected Node removeMax(Node node) {
+    protected Node removeMax(@NonNull Node node) {
         if (node.right == null) {
             Node leftNode = node.left;
-            node.left = null;
+            node.left = node.parent = null;
             size--;
             return leftNode;
         }
-        node.right = removeMax(node.right);
+        Node right = removeMax(node.right);
+        node.right = right;
+        if (right != null) {
+            right.parent = node;
+        }
         return node;
+    }
+
+    @Override
+    public String toString() {
+        //todo
+        return "";
     }
 
     private class Node implements BST.Node<E> {
@@ -226,7 +261,8 @@ public class BaseBST<E> extends AbstractBST<E> {
 
         @Override
         public String toString() {
-            return Arrays.toString(new Object[]{parent.e, e, left.e, right.e});
+            //todo
+            return e.toString();
         }
     }
 }
