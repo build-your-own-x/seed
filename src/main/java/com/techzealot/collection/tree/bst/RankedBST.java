@@ -7,8 +7,8 @@ import java.util.Comparator;
 
 /**
  * support rank and select
- * max=rank(size)
- * min=rank(1)
+ * max=rank(size-1)
+ * min=rank(0)
  * predecessor(e)=select(rank(e)-1)
  * successor(e)=select(rank(e)+1)
  */
