@@ -156,13 +156,13 @@ public class RankedBST<E> extends AbstractBST<E> {
     }
 
     public int rank(E e) {
-
-        return -1;
+        if (!contains(e)) return -2;
+        return rank(root, e);
     }
 
     /**
      * number of nodes less than given e:比给定e小的节点个数
-     * 类似于数组索引，从0开始
+     * 类似于数组索引，从0开始,e不一定存在于树中
      *
      * @param node
      * @param e
@@ -191,7 +191,7 @@ public class RankedBST<E> extends AbstractBST<E> {
         } else if (k < size(node.left)) {
             return select(node.left, k);
         } else {
-            return select(k - (size(node.left) + 1));
+            return select(node.right, k - (size(node.left) + 1));
         }
     }
 

@@ -256,9 +256,7 @@ public abstract class AbstractBST<E> implements BST<E> {
     @Override
     public List<E> toList() {
         List<E> list = new ArrayList<>(size());
-        inOrder((e) -> {
-            list.add(e);
-        });
+        inOrder(list::add);
         return list;
     }
 }

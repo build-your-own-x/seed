@@ -226,6 +226,16 @@ public class BaseBST<E> extends AbstractBST<E> {
     }
 
     @Override
+    public E predecessor(E e) {
+        return super.predecessor(e);
+    }
+
+    @Override
+    public E successor(E e) {
+        return super.successor(e);
+    }
+
+    @Override
     public String toString() {
         //todo
         return "";

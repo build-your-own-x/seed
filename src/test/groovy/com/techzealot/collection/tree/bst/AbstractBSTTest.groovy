@@ -68,15 +68,15 @@ class AbstractBSTTest extends Specification {
         baseBST.toList() == list
         rankedBST.toList() == list
         where:
-        from                         | o            | expected | list
-        []                           | null         | false    | []
-        []                           | new Object() | false    | []
-        [4, 2, 6, 1, 3, 5, 7]        | null         | false    | [*1..7]
-        [4, 2, 6, 1, 3, 5, 7]        | new Object() | false    | [*1..7]
-        [4, 2, 6, 1, 3, 5, 7]        | 8            | false    | [*1..7]
-        [1]                          | 1            | true     | []
-        [4, 2, 6, 1, 3, 5, 8, 9, 10] | 6            | true     | [*1..5, *8..10]
-        [4, 2, 6, 1, 3, 5]           | 6            | true     | [*1..5]
+        from                                | o            | expected | list
+        []                                  | null         | false    | []
+        []                                  | new Object() | false    | []
+        [4, 2, 6, 1, 3, 5, 7]               | null         | false    | [*1..7]
+        [4, 2, 6, 1, 3, 5, 7]               | new Object() | false    | [*1..7]
+        [4, 2, 6, 1, 3, 5, 7]               | 8            | false    | [*1..7]
+        [1]                                 | 1            | true     | []
+        [4, 2, 6, 1, 3, 5, 10, 8, 11, 7, 9] | 6            | true     | [*1..5, *7..11]
+        [4, 2, 6, 1, 3, 5]                  | 1            | true     | [*2..6]
     }
 
     def "test contains"(Object[] from, Object o, boolean expected) {
@@ -124,95 +124,180 @@ class AbstractBSTTest extends Specification {
 //        // TODO implement assertions
 //    }
 //
-//    def "test preOrder"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test inOrder"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test postOrder"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test levelOrder"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test minimum"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test removeMin"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test maximum"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test removeMax"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test floor"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
-//
-//    def "test ceiling"() {
-//        given:
-//
-//        when:
-//        // TODO implement stimulus
-//        then:
-//        // TODO implement assertions
-//    }
+    def "test preOrder"(Object[] from, List expected) {
+        given:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        when:
+        def out1 = []
+        def out2 = []
+        baseBST.preOrder(out1::add)
+        rankedBST.preOrder(out2::add)
+        then:
+        out1 == expected
+        out2 == expected
+        where:
+        from                  | expected
+        []                    | []
+        [4, 2, 6, 1, 3, 5, 7] | [4, 2, 1, 3, 6, 5, 7]
+    }
+
+    def "test inOrder"(Object[] from, List expected) {
+        given:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        when:
+        def out1 = []
+        def out2 = []
+        baseBST.inOrder(out1::add)
+        rankedBST.inOrder(out2::add)
+        then:
+        out1 == expected
+        out2 == expected
+        where:
+        from                  | expected
+        []                    | []
+        [4, 2, 6, 1, 3, 5, 7] | [*1..7]
+    }
+
+    def "test postOrder"(Object[] from, List expected) {
+        given:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        when:
+        def out1 = []
+        def out2 = []
+        baseBST.postOrder(out1::add)
+        rankedBST.postOrder(out2::add)
+        then:
+        out1 == expected
+        out2 == expected
+        where:
+        from                  | expected
+        []                    | []
+        [4, 2, 6, 1, 3, 5, 7] | [1, 3, 2, 5, 7, 6, 4]
+    }
+
+    def "test levelOrder"(Object[] from, List expected) {
+        given:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        when:
+        def out1 = []
+        def out2 = []
+        baseBST.levelOrder(out1::add)
+        rankedBST.levelOrder(out2::add)
+        then:
+        out1 == expected
+        out2 == expected
+        where:
+        from                  | expected
+        []                    | []
+        [4, 6, 2, 1, 5, 7, 3] | [4, 2, 6, 1, 3, 5, 7]
+    }
+
+    def "test minimum"(Object[] from, Object expected) {
+        given:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        when:
+        def m1 = baseBST.minimum()
+        def m2 = rankedBST.minimum()
+        then:
+        m1 == expected
+        m2 == expected
+        where:
+        from                  | expected
+        []                    | null
+        [4, 6, 2, 1, 5, 7, 3] | 1
+        [4, 2, 3]             | 2
+    }
+
+    def "test removeMin"(Object[] from, Object min, List expected) {
+        when:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        then:
+        baseBST.removeMin() == min
+        rankedBST.removeMin() == min
+        baseBST.toList() == expected
+        rankedBST.toList() == expected
+        where:
+        from                  | min  | expected
+        []                    | null | []
+        [4, 6, 2, 1, 5, 7, 3] | 1    | [*2..7]
+        [4, 2, 3]             | 2    | [3, 4]
+    }
+
+    def "test maximum"(Object[] from, Object expected) {
+        given:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        when:
+        def m1 = baseBST.maximum()
+        def m2 = rankedBST.maximum()
+        then:
+        m1 == expected
+        m2 == expected
+        where:
+        from                  | expected
+        []                    | null
+        [4, 6, 2, 1, 5, 7, 3] | 7
+        [4, 6, 5]             | 6
+    }
+
+    def "test removeMax"(Object[] from, Object max, List expected) {
+        when:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        then:
+        baseBST.removeMax() == max
+        rankedBST.removeMax() == max
+        baseBST.toList() == expected
+        rankedBST.toList() == expected
+        where:
+        from                  | max  | expected
+        []                    | null | []
+        [4, 6, 2, 1, 5, 7, 3] | 7    | [*1..6]
+        [4, 6, 5]             | 6    | [4, 5]
+    }
+
+    def "test floor"(Object[] from, Object floor, Object expected) {
+        given:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        when:
+        def f1 = baseBST.floor(floor)
+        def f2 = rankedBST.floor(floor)
+        then:
+        f1 == expected
+        f2 == expected
+        where:
+        from                  | floor | expected
+        []                    | 10    | null
+        [4, 6, 2, 1, 5, 9, 3] | 8     | 6
+        [4, 6, 2, 1, 5, 9, 3] | 1     | 1
+        [4, 6, 2, 1, 5, 9, 3] | -1    | null
+    }
+
+    def "test ceiling"(Object[] from, Object ceiling, Object expected) {
+        given:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        when:
+        def f1 = baseBST.ceiling(ceiling)
+        def f2 = rankedBST.ceiling(ceiling)
+        then:
+        f1 == expected
+        f2 == expected
+        where:
+        from                  | ceiling | expected
+        []                    | 10      | null
+        [4, 6, 2, 1, 5, 9, 3] | 10      | null
+        [4, 6, 2, 1, 5, 9, 3] | 8       | 9
+        [4, 6, 2, 1, 5, 9, 3] | 1       | 1
+        [4, 6, 2, 1, 5, 9, 3] | -1      | 1
+    }
 
     def "test constructors"(Object[] from, List expected, Comparator comparator) {
         when:
@@ -261,5 +346,36 @@ class AbstractBSTTest extends Specification {
         array           | _
         null            | _
         [1, 2, 3, null] | _
+    }
+
+    //todo
+    def "test predecessor"(Object[] from, Object predecessor, Object expected) {
+        when:
+        def rankedBST = RankedBST.of(from)
+        then:
+        rankedBST.predecessor(predecessor) == expected
+        where:
+        from                                | predecessor | expected
+        []                                  | 1           | null
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 1           | null
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | -1          | null
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 12          | null
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 11          | 10
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 10          | 9
+    }
+
+    def "test successor"(Object[] from, Object successor, Object expected) {
+        when:
+        def rankedBST = RankedBST.of(from)
+        then:
+        rankedBST.successor(successor) == expected
+        where:
+        from                                | successor | expected
+        []                                  | 1         | null
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | -1        | null
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 1         | 2
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 11        | null
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 12        | null
+        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 6         | 7
     }
 }
