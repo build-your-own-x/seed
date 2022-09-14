@@ -348,34 +348,43 @@ class AbstractBSTTest extends Specification {
         [1, 2, 3, null] | _
     }
 
-    //todo
     def "test predecessor"(Object[] from, Object predecessor, Object expected) {
         when:
         def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBST.of(from)
         then:
         rankedBST.predecessor(predecessor) == expected
+        baseBST.predecessor(predecessor) == expected
+        baseBST.superPredecessor(predecessor) == expected
         where:
         from                                | predecessor | expected
         []                                  | 1           | null
+        [1]                                 | 1           | null
         [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 1           | null
         [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | -1          | null
         [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 12          | null
-        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 11          | 10
         [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 10          | 9
+        [4, 2, 6, 1, 3, 5, 10, 11]          | 10          | 6
+        [4, 2, 11, 1, 3, 10]                | 10          | 4
     }
 
     def "test successor"(Object[] from, Object successor, Object expected) {
         when:
         def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBST.of(from)
         then:
         rankedBST.successor(successor) == expected
+        baseBST.successor(successor) == expected
+        baseBST.superSuccessor(successor) == expected
         where:
         from                                | successor | expected
         []                                  | 1         | null
+        [1]                                 | 1         | null
         [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | -1        | null
-        [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 1         | 2
         [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 11        | null
         [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 12        | null
         [4, 2, 6, 1, 3, 5, 10, 8, 7, 9, 11] | 6         | 7
+        [4, 2, 11, 1, 3, 10, 8, 7, 9]       | 10        | 11
+        [4, 2, 3]                           | 3         | 4
     }
 }

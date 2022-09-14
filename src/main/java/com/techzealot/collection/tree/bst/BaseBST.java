@@ -227,22 +227,95 @@ public class BaseBST<E> extends AbstractBST<E> {
 
     @Override
     public E predecessor(E e) {
+        if (e == null) return null;
+        Node predecessor = predecessor(root, e);
+        return predecessor == null ? null : predecessor.e;
+    }
+
+    /**
+     * just for test
+     *
+     * @param e
+     * @return
+     */
+    public E superPredecessor(E e) {
         return super.predecessor(e);
+    }
+
+    private Node predecessor(Node node, E e) {
+        if (node == null) return null;
+        if (compare(e, node.e) > 0) {
+            return predecessor(node.right, e);
+        } else if (compare(e, node.e) < 0) {
+            return predecessor(node.left, e);
+        } else {
+            //1.当该节点有左子树时,其中序前序为左子树的最大节点
+            if (node.left != null) {
+                return (Node) maximum(node.left);
+            }
+            /*
+            2.当该节点无左子树时,找到祖先节点中第一个向右分叉的节点
+            2.1 当该节点为右孩子时,前驱为父节点
+            2.2 当该节点为左孩子时,需要沿着父节点链找到第一个有右孩子的节点
+            另一种实现方式:
+            Node ret = node.parent;
+            while (ret != null && node == ret.left) {
+                node = ret;
+                ret = ret.parent;
+            }
+            return ret;
+            */
+            Node p = node.parent;
+            Node child = node;
+            while (p != null) {
+                if (p.right == child) {
+                    return p;
+                }
+                child = p;
+                p = p.parent;
+            }
+            return null;
+        }
     }
 
     @Override
     public E successor(E e) {
+        if (e == null) return null;
+        Node successor = successor(root, e);
+        return successor == null ? null : successor.e;
+    }
+
+    /**
+     * just for test
+     *
+     * @param e
+     * @return
+     */
+    public E superSuccessor(E e) {
         return super.successor(e);
     }
 
-    @Override
-    public String toString() {
-        //todo
-        return "";
+    private Node successor(Node node, E e) {
+        if (node == null) return null;
+        if (compare(e, node.e) > 0) {
+            return successor(node.right, e);
+        } else if (compare(e, node.e) < 0) {
+            return successor(node.left, e);
+        } else {
+            if (node.right != null) {
+                return (Node) minimum(node.right);
+            }
+            Node ret = node.parent;
+            while (ret != null && node == ret.right) {
+                node = ret;
+                ret = ret.parent;
+            }
+            return ret;
+        }
     }
 
     private class Node implements BST.Node<E> {
-        //存储父节点引用,只有在求前驱和后继时有用，若不需要则无需此字段
+        //存储父节点引用,在需要从下到上遍历时有用,大部分情况下都不需要,可通过递归保存遍历路径解决
         Node parent;
         Node left;
         E e;
@@ -267,12 +340,6 @@ public class BaseBST<E> extends AbstractBST<E> {
         @Override
         public Node right() {
             return right;
-        }
-
-        @Override
-        public String toString() {
-            //todo
-            return e.toString();
         }
     }
 }

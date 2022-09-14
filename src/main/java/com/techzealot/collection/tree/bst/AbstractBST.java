@@ -209,7 +209,6 @@ public abstract class AbstractBST<E> implements BST<E> {
      *
      * @param action
      */
-    @Override
     public void preOrderNR(Consumer<? super E> action) {
         if (root() == null) return;
         Deque<Node<E>> stack = new ArrayDeque<>();
@@ -227,25 +226,73 @@ public abstract class AbstractBST<E> implements BST<E> {
     }
 
     @Override
-    public void inOrderNR(Consumer<? super E> action) {
-
+    public Iterator<E> preOrderIterator() {
+        return new PreOrderItr();
     }
 
     @Override
-    public void postOrderNR(Consumer<? super E> action) {
-
+    public Iterator<E> inOrderIterator() {
+        return null;
     }
 
-    //对于未存储父节点引用的Node，无法简单求出前驱和后继节点
-    //对于存储了size的Node,可以比较容易计算前驱和后继
+    @Override
+    public Iterator<E> postOrderIterator() {
+        return null;
+    }
+
+    @Override
+    public Iterator<E> levelOrderIterator() {
+        return null;
+    }
+
+    /**
+     * @param e
+     * @return
+     */
     @Override
     public E predecessor(E e) {
-        throw new UnsupportedOperationException();
+        if (e == null) return null;
+        Node<E> predecessor = predecessor(root(), e, null);
+        return predecessor == null ? null : predecessor.value();
+    }
+
+    //由于在计算前驱和后继时需要相关父节点信息,一般Node中无父节点信息,可以在递归时存储需要的信息
+
+    private Node<E> predecessor(Node<E> node, E e, Node<E> lastRightParent) {
+        if (node == null) return null;
+        if (compare(e, node.value()) > 0) {
+            lastRightParent = node;
+            return predecessor(node.right(), e, lastRightParent);
+        } else if (compare(e, node.value()) < 0) {
+            return predecessor(node.left(), e, lastRightParent);
+        } else {
+            if (node.left() != null) {
+                return maximum(node.left());
+            }
+            return lastRightParent;
+        }
     }
 
     @Override
     public E successor(E e) {
-        throw new UnsupportedOperationException();
+        if (e == null) return null;
+        Node<E> successor = successor(root(), e, null);
+        return successor == null ? null : successor.value();
+    }
+
+    private Node<E> successor(Node<E> node, E e, Node<E> lastLeftNode) {
+        if (node == null) return null;
+        if (compare(e, node.value()) > 0) {
+            return successor(node.right(), e, lastLeftNode);
+        } else if (compare(e, node.value()) < 0) {
+            lastLeftNode = node;
+            return successor(node.left(), e, lastLeftNode);
+        } else {
+            if (node.right() != null) {
+                return minimum(node.right());
+            }
+            return lastLeftNode;
+        }
     }
 
     /**
@@ -258,5 +305,48 @@ public abstract class AbstractBST<E> implements BST<E> {
         List<E> list = new ArrayList<>(size());
         inOrder(list::add);
         return list;
+    }
+
+    @Override
+    public Printer printer() {
+        return new TreePrinter();
+    }
+
+    @Override
+    public String toString() {
+        return printer().print(this);
+    }
+
+    /**
+     * 此处有两种做法:
+     * 1.先中序遍历返回得到集合的迭代器 空间复杂度O(n) 不推荐
+     * 2.使用栈实现 空间复杂度O(h) h为树高
+     */
+    private class PreOrderItr implements Iterator<E> {
+        private Deque<Node<E>> stack;
+        private Node<E> cur;
+
+        public PreOrderItr() {
+            cur = root();
+            stack = new ArrayDeque<>();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public E next() {
+            return null;
+        }
+    }
+
+    private class TreePrinter implements Printer {
+
+        @Override
+        public String print(BST<?> bst) {
+            return null;
+        }
     }
 }

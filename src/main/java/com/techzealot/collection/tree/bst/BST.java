@@ -1,9 +1,10 @@
 package com.techzealot.collection.tree.bst;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-public interface BST<E> {
+public interface BST<E> extends Iterable<E> {
 
     int size();
 
@@ -18,17 +19,24 @@ public interface BST<E> {
     //遍历功能也可以返回不同迭代器来实现，迭代器只能使用非递归方式实现
     void preOrder(Consumer<? super E> action);
 
-    void preOrderNR(Consumer<? super E> action);
-
     void inOrder(Consumer<? super E> action);
-
-    void inOrderNR(Consumer<? super E> action);
 
     void postOrder(Consumer<? super E> action);
 
-    void postOrderNR(Consumer<? super E> action);
-
     void levelOrder(Consumer<? super E> action);
+
+    @Override
+    default Iterator<E> iterator() {
+        return inOrderIterator();
+    }
+
+    Iterator<E> preOrderIterator();
+
+    Iterator<E> inOrderIterator();
+
+    Iterator<E> postOrderIterator();
+
+    Iterator<E> levelOrderIterator();
 
     E minimum();
 
@@ -48,11 +56,17 @@ public interface BST<E> {
 
     List<E> toList();
 
+    Printer printer();
+
     interface Node<E> {
         Node<E> left();
 
         E value();
 
         Node<E> right();
+    }
+
+    interface Printer {
+        String print(BST<?> bst);
     }
 }
