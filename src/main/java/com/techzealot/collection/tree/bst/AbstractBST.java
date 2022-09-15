@@ -232,17 +232,17 @@ public abstract class AbstractBST<E> implements BST<E> {
 
     @Override
     public Iterator<E> inOrderIterator() {
-        return null;
+        return new InOrderItr();
     }
 
     @Override
     public Iterator<E> postOrderIterator() {
-        return null;
+        return new PostOrderItr();
     }
 
     @Override
     public Iterator<E> levelOrderIterator() {
-        return null;
+        return new LevelOrderItr();
     }
 
     /**
@@ -308,45 +308,143 @@ public abstract class AbstractBST<E> implements BST<E> {
     }
 
     @Override
-    public Printer printer() {
-        return new TreePrinter();
+    public String toString() {
+        return new TreePrinter<E>(root()).print();
     }
 
-    @Override
-    public String toString() {
-        return printer().print(this);
-    }
+//    对于各种顺序的迭代器实现此处有两种做法:
+//    1.先中序遍历返回得到集合的迭代器 空间复杂度O(n) 不推荐
+//    2.使用栈实现 空间复杂度更低
 
     /**
-     * 此处有两种做法:
-     * 1.先中序遍历返回得到集合的迭代器 空间复杂度O(n) 不推荐
-     * 2.使用栈实现 空间复杂度O(h) h为树高
+     * 空间复杂度 O(h) h为树高
      */
     private class PreOrderItr implements Iterator<E> {
         private Deque<Node<E>> stack;
-        private Node<E> cur;
 
         public PreOrderItr() {
-            cur = root();
             stack = new ArrayDeque<>();
+            Node<E> root = root();
+            if (root != null) {
+                stack.push(root);
+            }
         }
 
         @Override
         public boolean hasNext() {
-            return false;
+            return !stack.isEmpty();
         }
 
         @Override
         public E next() {
-            return null;
+            Node<E> node = stack.pop();
+            Node<E> right = node.right();
+            Node<E> left = node.left();
+            if (right != null) {
+                stack.push(right);
+            }
+            if (left != null) {
+                stack.push(left);
+            }
+            return node.value();
         }
     }
 
-    private class TreePrinter implements Printer {
+    /**
+     * 空间复杂度 O(h) h为树高
+     */
+    private class InOrderItr implements Iterator<E> {
+
+        private Deque<Node<E>> stack;
+        private Node<E> cur;
+
+        public InOrderItr() {
+            stack = new ArrayDeque<>();
+            cur = root();
+        }
 
         @Override
-        public String print(BST<?> bst) {
-            return null;
+        public boolean hasNext() {
+            return !stack.isEmpty() || cur != null;
+        }
+
+        @Override
+        public E next() {
+            //当前指针移动至最小节点
+            while (cur != null) {
+                stack.push(cur);
+                cur = cur.left();
+            }
+            //弹出最小
+            Node<E> ret = stack.pop();
+            //指针指向右子树根节点
+            cur = ret.right();
+            return ret.value();
+        }
+    }
+
+    /**
+     * 空间复杂度O(1) 时间复杂度O(1)
+     */
+    private class LevelOrderItr implements Iterator<E> {
+
+        private final Queue<Node<E>> q;
+
+        public LevelOrderItr() {
+            this.q = new ArrayDeque<>();
+            Node<E> root = root();
+            if (root != null) {
+                q.add(root);
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !q.isEmpty();
+        }
+
+        @Override
+        public E next() {
+            Node<E> node = q.remove();
+            Node<E> left = node.left();
+            if (left != null) {
+                q.add(left);
+            }
+            Node<E> right = node.right();
+            if (right != null) {
+                q.add(node.right());
+            }
+            return node.value();
+        }
+    }
+
+    private class PostOrderItr implements Iterator<E> {
+        private Deque<Node<E>> stack;
+        private Node<E> cur;
+
+        public PostOrderItr() {
+            stack = new ArrayDeque<>();
+            cur = root();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return cur != null || !stack.isEmpty();
+        }
+
+        @Override
+        public E next() {
+            while (cur != null) {
+                stack.push(cur);
+                cur = cur.left();
+                if (cur.left() == null) {
+                    cur = cur.right();
+                }
+            }
+            Node<E> ret = stack.pop();
+            Node<E> node = stack.peek();
+
+            return node.value();
         }
     }
 }

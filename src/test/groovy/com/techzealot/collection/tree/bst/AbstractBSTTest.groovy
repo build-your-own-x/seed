@@ -387,4 +387,54 @@ class AbstractBSTTest extends Specification {
         [4, 2, 11, 1, 3, 10, 8, 7, 9]       | 10        | 11
         [4, 2, 3]                           | 3         | 4
     }
+
+    def "test levelOrderIterator"(Object[] from, List expected) {
+        when:
+        def baseBST = BaseBST.of(from)
+        then:
+        baseBST.levelOrderIterator().toList() == expected
+        where:
+        from                  | expected
+        []                    | []
+        [1]                   | [1]
+        [4, 2, 1, 3, 6, 5, 7] | [4, 2, 6, 1, 3, 5, 7]
+    }
+
+    def "test preOrderIterator"(Object[] from, List expected) {
+        when:
+        def baseBST = BaseBST.of(from)
+        then:
+        baseBST.preOrderIterator().toList() == expected
+        where:
+        from                  | expected
+        []                    | []
+        [1]                   | [1]
+        [4, 2, 1, 3, 6, 5, 7] | [4, 2, 1, 3, 6, 5, 7]
+    }
+
+    def "test inOrderIterator"(Object[] from, List expected) {
+        when:
+        def baseBST = BaseBST.of(from)
+        then:
+        baseBST.inOrderIterator().toList() == expected
+        where:
+        from                     | expected
+        []                       | []
+        [1]                      | [1]
+        [4, 2, 1, 3, 6, 5, 7]    | [*1..7]
+        [5, 3, 7, 1, 4, 2, 6, 8] | [*1..8]
+    }
+
+    def "test postOrderIterator"(Object[] from, List expected) {
+        when:
+        def baseBST = BaseBST.of(from)
+        then:
+        baseBST.inOrderIterator().toList() == expected
+        where:
+        from                     | expected
+        []                       | []
+        [1]                      | [1]
+        [4, 2, 1, 3, 6, 5, 7]    | [*1..7]
+        [5, 3, 7, 1, 4, 2, 6, 8] | [*1..8]
+    }
 }

@@ -56,8 +56,6 @@ public interface BST<E> extends Iterable<E> {
 
     List<E> toList();
 
-    Printer printer();
-
     interface Node<E> {
         Node<E> left();
 
@@ -67,6 +65,20 @@ public interface BST<E> extends Iterable<E> {
     }
 
     interface Printer {
-        String print(BST<?> bst);
+        String print();
+    }
+
+    public class TreePrinter<E> implements Printer {
+
+        private final Node<E> node;
+
+        public TreePrinter(Node<E> node) {
+            this.node = node;
+        }
+
+        @Override
+        public String print() {
+            return null;
+        }
     }
 }
