@@ -315,37 +315,39 @@ public abstract class AbstractBST<E> implements BST<E> {
 //    对于各种顺序的迭代器实现此处有两种做法:
 //    1.先中序遍历返回得到集合的迭代器 空间复杂度O(n) 不推荐
 //    2.使用栈实现 空间复杂度更低
+    /*统一迭代器设计:借助双端队列和游标
+    (1)确定遍历起始节点
+    (2)存储下一次遍历相关数据
+    (3)调整游标至下一次要处理的节点*/
 
     /**
      * 空间复杂度 O(h) h为树高
      */
     private class PreOrderItr implements Iterator<E> {
-        private Deque<Node<E>> stack;
+        private final Deque<Node<E>> stack;
+        private Node<E> cur;
 
         public PreOrderItr() {
             stack = new ArrayDeque<>();
-            Node<E> root = root();
-            if (root != null) {
-                stack.push(root);
-            }
+            cur = root();
         }
 
         @Override
         public boolean hasNext() {
-            return !stack.isEmpty();
+            return !stack.isEmpty() || cur != null;
         }
 
         @Override
         public E next() {
+            if (cur != null) {
+                stack.push(cur);
+            }
             Node<E> node = stack.pop();
             Node<E> right = node.right();
-            Node<E> left = node.left();
             if (right != null) {
                 stack.push(right);
             }
-            if (left != null) {
-                stack.push(left);
-            }
+            cur = node.left();
             return node.value();
         }
     }
@@ -355,7 +357,7 @@ public abstract class AbstractBST<E> implements BST<E> {
      */
     private class InOrderItr implements Iterator<E> {
 
-        private Deque<Node<E>> stack;
+        private final Deque<Node<E>> stack;
         private Node<E> cur;
 
         public InOrderItr() {
@@ -388,39 +390,38 @@ public abstract class AbstractBST<E> implements BST<E> {
      */
     private class LevelOrderItr implements Iterator<E> {
 
-        private final Queue<Node<E>> q;
+        private final Queue<Node<E>> queue;
+        private Node<E> cur;
 
         public LevelOrderItr() {
-            this.q = new ArrayDeque<>();
-            Node<E> root = root();
-            if (root != null) {
-                q.add(root);
-            }
+            this.queue = new ArrayDeque<>();
+            cur = root();
         }
 
         @Override
         public boolean hasNext() {
-            return !q.isEmpty();
+            return !queue.isEmpty() || cur != null;
         }
 
         @Override
         public E next() {
-            Node<E> node = q.remove();
+            if (cur != null) {
+                queue.add(cur);
+            }
+            Node<E> node = queue.remove();
             Node<E> left = node.left();
             if (left != null) {
-                q.add(left);
+                queue.add(left);
             }
-            Node<E> right = node.right();
-            if (right != null) {
-                q.add(node.right());
-            }
+            cur = node.right();
             return node.value();
         }
     }
 
     private class PostOrderItr implements Iterator<E> {
-        private Deque<Node<E>> stack;
+        private final Deque<Node<E>> stack;
         private Node<E> cur;
+        private Node<E> visited;
 
         public PostOrderItr() {
             stack = new ArrayDeque<>();
@@ -436,14 +437,19 @@ public abstract class AbstractBST<E> implements BST<E> {
         public E next() {
             while (cur != null) {
                 stack.push(cur);
-                cur = cur.left();
-                if (cur.left() == null) {
+                //优先迭代子节点
+                if (cur.left() != null) {
+                    cur = cur.left();
+                } else {
                     cur = cur.right();
                 }
             }
-            Node<E> ret = stack.pop();
-            Node<E> node = stack.peek();
-
+            Node<E> node = stack.pop();
+            visited = node;
+            Node<E> peek = stack.peek();
+            if (peek != null && peek.right() != visited) {
+                cur = peek.right();
+            }
             return node.value();
         }
     }

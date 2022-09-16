@@ -429,12 +429,12 @@ class AbstractBSTTest extends Specification {
         when:
         def baseBST = BaseBST.of(from)
         then:
-        baseBST.inOrderIterator().toList() == expected
+        baseBST.postOrderIterator().toList() == expected
         where:
-        from                     | expected
-        []                       | []
-        [1]                      | [1]
-        [4, 2, 1, 3, 6, 5, 7]    | [*1..7]
-        [5, 3, 7, 1, 4, 2, 6, 8] | [*1..8]
+        from                            | expected
+        []                              | []
+        [1]                             | [1]
+        [4, 2, 1, 3, 6, 5, 7]           | [1, 3, 2, 5, 7, 6, 4]
+        [7, 5, 9, 1, 6, 8, 10, 3, 2, 4] | [2, 4, 3, 1, 6, 5, 8, 10, 9, 7]
     }
 }

@@ -3,6 +3,7 @@ package com.techzealot.collection.tree.bst;
 import lombok.NonNull;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -340,6 +341,11 @@ public class BaseBST<E> extends AbstractBST<E> {
         @Override
         public Node right() {
             return right;
+        }
+
+        @Override
+        public String toString() {
+            return Arrays.toString(new Object[]{left == null ? null : left.e, e, right == null ? null : right.e});
         }
     }
 }
