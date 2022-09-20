@@ -4,6 +4,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * 递归=递归终止条件+递归过程
+ *
+ * @param <E>
+ */
 public interface BST<E> extends Iterable<E> {
 
     int size();
@@ -68,7 +73,12 @@ public interface BST<E> extends Iterable<E> {
         String print();
     }
 
-    public class TreePrinter<E> implements Printer {
+    /**
+     * todo 实现直观的树形打印
+     *
+     * @param <E>
+     */
+    class TreePrinter<E> implements Printer {
 
         private final Node<E> node;
 
