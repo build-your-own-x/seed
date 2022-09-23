@@ -2,7 +2,7 @@ package com.techzealot.collection.tree.trie;
 
 import java.util.Map;
 
-public class SimpleCharTrie {
+public class SimpleCharTrie implements CharTrie {
 
     private class Node {
         //是否单词结尾

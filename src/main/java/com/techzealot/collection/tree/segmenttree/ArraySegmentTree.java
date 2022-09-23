@@ -61,7 +61,37 @@ public class ArraySegmentTree<E> implements RangeOperation<E> {
      */
     @Override
     public void update(int index, E e) {
+        int length = data.length;
+        if (index < 0 || index >= length) {
+            throw new IllegalArgumentException();
+        }
+        data[index] = e;
+        update(0, 0, length - 1, index, e);
+    }
 
+    /**
+     * 递归更新线段树各受影响节点
+     *
+     * @param treeIndex
+     * @param rangeLeft
+     * @param rangeRight
+     * @param index
+     * @param e
+     */
+    private void update(int treeIndex, int rangeLeft, int rangeRight, int index, E e) {
+        if (rangeLeft == index && rangeRight == index) {
+            tree[index] = e;
+            return;
+        }
+        int mid = rangeLeft + (rangeRight - rangeLeft) / 2;
+        int leftIndex = leftIndex(treeIndex);
+        int rightIndex = rightIndex(treeIndex);
+        if (index <= mid) {
+            update(leftIndex, rangeLeft, mid, index, e);
+        } else {
+            update(rightIndex, mid + 1, rangeRight, index, e);
+        }
+        tree[treeIndex] = merger.merge(tree[leftIndex], tree[rightIndex]);
     }
 
     /**
@@ -82,7 +112,7 @@ public class ArraySegmentTree<E> implements RangeOperation<E> {
 
     private E query(int treeIndex, int rangeLeft, int rangeRight, int queryLeft, int queryRight) {
         if (rangeLeft == queryLeft && rangeRight == queryRight) {
-            return data[treeIndex];
+            return tree[treeIndex];
         }
         int mid = rangeLeft + (rangeRight - rangeLeft) / 2;
         int leftIndex = leftIndex(treeIndex);
