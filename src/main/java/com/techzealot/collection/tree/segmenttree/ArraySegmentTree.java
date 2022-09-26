@@ -46,11 +46,11 @@ public class ArraySegmentTree<E> implements RangeOperation<E> {
     }
 
     private int leftIndex(int treeIndex) {
-        return 2 * treeIndex + 1;
+        return treeIndex << 1 + 1;
     }
 
     private int rightIndex(int treeIndex) {
-        return 2 * treeIndex + 2;
+        return treeIndex << 1 + 2;
     }
 
     /**
