@@ -4,7 +4,6 @@ import com.techzealot.collection.MyAbstractCollectionExtensions
 import com.techzealot.collection.MyCollection
 import com.techzealot.collection.list.MyArrayList
 import com.techzealot.collection.list.MyLinkedList
-import org.joor.Reflect
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.util.mop.Use
@@ -353,10 +352,8 @@ class MyPriorityQueueTest extends Specification {
     }
 
     def "test hugeCapacity"(int minCapacity, int expected) {
-        given:
-        def mpq = Reflect.onClass(MyPriorityQueue.class)
         when:
-        def capacity = mpq.call("hugeCapacity", minCapacity).get()
+        def capacity = MyPriorityQueue."hugeCapacity"(minCapacity)
         then:
         capacity == expected
         where:

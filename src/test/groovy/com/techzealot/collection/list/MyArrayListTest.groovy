@@ -1,7 +1,6 @@
 package com.techzealot.collection.list
 
 import com.techzealot.collection.MyAbstractCollectionExtensions
-import org.joor.Reflect
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -13,12 +12,12 @@ class MyArrayListTest extends Specification {
     def "init with no args"() {
         when:
         def list = new MyArrayList<>()
-        def elementData = Reflect.on(list).field("elementData")
+        def elementData = list["elementData"]
         then:
         list.size() == 0
         list.getCapacity() == 0
         elementData != null
-        elementData == Reflect.onClass(MyArrayList.class).field("DEFAULTCAPACITY_EMPTY_ELEMENTDATA")
+        elementData == MyArrayList.class["DEFAULTCAPACITY_EMPTY_ELEMENTDATA"]
     }
 
     @Unroll
@@ -29,9 +28,9 @@ class MyArrayListTest extends Specification {
         thrown(IllegalArgumentException)
         when: "init with capacity 0"
         def empty = new MyArrayList<Integer>(0)
-        def elementData = Reflect.on(empty).field("elementData")
+        def elementData = empty["elementData"]
         then:
-        elementData == Reflect.onClass(MyArrayList.class).field("EMPTY_ELEMENTDATA")
+        elementData == MyArrayList.class["EMPTY_ELEMENTDATA"]
         when: "init with legal args"
         def list = new MyArrayList<>(initialCapacity)
         then:
@@ -62,7 +61,7 @@ class MyArrayListTest extends Specification {
         then:
         list.size() == 0
         list.getCapacity() == 0
-        Reflect.on(list).field("elementData") == Reflect.onClass(MyArrayList.class).field("EMPTY_ELEMENTDATA")
+        list["elementData"] == MyArrayList.class["EMPTY_ELEMENTDATA"]
         when:
         def mc = new MyArrayList<>(c);
         then:
@@ -158,15 +157,12 @@ class MyArrayListTest extends Specification {
     }
 
     def "hugeCapacity"(int minCapacity, int expected) {
-        given:
-        def reflect = Reflect.onClass(MyArrayList.class)
         when:
-        reflect.call("hugeCapacity", Integer.MAX_VALUE + 1).get()
+        MyArrayList."hugeCapacity"(Integer.MAX_VALUE + 1)
         then:
-        def e = thrown(Exception)
-        e.asString().contains("java.lang.OutOfMemoryError")
+        def e = thrown(OutOfMemoryError)
         when:
-        def r = reflect.call("hugeCapacity", minCapacity).get()
+        def r = MyArrayList."hugeCapacity"(minCapacity)
         then:
         r == expected
         where:
@@ -346,7 +342,7 @@ class MyArrayListTest extends Specification {
         def c = MyArrayList.<Integer> of(*1..5)
         when:
         c.clear()
-        def elements = Reflect.on(c).field("elementData").get() as Object[]
+        def elements = c["elementData"] as Object[]
         then:
         c.size() == 0
         c.getCapacity() == 5
@@ -384,8 +380,8 @@ class MyArrayListTest extends Specification {
         def list = MyArrayList.of(*1..10)
         when:
         def clone = list.clone() as MyArrayList
-        def cloneElements = Reflect.on(list).field("elementData").get()
-        def listElements = Reflect.on(clone).field("elementData").get()
+        def cloneElements = list["elementData"]
+        def listElements = clone["elementData"]
         then:
         clone !== list
         clone.size() == 10

@@ -1,7 +1,6 @@
 package com.techzealot.collection.list
 
 import com.techzealot.collection.MyAbstractCollectionExtensions
-import org.joor.Reflect
 import spock.lang.Specification
 import spock.util.mop.Use
 
@@ -12,8 +11,8 @@ class MyLinkedListTest extends Specification {
         MyLinkedList<Integer> list = new MyLinkedList<>()
         then:
         list.size() == 0
-        Reflect.on(list).field("first").get() == null
-        Reflect.on(list).field("last").get() == null
+        list["first"] == null
+        list["last"] == null
     }
 
     def "test of"() {
@@ -338,10 +337,10 @@ class MyLinkedListTest extends Specification {
         def list = MyLinkedList.of(*1..10)
         when:
         def clone = list.clone() as MyLinkedList
-        def f1 = Reflect.on(list).field("first").get()
-        def l1 = Reflect.on(list).field("last").get()
-        def f2 = Reflect.on(clone).field("first").get()
-        def l2 = Reflect.on(clone).field("last").get()
+        def f1 = list["first"]
+        def l1 = list["last"]
+        def f2 = clone["first"]
+        def l2 = clone["last"]
         then:
         clone !== list
         clone == list

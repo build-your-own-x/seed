@@ -4,22 +4,21 @@ import com.techzealot.collection.MyAbstractCollectionExtensions
 import com.techzealot.collection.MyCollection
 import com.techzealot.collection.list.MyArrayList
 import com.techzealot.collection.list.MyLinkedList
-import org.joor.Reflect
 import spock.lang.Specification
 import spock.util.mop.Use
 
 @Category(MyArrayDeque)
 class MyArrayDequeExtensions {
     int reflectHead() {
-        return Reflect.on(this).field("head").get()
+        return this["head"]
     }
 
     int reflectTail() {
-        return Reflect.on(this).field("tail").get()
+        return this["tail"]
     }
 
     <E> boolean eleEq(List<E> list) {
-        return Reflect.on(this).field("elements").get() == list.toArray()
+        return this["elements"] == list.toArray()
     }
 }
 
@@ -75,7 +74,7 @@ class MyArrayDequeTest extends Specification {
 
     def "calculateSize"(int nums, int expected) {
         when:
-        def capacity = Reflect.onClass(MyArrayDeque.class).call("calculateSize", nums).get()
+        def capacity = MyArrayDeque."calculateSize"(nums)
         then:
         capacity == expected
         where:

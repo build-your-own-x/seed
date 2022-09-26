@@ -69,8 +69,6 @@ dependencies {
     testRuntimeOnly 'net.bytebuddy:byte-buddy:1.12.8'
     // allows mocking of classes without default constructor (together with ByteBuddy or CGLIB)
     testRuntimeOnly 'org.objenesis:objenesis:3.2'
-    //reflect utils
-    implementation 'org.jooq:joor:0.9.14'
 }
 
 test {
