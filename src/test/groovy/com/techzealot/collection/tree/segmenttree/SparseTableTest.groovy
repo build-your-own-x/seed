@@ -1,28 +1,46 @@
 package com.techzealot.collection.tree.segmenttree
 
+import spock.lang.Shared
 import spock.lang.Specification
 
 class SparseTableTest extends Specification {
+    @Shared
+    def range = new Random().ints(-100, 100).limit(30).toArray()
 
-    def range = [3, 2, 4, 5, 6, 8, 1, 2, 9, 7] as int[]
-
-    def "test RMQ use ST"(int l, int r, int max, int min) {
+    def "test RMQ use ST"(int l, int r) {
         when:
         def st = new SparseTable(range)
         then:
-        st.max(l, r) == max
-        st.min(l, r) == min
+        st.max(l, r) == max(range, l, r)
+        st.min(l, r) == min(range, l, r)
         where:
-        l | r | max | min
-        0 | 0 | 3   | 3
-        0 | 1 | 3   | 2
-        0 | 2 | 4   | 2
-        0 | 3 | 5   | 2
-        0 | 4 | 6   | 2
-        0 | 5 | 8   | 2
-        0 | 6 | 8   | 1
-        0 | 7 | 8   | 1
-        0 | 8 | 9   | 1
-        0 | 9 | 9   | 1
+        [l, r] << generateLR(range.length)
+    }
+
+    List generateLR(int len) {
+        def list = []
+        (0..<len).each { i ->
+            (i..<len).each { j ->
+                list.add([i, j])
+            }
+        }
+        list
+    }
+
+
+    static max(int[] range, int i, int j) {
+        int max = range[i]
+        for (k in i..j) {
+            max = Math.max(max, range[k])
+        }
+        return max
+    }
+
+    static min(int[] range, int i, int j) {
+        int min = range[i]
+        for (k in i..j) {
+            min = Math.min(min, range[k])
+        }
+        return min
     }
 }
