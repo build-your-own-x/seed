@@ -55,6 +55,7 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
     @Override
     public V get(@NonNull String key) {
         Node node = retrieve(root, key, 0);
+        //中间节点node==value,符合逻辑
         return node == null ? null : node.value;
     }
 

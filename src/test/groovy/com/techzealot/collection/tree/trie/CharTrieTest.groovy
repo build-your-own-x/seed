@@ -148,6 +148,7 @@ class CharTrieTest extends Specification {
         trie.get("ace") == 4
         trie.get("ab") == 5
         trie.get("ac") == 6
+        trie.get("ca") == null
         trie.get("xx") == null
     }
 }
