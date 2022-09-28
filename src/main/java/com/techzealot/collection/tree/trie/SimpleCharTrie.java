@@ -2,8 +2,7 @@ package com.techzealot.collection.tree.trie;
 
 import lombok.NonNull;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class SimpleCharTrie<V> implements CharTrie<V> {
 
@@ -89,7 +88,7 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
         if (next == null) return node;
         if (remove(next, key, index + 1, removed) == null) {
             node.next.remove(c);
-            if (node.next.isEmpty()) {
+            if (node.next.isEmpty() && !node.word) {
                 return null;
             }
         }
@@ -115,6 +114,36 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
         return startWith(next, prefix, index + 1);
     }
 
+    /**
+     * 按字母顺序的字符串列表
+     *
+     * @return
+     */
+    @Override
+    public List<String> keyList() {
+        if (root == null) return Collections.emptyList();
+        return keyList(root);
+    }
+
+    private List<String> keyList(Node node) {
+        List<String> ret = new ArrayList<>();
+        Map<Character, Node> next = node.next;
+        if (next.isEmpty()) {
+            return ret;
+        }
+        for (Map.Entry<Character, Node> entry : next.entrySet()) {
+            Node nextNode = entry.getValue();
+            Character key = entry.getKey();
+            if (nextNode.word) {
+                ret.add(key.toString());
+            }
+            List<String> strings = keyList(nextNode);
+            for (String string : strings) {
+                ret.add(key.toString() + string);
+            }
+        }
+        return ret;
+    }
 
     private class Node {
         //是否单词结尾

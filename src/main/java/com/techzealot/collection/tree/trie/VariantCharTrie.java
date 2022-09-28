@@ -11,9 +11,11 @@ import java.util.TreeMap;
  */
 public class VariantCharTrie<V> implements CharTrie<V> {
 
+    private int size;
+
     @Override
     public int size() {
-        return 0;
+        return size;
     }
 
     @Override
@@ -36,34 +38,35 @@ public class VariantCharTrie<V> implements CharTrie<V> {
         return false;
     }
 
+    @Override
+    public List<String> keyList() {
+        return null;
+    }
+
+    public List<Map<String, V>> search(String prefix) {
+        return null;
+    }
+
     /**
      * 词频统计
      *
      * @param word
      * @return
      */
-    public int search(String word) {
+    public int countWord(String word) {
         return -1;
     }
 
     /**
      * 前缀词频统计
      *
-     * @param word
+     * @param prefix
      * @return
      */
-    public int prefixNumber(String word) {
+    public int countPrefix(String prefix) {
         return -1;
     }
 
-    /**
-     * 字符串排序
-     *
-     * @return
-     */
-    public List<String> sort() {
-        return null;
-    }
 
     private class Node {
         //结尾次数

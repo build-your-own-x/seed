@@ -1,5 +1,7 @@
 package com.techzealot.collection.tree.trie;
 
+import java.util.List;
+
 /**
  *
  */
@@ -13,4 +15,6 @@ public interface CharTrie<V> {
     V remove(String key);
 
     boolean startWith(String prefix);
+
+    List<String> keyList();
 }
