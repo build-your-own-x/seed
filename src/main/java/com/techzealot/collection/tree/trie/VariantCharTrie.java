@@ -6,6 +6,8 @@ import java.util.TreeMap;
 
 /**
  * 字典树可以存储附加信息以便完成更多统计任务
+ * <p>
+ * 此实现尽量不使用递归算法
  *
  * @param <V>
  */
@@ -24,8 +26,13 @@ public class VariantCharTrie<V> implements CharTrie<V> {
     }
 
     @Override
-    public void add(String key, V value) {
+    public void put(String key, V value) {
 
+    }
+
+    @Override
+    public V get(String key) {
+        return null;
     }
 
     @Override

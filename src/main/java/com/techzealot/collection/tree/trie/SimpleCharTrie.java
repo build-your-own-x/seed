@@ -18,17 +18,17 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
     @Override
     public boolean contains(@NonNull String word) {
         if (root == null) return false;
-        return contains(root, word, 0);
+        return retrieve(root, word, 0) != null;
     }
 
-    private boolean contains(Node node, String word, int index) {
+    private Node retrieve(Node node, String word, int index) {
         if (index == word.length()) {
-            return node.word;
+            return node.word ? node : null;
         }
         char c = word.charAt(index);
         Node next = node.next.get(c);
-        if (next == null) return false;
-        return contains(next, word, index + 1);
+        if (next == null) return null;
+        return retrieve(next, word, index + 1);
     }
 
     /**
@@ -38,12 +38,18 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
      * @param value
      */
     @Override
-    public void add(String key, V value) {
-        root = add(root, key, 0, value);
+    public void put(@NonNull String key, V value) {
+        root = put(root, key, 0, value);
         size++;
     }
 
-    private Node add(Node node, String key, int index, V value) {
+    @Override
+    public V get(@NonNull String key) {
+        Node node = retrieve(root, key, 0);
+        return node == null ? null : node.value;
+    }
+
+    private Node put(Node node, String key, int index, V value) {
         if (node == null) {
             node = new Node();
         }
@@ -54,7 +60,7 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
             return node;
         }
         char c = key.charAt(index);
-        node.next.put(c, add(node.next.get(c), key, index + 1, value));
+        node.next.put(c, put(node.next.get(c), key, index + 1, value));
         return node;
     }
 

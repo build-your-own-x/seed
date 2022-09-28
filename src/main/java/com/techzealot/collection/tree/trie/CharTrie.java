@@ -10,7 +10,9 @@ public interface CharTrie<V> {
 
     boolean contains(String word);
 
-    void add(String key, V value);
+    void put(String key, V value);
+
+    V get(String key);
 
     V remove(String key);
 

@@ -2,7 +2,7 @@ package com.techzealot.collection.tree.trie
 
 import spock.lang.Specification
 
-class SimpleCharTrieTest extends Specification {
+class CharTrieTest extends Specification {
 
 
     def "test contains"() {
@@ -11,9 +11,9 @@ class SimpleCharTrieTest extends Specification {
         then:
         !trie.contains("any")
         when:
-        trie.add("abc", 1)
-        trie.add("b", 2)
-        trie.add("cat", 3)
+        trie.put("abc", 1)
+        trie.put("b", 2)
+        trie.put("cat", 3)
         then:
         trie.contains("abc")
         trie.contains("b")
@@ -24,7 +24,7 @@ class SimpleCharTrieTest extends Specification {
         !trie.contains("not exist")
     }
 
-    def "test add and size"() {
+    def "test put and size"() {
         given:
         def trie = new SimpleCharTrie<Integer>()
         when:
@@ -32,9 +32,9 @@ class SimpleCharTrieTest extends Specification {
         then:
         size == 0
         when:
-        trie.add("abc", 1)
-        trie.add("b", 2)
-        trie.add("cat", 3)
+        trie.put("abc", 1)
+        trie.put("b", 2)
+        trie.put("cat", 3)
         then:
         trie.size() == 3
     }
@@ -46,12 +46,12 @@ class SimpleCharTrieTest extends Specification {
         trie.remove("not found") == null
         trie.size() == 0
         when:
-        trie.add("abc", 1)
-        trie.add("b", 2)
-        trie.add("cat", 3)
-        trie.add("ace", 4)
-        trie.add("ab", 5)
-        trie.add("ac", 6)
+        trie.put("abc", 1)
+        trie.put("b", 2)
+        trie.put("cat", 3)
+        trie.put("ace", 4)
+        trie.put("ab", 5)
+        trie.put("ac", 6)
         int size = 6
         then:
         trie.keyList() == ["ab", "abc", "ac", "ace", "b", "cat"]
@@ -99,9 +99,9 @@ class SimpleCharTrieTest extends Specification {
         then:
         !trie.startWith("any")
         when:
-        trie.add("abc", 1)
-        trie.add("b", 2)
-        trie.add("cat", 3)
+        trie.put("abc", 1)
+        trie.put("b", 2)
+        trie.put("cat", 3)
         then:
         trie.keyList() == ["abc", "b", "cat"]
         trie.startWith("a")
@@ -115,17 +115,39 @@ class SimpleCharTrieTest extends Specification {
         !trie.startWith("x")
     }
 
-    def "test string"() {
+    def "test keyList"() {
+        when:
+        def trie = new SimpleCharTrie<Integer>()
+        then:
+        trie.keyList() == []
+        when:
+        trie.put("abc", 1)
+        trie.put("b", 2)
+        trie.put("cat", 3)
+        trie.put("ace", 4)
+        trie.put("ab", 5)
+        trie.put("ac", 6)
+        then:
+        trie.keyList() == ["ab", "abc", "ac", "ace", "b", "cat"]
+    }
+
+    def "test get"() {
         given:
         def trie = new SimpleCharTrie<Integer>()
         when:
-        trie.add("abc", 1)
-        trie.add("b", 2)
-        trie.add("cat", 3)
-        trie.add("ace", 4)
-        trie.add("ab", 5)
-        trie.add("ac", 6)
+        trie.put("abc", 1)
+        trie.put("b", 2)
+        trie.put("cat", 3)
+        trie.put("ace", 4)
+        trie.put("ab", 5)
+        trie.put("ac", 6)
         then:
-        trie.keyList() == ["ab", "abc", "ac", "ace", "b", "cat"]
+        trie.get("abc") == 1
+        trie.get("b") == 2
+        trie.get("cat") == 3
+        trie.get("ace") == 4
+        trie.get("ab") == 5
+        trie.get("ac") == 6
+        trie.get("xx") == null
     }
 }

@@ -1,7 +1,9 @@
 package com.techzealot.collection.tree.trie;
 
+import java.util.List;
+
 /**
- * 压缩字典树
+ * TODO: 压缩字典树
  *
  * @param <V>
  */
@@ -17,8 +19,13 @@ public class CompressedTrie<V> implements CharTrie<V> {
     }
 
     @Override
-    public void add(String key, V value) {
+    public void put(String key, V value) {
 
+    }
+
+    @Override
+    public V get(String key) {
+        return null;
     }
 
     @Override
@@ -29,5 +36,10 @@ public class CompressedTrie<V> implements CharTrie<V> {
     @Override
     public boolean startWith(String prefix) {
         return false;
+    }
+
+    @Override
+    public List<String> keyList() {
+        return null;
     }
 }
