@@ -18,12 +18,21 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
     @Override
     public boolean contains(@NonNull String word) {
         if (root == null) return false;
-        return retrieve(root, word, 0) != null;
+        Node node = retrieve(root, word, 0);
+        return node != null && node.word;
     }
 
+    /**
+     * 获取以指定前缀对应的节点，不要求是单词
+     *
+     * @param node
+     * @param word
+     * @param index
+     * @return
+     */
     private Node retrieve(Node node, String word, int index) {
         if (index == word.length()) {
-            return node.word ? node : null;
+            return node;
         }
         char c = word.charAt(index);
         Node next = node.next.get(c);
@@ -110,14 +119,7 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
     @Override
     public boolean startWith(@NonNull String prefix) {
         if (root == null) return false;
-        return startWith(root, prefix, 0);
-    }
-
-    private boolean startWith(Node node, String prefix, int index) {
-        if (index == prefix.length()) return true;
-        Node next = node.next.get(prefix.charAt(index));
-        if (next == null) return false;
-        return startWith(next, prefix, index + 1);
+        return retrieve(root, prefix, 0) != null;
     }
 
     /**
