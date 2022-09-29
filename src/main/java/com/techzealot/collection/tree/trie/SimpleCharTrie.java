@@ -52,6 +52,12 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
         size++;
     }
 
+    /**
+     * 由于put支持空值，因此get("x")==null不代表不存在需要用contains判断
+     *
+     * @param key
+     * @return
+     */
     @Override
     public V get(@NonNull String key) {
         Node node = retrieve(root, key, 0);
