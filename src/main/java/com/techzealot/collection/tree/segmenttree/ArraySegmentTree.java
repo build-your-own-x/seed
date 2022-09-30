@@ -46,11 +46,11 @@ public class ArraySegmentTree<E> implements RangeOperation<E> {
     }
 
     private int leftIndex(int treeIndex) {
-        return treeIndex << 1 + 1;
+        return (treeIndex << 1) + 1;
     }
 
     private int rightIndex(int treeIndex) {
-        return treeIndex << 1 + 2;
+        return (treeIndex << 1) + 2;
     }
 
     /**
@@ -80,7 +80,7 @@ public class ArraySegmentTree<E> implements RangeOperation<E> {
      */
     private void update(int treeIndex, int rangeLeft, int rangeRight, int index, E e) {
         if (rangeLeft == index && rangeRight == index) {
-            tree[index] = e;
+            tree[treeIndex] = e;
             return;
         }
         int mid = rangeLeft + (rangeRight - rangeLeft) / 2;
