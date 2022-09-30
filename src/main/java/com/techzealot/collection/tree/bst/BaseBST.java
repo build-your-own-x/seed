@@ -30,7 +30,7 @@ public class BaseBST<E> extends AbstractBST<E> {
     public static <T> BaseBST of(@NonNull T... elements) {
         BaseBST bst = new BaseBST();
         for (T element : elements) {
-            bst.add(element);
+            bst.put(element);
         }
         bst.validate();
         return bst;
@@ -76,14 +76,11 @@ public class BaseBST<E> extends AbstractBST<E> {
 
     /**
      * @param e
-     * @return
      */
     @Override
-    public boolean add(@NonNull E e) {
-        boolean[] modified = new boolean[]{false};
-        root = add(root, e, modified);
+    public void put(@NonNull E e) {
+        root = put(root, e);
         validate();
-        return modified[0];
     }
 
     /**
@@ -94,21 +91,23 @@ public class BaseBST<E> extends AbstractBST<E> {
      * 无法直接通过传递Boolean参数在方法内修改原始变量，可以通过数组来间接实现传递boolean引用的效果
      *
      * @param node
-     * @param e
+     * @param e    对相同元素建议采用覆盖模式(compare相同不代表对象完全相同)
      * @return
      */
-    private Node add(Node node, E e, boolean[] modified) {
+    private Node put(Node node, E e) {
         if (node == null) {
             size++;
-            modified[0] = true;
             return new Node(e);
         }
-        if (compare(e, node.e) < 0) {
-            Node left = add(node.left, e, modified);
+        if (compare(e, node.e) == 0) {
+            node.e = e;
+            return node;
+        } else if (compare(e, node.e) < 0) {
+            Node left = put(node.left, e);
             node.left = left;
             left.parent = node;
-        } else if (compare(e, node.e) > 0) {
-            Node right = add(node.right, e, modified);
+        } else {
+            Node right = put(node.right, e);
             node.right = right;
             right.parent = node;
         }
@@ -316,7 +315,7 @@ public class BaseBST<E> extends AbstractBST<E> {
     }
 
     private class Node implements BST.Node<E> {
-        //存储父节点引用,在需要从下到上遍历时有用,大部分情况下都不需要,可通过递归保存遍历路径解决
+        //存储父节点引用,在需要从下到上遍历时有用,大部分情况下都不需要,可通过递归或保存遍历路径解决
         Node parent;
         Node left;
         E e;

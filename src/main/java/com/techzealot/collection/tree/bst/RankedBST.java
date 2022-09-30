@@ -26,7 +26,7 @@ public class RankedBST<E> extends AbstractBST<E> {
     public static <T> RankedBST<T> of(@NonNull T... elements) {
         RankedBST<T> bst = new RankedBST<>();
         for (T element : elements) {
-            bst.add(element);
+            bst.put(element);
         }
         return bst;
     }
@@ -58,24 +58,22 @@ public class RankedBST<E> extends AbstractBST<E> {
     }
 
     @Override
-    public boolean add(@NonNull E e) {
-        boolean[] modified = new boolean[]{false};
-        root = add(root, e, modified);
+    public void put(@NonNull E e) {
+        root = put(root, e);
         validate();
-        return modified[0];
     }
 
-    private Node add(Node node, E e, boolean[] modified) {
+    private Node put(Node node, E e) {
         if (node == null) {
-            modified[0] = true;
             return new Node(e);
         }
         if (compare(e, node.e) == 0) {
+            node.e = e;
             return node;
         } else if (compare(e, node.e) < 0) {
-            node.left = add(node.left, e, modified);
+            node.left = put(node.left, e);
         } else {
-            node.right = add(node.right, e, modified);
+            node.right = put(node.right, e);
         }
         node.size = size(node.left) + size(node.right) + 1;
         return node;

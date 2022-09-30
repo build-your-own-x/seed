@@ -75,7 +75,7 @@ public abstract class AbstractBST<E> implements BST<E> {
     }
 
     /**
-     * 中序遍历：左子树->根节点->右子树
+     * 中序遍历：左子树->根节点->右子树(升序) 也可以 右子树->根节点->左子树(降序)
      * 应用：遍历顺序就是从小到大的顺序
      *
      * @param action

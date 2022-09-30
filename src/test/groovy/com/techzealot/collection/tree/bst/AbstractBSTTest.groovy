@@ -32,29 +32,96 @@ class AbstractBSTTest extends Specification {
         [*1..100] | false
     }
 
-    def "test add"(Object[] from, List expected) {
+    private class Person {
+        private int age
+        private String name
+
+        Person(int age, String name) {
+            this.age = age
+            this.name = name
+        }
+
+
+        @Override
+        public String toString() {
+            return "Person{" +
+                    "age=" + age +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
+
+        boolean equals(o) {
+            if (this.is(o)) return true
+            if (getClass() != o.class) return false
+
+            Person person = (Person) o
+
+            if (age != person.age) return false
+            if (name != person.name) return false
+
+            return true
+        }
+
+        int hashCode() {
+            int result
+            result = age
+            result = 31 * result + name.hashCode()
+            return result
+        }
+    }
+
+    def "test put"(Object[] from, List expected) {
         given:
         def basedBST = BaseBST.of()
         def rankedBST = RankedBST.of()
         when:
         from.each {
-            basedBST.add(it)
-            rankedBST.add(it)
+            basedBST.put(it)
+            rankedBST.put(it)
         }
-        def a1 = basedBST.add(8)
-        def a2 = rankedBST.add(8)
-        def a3 = basedBST.add(8)
-        def a4 = rankedBST.add(8)
         then:
-        a1 && a2
-        !a3 && !a4
         basedBST.toList() == expected
         rankedBST.toList() == expected
         where:
         from                  | expected
-        []                    | [8]
-        [4, 2, 6, 1, 3, 5, 7] | [*1..8]
-        [*1..7]               | [*1..8]
+        []                    | []
+        [4, 2, 6, 1, 3, 5, 7] | [*1..7]
+        [*1..7]               | [*1..7]
+    }
+
+    def "test put as replace"(Object[] from, List expected) {
+        given:
+        def comparator = (Person p1, Person p2) -> { p1.age - p2.age }
+        def basedBST = new BaseBST(comparator)
+        def rankedBST = new RankedBST(comparator)
+        when: "测试覆盖"
+        from.each {
+            basedBST.put(it)
+            rankedBST.put(it)
+        }
+        basedBST.put(new Person(3, "cc"))
+        rankedBST.put(new Person(3, "cc"))
+        then:
+        basedBST.toList() == expected
+        rankedBST.toList() == expected
+        where:
+        from                                                         | expected
+        [new Person(1, "a"), new Person(2, "b"), new Person(3, "c")] | [new Person(1, "a"), new Person(2, "b"), new Person(3, "cc")]
+    }
+
+    def "test put non-comparable and no comparator"() {
+        given:
+        def basedBST = new BaseBST()
+        def rankedBST = new RankedBST()
+        when:
+        //第一个元素由于不会与其他元素比较不会触发类转换异常
+        basedBST.put(new Object())
+        basedBST.put(new Object())
+        //添加第二个元素触发异常
+        rankedBST.put(new Object())
+        rankedBST.put(new Object())
+        then:
+        thrown(ClassCastException)
     }
 
 
@@ -304,8 +371,8 @@ class AbstractBSTTest extends Specification {
         def baseBST = new BaseBST(comparator)
         def rankedBST = new RankedBST(comparator)
         from.each {
-            baseBST.add(it)
-            rankedBST.add(it)
+            baseBST.put(it)
+            rankedBST.put(it)
         }
         then:
         baseBST.toList() == expected
@@ -348,7 +415,7 @@ class AbstractBSTTest extends Specification {
         [1, 2, 3, null] | _
     }
 
-    def "test predecessor"(Object[] from, Object predecessor, Object expected) {
+    def "test predecessor and superPredecessor"(Object[] from, Object predecessor, Object expected) {
         when:
         def rankedBST = RankedBST.of(from)
         def baseBST = BaseBST.of(from)
@@ -368,7 +435,7 @@ class AbstractBSTTest extends Specification {
         [4, 2, 11, 1, 3, 10]                | 10          | 4
     }
 
-    def "test successor"(Object[] from, Object successor, Object expected) {
+    def "test successor and superSuccessor"(Object[] from, Object successor, Object expected) {
         when:
         def rankedBST = RankedBST.of(from)
         def baseBST = BaseBST.of(from)

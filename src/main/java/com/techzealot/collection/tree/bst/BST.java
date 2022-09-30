@@ -15,7 +15,12 @@ public interface BST<E> extends Iterable<E> {
 
     boolean isEmpty();
 
-    boolean add(E e);
+    /**
+     * 对于无则新增有则覆盖的实现来说一般命名为put,表示直接新增语义的一般命名为add
+     *
+     * @param e
+     */
+    void put(E e);
 
     boolean remove(Object o);
 
