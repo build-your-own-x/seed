@@ -61,8 +61,7 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
     @Override
     public V get(@NonNull String key) {
         Node node = retrieve(root, key, 0);
-        //中间节点node==value,符合逻辑
-        return node == null ? null : node.value;
+        return node != null && node.word ? node.value : null;
     }
 
     private Node put(Node node, String key, int index, V value) {
@@ -89,7 +88,7 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
             return null;
         }
         size--;
-        return ((Node) removed[0]).value;
+        return (V) removed[0];
     }
 
     private Node remove(Node node, String key, int index, Object[] removed) {
@@ -97,11 +96,12 @@ public class SimpleCharTrie<V> implements CharTrie<V> {
             if (!node.word) {
                 return node;
             }
-            removed[0] = node;
+            removed[0] = node.value;
             if (node.next.isEmpty()) {
                 return null;
             } else {
                 node.word = false;
+                node.value = null;
                 return node;
             }
         }

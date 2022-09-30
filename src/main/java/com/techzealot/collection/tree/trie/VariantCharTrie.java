@@ -20,12 +20,12 @@ public class VariantCharTrie<V> implements CharTrie<V> {
 
     @Override
     public int size() {
+        if (root == null) return 0;
         return root.pass;
     }
 
     @Override
     public boolean contains(String word) {
-        check(word);
         Node node = retrieve(word);
         return node != null && node.end > 0;
     }
@@ -38,8 +38,9 @@ public class VariantCharTrie<V> implements CharTrie<V> {
     }
 
     private Node retrieve(String word) {
+        if (word == null) return null;
         int len = word.length();
-        if (root == null) return null;
+        if (root == null || len == 0) return null;
         Node node = root;
         for (int i = 0; i < len; i++) {
             char c = word.charAt(i);
@@ -56,8 +57,8 @@ public class VariantCharTrie<V> implements CharTrie<V> {
         int length = key.length();
         if (root == null) {
             root = new Node();
-            root.pass++;
         }
+        root.pass++;
         Node node = root;
         for (int i = 0; i < length; i++) {
             char c = key.charAt(i);
@@ -75,7 +76,6 @@ public class VariantCharTrie<V> implements CharTrie<V> {
 
     @Override
     public V get(String key) {
-        if (key == null || key.length() == 0) return null;
         Node node = retrieve(key);
         return node == null ? null : node.v;
     }
@@ -86,17 +86,25 @@ public class VariantCharTrie<V> implements CharTrie<V> {
         Object[] removed = new Object[]{null};
         root = remove(root, key, 0, removed);
         if (removed[0] == null) return null;
-        return ((Node) removed[0]).v;
+        return (V) removed[0];
     }
 
     private Node remove(Node node, String key, int index, Object[] removed) {
         int length = key.length();
         if (index == length) {
             if (node.end > 0) {
-                removed[0] = node;
-                return null;
+                removed[0] = node.v;
+                if (node.next.isEmpty()) {
+                    return null;
+                } else {
+                    node.pass -= node.end;
+                    node.v = null;
+                    node.end = 0;
+                    return node;
+                }
+            } else {
+                return node;
             }
-            return node;
         }
         char c = key.charAt(index);
         Node nextNode = node.next.get(c);
@@ -104,40 +112,37 @@ public class VariantCharTrie<V> implements CharTrie<V> {
         int pass = nextNode.pass;
         int end = nextNode.end;
         Node newNextNode = remove(nextNode, key, index + 1, removed);
-        //todo 处理newNextNode==null的情形
         if (newNextNode == null) {
+            node.next.remove(c);
             node.pass -= pass;
-            node.end -= end;
-            if (node.pass == 0) {
-                node.next.remove(c);
-                if (node.next.isEmpty() && node.end == 0) {
-                    return null;
-                }
+            if (node.next.isEmpty() && node.end == 0) {
+                return null;
             }
         } else {
             node.pass -= (pass - newNextNode.pass);
-            node.end -= (end - newNextNode.end);
         }
         return node;
     }
 
     @Override
     public boolean startWith(String prefix) {
-        check(prefix);
         return retrieve(prefix) != null;
     }
 
     @Override
     public List<String> keyList() {
-        Map<String, Node> nodes = nodes(root);
+        Map<String, Node> nodes = nodesMap(root);
         return nodes.keySet().stream().toList();
     }
 
-    public Map<String, V> search(String prefix) {
+    public Map<String, V> searchPrefix(String prefix) {
+        Map<String, V> ret = new TreeMap<>();
         Node rt = retrieve(prefix);
         if (rt == null) return Collections.emptyMap();
-        Map<String, Node> nodes = nodes(rt);
-        Map<String, V> ret = new TreeMap<>();
+        if (rt.end > 0) {
+            ret.put(prefix, rt.v);
+        }
+        Map<String, Node> nodes = nodesMap(rt);
         nodes.forEach((k, v) -> {
             ret.put(prefix + k, v.v);
         });
@@ -150,8 +155,20 @@ public class VariantCharTrie<V> implements CharTrie<V> {
      * @param root
      * @return
      */
-    private Map<String, Node> nodes(Node root) {
+    private Map<String, Node> nodesMap(Node root) {
+        if (root == null) return Collections.emptyMap();
         Map<String, Node> ret = new TreeMap<>();
+        for (Map.Entry<Character, Node> entry : root.next.entrySet()) {
+            Character key = entry.getKey();
+            Node node = entry.getValue();
+            if (node.end > 0) {
+                ret.put(key.toString(), node);
+            }
+            Map<String, Node> nextMap = nodesMap(node);
+            for (Map.Entry<String, Node> nodeEntry : nextMap.entrySet()) {
+                ret.put(key.toString() + nodeEntry.getKey(), nodeEntry.getValue());
+            }
+        }
         return ret;
     }
 
@@ -163,7 +180,7 @@ public class VariantCharTrie<V> implements CharTrie<V> {
      */
     public int countWord(String word) {
         Node node = retrieve(word);
-        return node != null ? 0 : node.end;
+        return node == null ? 0 : node.end;
     }
 
     /**
@@ -174,7 +191,7 @@ public class VariantCharTrie<V> implements CharTrie<V> {
      */
     public int countPrefix(String prefix) {
         Node node = retrieve(prefix);
-        return node != null ? 0 : node.pass;
+        return node == null ? 0 : node.pass;
     }
 
 
