@@ -79,7 +79,7 @@ public interface BST<E> extends Iterable<E> {
     }
 
     /**
-     * todo 实现直观的树形打印
+     * 前序遍历 简单的形式输出
      *
      * @param <E>
      */
@@ -93,7 +93,18 @@ public interface BST<E> extends Iterable<E> {
 
         @Override
         public String print() {
-            return null;
+            StringBuilder sb = new StringBuilder();
+            if (node != null) {
+                toString(node, sb, "");
+            }
+            return sb.toString();
+        }
+
+        private void toString(Node<E> node, StringBuilder sb, String prefix) {
+            if (node == null) return;
+            sb.append(prefix).append(node.value()).append("\n");
+            toString(node.left(), sb, prefix + "[L]");
+            toString(node.right(), sb, prefix + "[R]");
         }
     }
 }

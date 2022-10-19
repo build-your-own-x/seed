@@ -216,11 +216,11 @@ public abstract class AbstractBST<E> implements BST<E> {
         while (!stack.isEmpty()) {
             Node<E> current = stack.pop();
             action.accept(current.value());
-            if (current.left() != null) {
-                stack.push(current.left());
-            }
             if (current.right() != null) {
                 stack.push(current.right());
+            }
+            if (current.left() != null) {
+                stack.push(current.left());
             }
         }
     }

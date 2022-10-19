@@ -458,8 +458,10 @@ class AbstractBSTTest extends Specification {
     def "test levelOrderIterator"(Object[] from, List expected) {
         when:
         def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
         then:
         baseBST.levelOrderIterator().toList() == expected
+        rankedBST.levelOrderIterator().toList() == expected
         where:
         from                  | expected
         []                    | []
@@ -470,8 +472,10 @@ class AbstractBSTTest extends Specification {
     def "test preOrderIterator"(Object[] from, List expected) {
         when:
         def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
         then:
         baseBST.preOrderIterator().toList() == expected
+        rankedBST.preOrderIterator().toList() == expected
         where:
         from                  | expected
         []                    | []
@@ -482,8 +486,10 @@ class AbstractBSTTest extends Specification {
     def "test inOrderIterator"(Object[] from, List expected) {
         when:
         def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
         then:
         baseBST.inOrderIterator().toList() == expected
+        rankedBST.inOrderIterator().toList() == expected
         where:
         from                     | expected
         []                       | []
@@ -495,8 +501,10 @@ class AbstractBSTTest extends Specification {
     def "test postOrderIterator"(Object[] from, List expected) {
         when:
         def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
         then:
         baseBST.postOrderIterator().toList() == expected
+        rankedBST.postOrderIterator().toList() == expected
         where:
         from                            | expected
         []                              | []
@@ -504,4 +512,77 @@ class AbstractBSTTest extends Specification {
         [4, 2, 1, 3, 6, 5, 7]           | [1, 3, 2, 5, 7, 6, 4]
         [7, 5, 9, 1, 6, 8, 10, 3, 2, 4] | [2, 4, 3, 1, 6, 5, 8, 10, 9, 7]
     }
+
+    def "test toString"(Object[] from, String expected) {
+        when:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        then:
+        baseBST.toString() == expected
+        rankedBST.toString() == expected
+        where:
+        from                            | expected
+        []                              | ""
+        [1]                             | "1\n"
+        [4, 2, 1, 3, 6, 5, 7]           | '''\
+4
+[L]2
+[L][L]1
+[L][R]3
+[R]6
+[R][L]5
+[R][R]7
+'''
+        [7, 5, 9, 1, 6, 8, 10, 3, 2, 4] | '''\
+7
+[L]5
+[L][L]1
+[L][L][R]3
+[L][L][R][L]2
+[L][L][R][R]4
+[L][R]6
+[R]9
+[R][L]8
+[R][R]10
+'''
+    }
+
+    def "test root"(Object[] from, Object expected) {
+        when:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        then:
+        baseBST.root()?.value() == expected
+        rankedBST.root()?.value() == expected
+        where:
+        from                            | expected
+        []                              | null
+        [1]                             | 1
+        [4, 2, 1, 3, 6, 5, 7]           | 4
+        [7, 5, 9, 1, 6, 8, 10, 3, 2, 4] | 7
+    }
+
+    def "test preOrderNR"(Object[] from, List expected) {
+        when:
+        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBST.of(from)
+        def baseList = []
+        def rankedList = []
+        baseBST.preOrderNR {
+            baseList += it
+        }
+        rankedBST.preOrderNR {
+            rankedList += it
+        }
+        then:
+        baseList == expected
+        rankedList == expected
+        where:
+        from                            | expected
+        []                              | []
+        [1]                             | [1]
+        [4, 2, 3, 1, 6, 7, 5]           | [4, 2, 1, 3, 6, 5, 7]
+        [7, 5, 9, 1, 6, 8, 10, 3, 2, 4] | [7, 5, 1, 3, 2, 4, 6, 9, 8, 10]
+    }
+
 }
