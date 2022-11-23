@@ -1,5 +1,7 @@
-package com.techzealot.collection.tree.bst;
+package com.techzealot.collection.tree.bst.base;
 
+import com.techzealot.collection.tree.bst.AbstractBSTSet;
+import com.techzealot.collection.tree.bst.BSTSet;
 import lombok.NonNull;
 
 import java.text.MessageFormat;
@@ -14,21 +16,21 @@ import java.util.Comparator;
  * 标准库中处理集合对象比较问题的方式：
  * 若显式定义比较器则使用比较器，若未定义比较器则元素本身必须为Comparable否则强转异常
  */
-public class BaseBST<E> extends AbstractBST<E> {
+public class BaseBSTSet<E> extends AbstractBSTSet<E> {
 
     private int size;
     private Node root;
     private boolean check = true;
 
-    public BaseBST() {
+    public BaseBSTSet() {
     }
 
-    public BaseBST(Comparator<E> comparator) {
+    public BaseBSTSet(Comparator<E> comparator) {
         super(comparator);
     }
 
-    public static <T> BaseBST of(@NonNull T... elements) {
-        BaseBST bst = new BaseBST();
+    public static <T> BaseBSTSet of(@NonNull T... elements) {
+        BaseBSTSet bst = new BaseBSTSet();
         for (T element : elements) {
             bst.put(element);
         }
@@ -65,7 +67,7 @@ public class BaseBST<E> extends AbstractBST<E> {
     }
 
     @Override
-    protected BST.Node<E> root() {
+    protected BSTSet.Node<E> root() {
         return root;
     }
 
@@ -101,15 +103,12 @@ public class BaseBST<E> extends AbstractBST<E> {
         }
         if (compare(e, node.e) == 0) {
             node.e = e;
-            return node;
         } else if (compare(e, node.e) < 0) {
-            Node left = put(node.left, e);
-            node.left = left;
-            left.parent = node;
+            node.left = put(node.left, e);
+            node.left.parent = node;
         } else {
-            Node right = put(node.right, e);
-            node.right = right;
-            right.parent = node;
+            node.right = put(node.right, e);
+            node.right.parent = node;
         }
         return node;
     }
@@ -314,7 +313,7 @@ public class BaseBST<E> extends AbstractBST<E> {
         }
     }
 
-    private class Node implements BST.Node<E> {
+    private class Node implements BSTSet.Node<E> {
         //存储父节点引用,在需要从下到上遍历时有用,大部分情况下都不需要,可通过递归或保存遍历路径解决
         Node parent;
         Node left;

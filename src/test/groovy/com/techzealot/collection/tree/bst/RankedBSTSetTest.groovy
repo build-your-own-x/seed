@@ -1,11 +1,12 @@
 package com.techzealot.collection.tree.bst
 
+import com.techzealot.collection.tree.bst.base.RankedBSTSet
 import spock.lang.Specification
 
-class RankedBSTTest extends Specification {
+class RankedBSTSetTest extends Specification {
     def "test rank"(Object[] from, Object o, int expected) {
         when:
-        def rankedBST = RankedBST.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         rankedBST.rank(o) == expected
         where:
@@ -21,7 +22,7 @@ class RankedBSTTest extends Specification {
 
     def "test select"(Object[] from, int rank, Object expected) {
         when:
-        def rankedBST = RankedBST.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         rankedBST.select(rank) == expected
         where:

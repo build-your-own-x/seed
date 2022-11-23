@@ -1,5 +1,7 @@
-package com.techzealot.collection.tree.bst;
+package com.techzealot.collection.tree.bst.base;
 
+import com.techzealot.collection.tree.bst.AbstractBSTSet;
+import com.techzealot.collection.tree.bst.BSTSet;
 import lombok.NonNull;
 
 import java.text.MessageFormat;
@@ -12,19 +14,19 @@ import java.util.Comparator;
  * predecessor(e)=select(rank(e)-1)
  * successor(e)=select(rank(e)+1)
  */
-public class RankedBST<E> extends AbstractBST<E> {
+public class RankedBSTSet<E> extends AbstractBSTSet<E> {
 
     private Node root;
 
-    public RankedBST() {
+    public RankedBSTSet() {
     }
 
-    public RankedBST(Comparator<E> comparator) {
+    public RankedBSTSet(Comparator<E> comparator) {
         super(comparator);
     }
 
-    public static <T> RankedBST<T> of(@NonNull T... elements) {
-        RankedBST<T> bst = new RankedBST<>();
+    public static <T> RankedBSTSet<T> of(@NonNull T... elements) {
+        RankedBSTSet<T> bst = new RankedBSTSet<>();
         for (T element : elements) {
             bst.put(element);
         }
@@ -213,7 +215,7 @@ public class RankedBST<E> extends AbstractBST<E> {
         return select(rank(e) + 1);
     }
 
-    private class Node implements BST.Node<E> {
+    private class Node implements BSTSet.Node<E> {
         /**
          * 以该节点作为根节点的子树节点个数
          */

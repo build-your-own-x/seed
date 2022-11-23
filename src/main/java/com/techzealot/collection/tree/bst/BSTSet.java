@@ -7,9 +7,9 @@ import java.util.function.Consumer;
 /**
  * 递归=递归终止条件+递归过程
  *
- * @param <E>
+ * @param <E> 此处可以实现为存储K,V的节点以便同时支持Set和Map,实际设计时可用BSTMap替代BSTSet，无需单独设计BSTSet
  */
-public interface BST<E> extends Iterable<E> {
+public interface BSTSet<E> extends Iterable<E> {
 
     int size();
 

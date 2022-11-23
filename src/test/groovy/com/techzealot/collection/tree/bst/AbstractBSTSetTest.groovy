@@ -1,13 +1,14 @@
 package com.techzealot.collection.tree.bst
 
-
+import com.techzealot.collection.tree.bst.base.BaseBSTSet
+import com.techzealot.collection.tree.bst.base.RankedBSTSet
 import spock.lang.Specification
 
-class AbstractBSTTest extends Specification {
+class AbstractBSTSetTest extends Specification {
     def "test size"(Object[] from, int expected) {
         when:
-        def basedBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def basedBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         basedBST.size() == expected
         rankedBST.size() == expected
@@ -20,8 +21,8 @@ class AbstractBSTTest extends Specification {
 
     def "test isEmpty"(Object[] from, boolean expected) {
         when:
-        def basedBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def basedBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         basedBST.isEmpty() == expected
         rankedBST.isEmpty() == expected
@@ -72,8 +73,8 @@ class AbstractBSTTest extends Specification {
 
     def "test put"(Object[] from, List expected) {
         given:
-        def basedBST = BaseBST.of()
-        def rankedBST = RankedBST.of()
+        def basedBST = BaseBSTSet.of()
+        def rankedBST = RankedBSTSet.of()
         when:
         from.each {
             basedBST.put(it)
@@ -92,8 +93,8 @@ class AbstractBSTTest extends Specification {
     def "test put as replace"(Object[] from, List expected) {
         given:
         def comparator = (Person p1, Person p2) -> { p1.age - p2.age }
-        def basedBST = new BaseBST(comparator)
-        def rankedBST = new RankedBST(comparator)
+        def basedBST = new BaseBSTSet(comparator)
+        def rankedBST = new RankedBSTSet(comparator)
         when: "测试覆盖"
         from.each {
             basedBST.put(it)
@@ -111,8 +112,8 @@ class AbstractBSTTest extends Specification {
 
     def "test put non-comparable and no comparator"() {
         given:
-        def basedBST = new BaseBST()
-        def rankedBST = new RankedBST()
+        def basedBST = new BaseBSTSet()
+        def rankedBST = new RankedBSTSet()
         when:
         //第一个元素由于不会与其他元素比较不会触发类转换异常
         basedBST.put(new Object())
@@ -127,8 +128,8 @@ class AbstractBSTTest extends Specification {
 
     def "test remove"(Object[] from, Object o, boolean expected, List list) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.remove(o) == expected
         rankedBST.remove(o) == expected
@@ -148,8 +149,8 @@ class AbstractBSTTest extends Specification {
 
     def "test contains"(Object[] from, Object o, boolean expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.contains(o) == expected
         rankedBST.contains(o) == expected
@@ -193,8 +194,8 @@ class AbstractBSTTest extends Specification {
 //
     def "test preOrder"(Object[] from, List expected) {
         given:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         when:
         def out1 = []
         def out2 = []
@@ -211,8 +212,8 @@ class AbstractBSTTest extends Specification {
 
     def "test inOrder"(Object[] from, List expected) {
         given:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         when:
         def out1 = []
         def out2 = []
@@ -229,8 +230,8 @@ class AbstractBSTTest extends Specification {
 
     def "test postOrder"(Object[] from, List expected) {
         given:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         when:
         def out1 = []
         def out2 = []
@@ -247,8 +248,8 @@ class AbstractBSTTest extends Specification {
 
     def "test levelOrder"(Object[] from, List expected) {
         given:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         when:
         def out1 = []
         def out2 = []
@@ -265,8 +266,8 @@ class AbstractBSTTest extends Specification {
 
     def "test minimum"(Object[] from, Object expected) {
         given:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         when:
         def m1 = baseBST.minimum()
         def m2 = rankedBST.minimum()
@@ -282,8 +283,8 @@ class AbstractBSTTest extends Specification {
 
     def "test removeMin"(Object[] from, Object min, List expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.removeMin() == min
         rankedBST.removeMin() == min
@@ -298,8 +299,8 @@ class AbstractBSTTest extends Specification {
 
     def "test maximum"(Object[] from, Object expected) {
         given:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         when:
         def m1 = baseBST.maximum()
         def m2 = rankedBST.maximum()
@@ -315,8 +316,8 @@ class AbstractBSTTest extends Specification {
 
     def "test removeMax"(Object[] from, Object max, List expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.removeMax() == max
         rankedBST.removeMax() == max
@@ -331,8 +332,8 @@ class AbstractBSTTest extends Specification {
 
     def "test floor"(Object[] from, Object floor, Object expected) {
         given:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         when:
         def f1 = baseBST.floor(floor)
         def f2 = rankedBST.floor(floor)
@@ -349,8 +350,8 @@ class AbstractBSTTest extends Specification {
 
     def "test ceiling"(Object[] from, Object ceiling, Object expected) {
         given:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         when:
         def f1 = baseBST.ceiling(ceiling)
         def f2 = rankedBST.ceiling(ceiling)
@@ -368,8 +369,8 @@ class AbstractBSTTest extends Specification {
 
     def "test constructors"(Object[] from, List expected, Comparator comparator) {
         when:
-        def baseBST = new BaseBST(comparator)
-        def rankedBST = new RankedBST(comparator)
+        def baseBST = new BaseBSTSet(comparator)
+        def rankedBST = new RankedBSTSet(comparator)
         from.each {
             baseBST.put(it)
             rankedBST.put(it)
@@ -388,8 +389,8 @@ class AbstractBSTTest extends Specification {
 
     def "test of and toList"(Object[] from, List expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.toList() == expected
         rankedBST.toList() == expected
@@ -402,11 +403,11 @@ class AbstractBSTTest extends Specification {
 
     def "test of from null array or null element"(Object[] array) {
         when:
-        BaseBST.of(array)
+        BaseBSTSet.of(array)
         then:
         thrown(NullPointerException)
         when:
-        RankedBST.of(array)
+        RankedBSTSet.of(array)
         then:
         thrown(NullPointerException)
         where:
@@ -417,8 +418,8 @@ class AbstractBSTTest extends Specification {
 
     def "test predecessor and superPredecessor"(Object[] from, Object predecessor, Object expected) {
         when:
-        def rankedBST = RankedBST.of(from)
-        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBSTSet.of(from)
+        def baseBST = BaseBSTSet.of(from)
         then:
         rankedBST.predecessor(predecessor) == expected
         baseBST.predecessor(predecessor) == expected
@@ -437,8 +438,8 @@ class AbstractBSTTest extends Specification {
 
     def "test successor and superSuccessor"(Object[] from, Object successor, Object expected) {
         when:
-        def rankedBST = RankedBST.of(from)
-        def baseBST = BaseBST.of(from)
+        def rankedBST = RankedBSTSet.of(from)
+        def baseBST = BaseBSTSet.of(from)
         then:
         rankedBST.successor(successor) == expected
         baseBST.successor(successor) == expected
@@ -457,8 +458,8 @@ class AbstractBSTTest extends Specification {
 
     def "test levelOrderIterator"(Object[] from, List expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.levelOrderIterator().toList() == expected
         rankedBST.levelOrderIterator().toList() == expected
@@ -471,8 +472,8 @@ class AbstractBSTTest extends Specification {
 
     def "test preOrderIterator"(Object[] from, List expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.preOrderIterator().toList() == expected
         rankedBST.preOrderIterator().toList() == expected
@@ -485,8 +486,8 @@ class AbstractBSTTest extends Specification {
 
     def "test inOrderIterator"(Object[] from, List expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.inOrderIterator().toList() == expected
         rankedBST.inOrderIterator().toList() == expected
@@ -500,8 +501,8 @@ class AbstractBSTTest extends Specification {
 
     def "test postOrderIterator"(Object[] from, List expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.postOrderIterator().toList() == expected
         rankedBST.postOrderIterator().toList() == expected
@@ -515,8 +516,8 @@ class AbstractBSTTest extends Specification {
 
     def "test toString"(Object[] from, String expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.toString() == expected
         rankedBST.toString() == expected
@@ -549,8 +550,8 @@ class AbstractBSTTest extends Specification {
 
     def "test root"(Object[] from, Object expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         then:
         baseBST.root()?.value() == expected
         rankedBST.root()?.value() == expected
@@ -564,8 +565,8 @@ class AbstractBSTTest extends Specification {
 
     def "test preOrderNR"(Object[] from, List expected) {
         when:
-        def baseBST = BaseBST.of(from)
-        def rankedBST = RankedBST.of(from)
+        def baseBST = BaseBSTSet.of(from)
+        def rankedBST = RankedBSTSet.of(from)
         def baseList = []
         def rankedList = []
         baseBST.preOrderNR {
