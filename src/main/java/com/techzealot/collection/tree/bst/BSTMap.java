@@ -19,6 +19,10 @@ public interface BSTMap<K, V> {
 
     Set<Entry<K, V>> entrySet();
 
+    void removeMin();
+
+    void removeMax();
+
     interface Entry<K, V> {
         K key();
 

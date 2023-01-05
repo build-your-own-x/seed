@@ -1,10 +1,9 @@
 package com.techzealot.collection.tree.bst;
 
 import java.util.Comparator;
-import java.util.Set;
 
 public abstract class AbstractBSTMap<K, V> implements BSTMap<K, V> {
-    protected final Comparator<K> comparator;
+    protected final Comparator<? super K> comparator;
 
     public AbstractBSTMap() {
         this(null);
@@ -14,23 +13,33 @@ public abstract class AbstractBSTMap<K, V> implements BSTMap<K, V> {
         this.comparator = comparator;
     }
 
-    protected int compare(K o1, K o2) {
-        if (this.comparator != null) return this.comparator.compare(o1, o2);
-        Comparable x1 = (Comparable) o1;
-        Comparable x2 = (Comparable) o2;
+    protected int compare(Object k1, Object k2) {
+        if (this.comparator != null) return this.comparator.compare((K) k1, (K) k2);
+        Comparable x1 = (Comparable) k1;
+        Comparable x2 = (Comparable) k2;
         return x1.compareTo(x2);
     }
 
-    abstract protected Entry<K, V> root();
+    protected abstract Entry<K, V> root();
 
-    @Override
-    public boolean isEmpty() {
-        return root() == null;
+    protected Entry<K, V> getEntry(Object key) {
+        Entry<K, V> p = root();
+        while (p != null) {
+            int cmp = compare(key, p.key());
+            if (cmp > 0) {
+                p = p.right();
+            } else if (cmp < 0) {
+                p = p.left();
+            } else {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override
     public boolean containsKey(Object key) {
-        return false;
+        return getEntry(key) != null;
     }
 
     @Override
@@ -39,12 +48,7 @@ public abstract class AbstractBSTMap<K, V> implements BSTMap<K, V> {
     }
 
     @Override
-    public V get(Object key) {
-        return null;
-    }
-
-    @Override
-    public Set<Entry<K, V>> entrySet() {
-        return null;
+    public boolean isEmpty() {
+        return root() == null;
     }
 }

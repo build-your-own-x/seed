@@ -19,6 +19,12 @@ JCStress
 
 参考:
 
+[算法四](https://github.com/kevin-wayne/algs4)
+
+https://github.com/petar/GoLLRB
+
+https://github.com/patricklaux/perfect-code
+
 https://github.com/myui/btree4j
 
 https://github.com/andylamp/BPlusTree

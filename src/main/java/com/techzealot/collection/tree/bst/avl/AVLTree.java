@@ -7,6 +7,7 @@ import lombok.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -28,6 +29,16 @@ public class AVLTree<K, V> extends AbstractBSTMap<K, V> {
     @Override
     public int size() {
         return size;
+    }
+
+    @Override
+    public V get(Object key) {
+        Node node = getNode(key);
+        return node == null ? null : node.value;
+    }
+
+    private Node getNode(Object key) {
+        return (Node) super.getEntry(key);
     }
 
 
@@ -65,10 +76,11 @@ public class AVLTree<K, V> extends AbstractBSTMap<K, V> {
             size++;
             return new Node(key, value);
         }
-        if (compare(key, node.key) == 0) {
+        int cmp = compare(key, node.key);
+        if (cmp == 0) {
             oldValue[0] = node.value;
             node.value = value;
-        } else if (compare(key, node.key) < 0) {
+        } else if (cmp < 0) {
             node.left = put(node.left, key, value, oldValue);
         } else {
             node.right = put(node.right, key, value, oldValue);
@@ -97,23 +109,23 @@ public class AVLTree<K, V> extends AbstractBSTMap<K, V> {
         //分4种情况讨论
         //新插入节点在当前节点左孩子的左子树(LL),左孩子平衡因子=0只会在删除节点时出现
         if (balanceFactor > 1 && nodeBalanceFactor(node.left) >= 0) {
-            return rightRotate(node);
+            return rotateRight(node);
         }
         //新插入节点在当前节点左孩子的右子树(LR)
         //先左旋即可转化为LL的形状
         if (balanceFactor > 1 && nodeBalanceFactor(node.left) < 0) {
-            node.left = leftRotate(node.left);
-            return rightRotate(node);
+            node.left = rotateLeft(node.left);
+            return rotateRight(node);
         }
         //新插入节点在当前节点右孩子的右子树(RR),右孩子平衡因子=0只会在删除节点时出现
         if (balanceFactor < -1 && nodeBalanceFactor(node.right) <= 0) {
-            return leftRotate(node);
+            return rotateLeft(node);
         }
         //新插入节点在当前节点右孩子的左子树(RL)
         //先右旋即可转化为RR的形状
         if (balanceFactor < -1 && nodeBalanceFactor(node.right) > 0) {
-            node.right = rightRotate(node.right);
-            return leftRotate(node);
+            node.right = rotateRight(node.right);
+            return rotateLeft(node);
         }
         return node;
     }
@@ -134,7 +146,7 @@ public class AVLTree<K, V> extends AbstractBSTMap<K, V> {
      * @param y 不平衡的节点
      * @return 以y为根节点的子树右旋转后新的根节点
      */
-    private Node rightRotate(@NonNull Node y) {
+    private Node rotateRight(@NonNull Node y) {
         Node x = y.left;
         Objects.requireNonNull(x);
         y.left = x.right;
@@ -161,7 +173,7 @@ public class AVLTree<K, V> extends AbstractBSTMap<K, V> {
      * @param y 不平衡的节点
      * @return 以y为根节点的子树左旋转后新的根节点
      */
-    private Node leftRotate(@NonNull Node y) {
+    private Node rotateLeft(@NonNull Node y) {
         Node x = y.right;
         Objects.requireNonNull(x);
         y.right = x.left;
@@ -213,28 +225,43 @@ public class AVLTree<K, V> extends AbstractBSTMap<K, V> {
      * 1.删除可能会导致父节点或祖先节点失衡(只有一个节点会失衡)
      * 2.恢复平衡后可能会导致更高层祖先节点失衡(最多需要O(logn)次调整)
      *
-     * @param o
+     * @param key
      * @return
+     * @throws NullPointerException if key is null
+     * @throws ClassCastException   if key can not be compared with the keys in the map
      */
     @Override
-    public V remove(Object o) {
-        if (o == null) return null;
-        if (comparator == null && !(o instanceof Comparable)) return null;
-        if (size == 0) return null;
+    public V remove(@NonNull Object key) {
         Object[] value = new Object[]{null};
-        root = remove(root, (K) o, value);
+        root = remove(root, key, value);
         validate();
         @SuppressWarnings("unchecked")
         V v = (V) value[0];
         return v;
     }
 
-    private Node remove(Node node, K key, Object[] value) {
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+        return null;
+    }
+
+    @Override
+    public void removeMin() {
+
+    }
+
+    @Override
+    public void removeMax() {
+
+    }
+
+    private Node remove(Node node, Object key, Object[] value) {
         if (node == null) return null;
         Node retNode = node;
-        if (compare(key, node.key) > 0) {
+        int cmp = compare(key, node.key);
+        if (cmp > 0) {
             node.right = remove(node.right, key, value);
-        } else if (compare(key, node.key) < 0) {
+        } else if (cmp < 0) {
             node.left = remove(node.left, key, value);
         } else {
             value[0] = node.value;

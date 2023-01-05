@@ -156,6 +156,7 @@ public class BaseBSTSet<E> extends AbstractBSTSet<E> {
             } else {
                 Node rightMin = (Node) minimum(node.right);
                 Node right = removeMin(node.right);
+                //此处可以直接用替换的节点数据替换要删除的节点更简单，无需处理父子关系
                 rightMin.right = right;
                 if (right != null) {
                     right.parent = rightMin;
