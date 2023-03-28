@@ -101,10 +101,9 @@ public class RankedBSTSet<E> extends AbstractBSTSet<E> {
                 return left;
             } else {
                 Node rightMin = (Node) minimum(node.right);
-                rightMin.right = removeMin(node.right);
-                rightMin.left = node.left;
-                node.right = node.left = null;
-                return rightMin;
+                node.e = rightMin.e;
+                node.right = removeMin(node.right);
+                return node;
             }
         } else if (compare((E) o, node.e) < 0) {
             node.left = remove(node.left, o, removed);
