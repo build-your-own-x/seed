@@ -1,4 +1,4 @@
 package com.techzealot.concurrent.atomic;
 
-public class LongAdder {
+public class MyLongAdder {
 }

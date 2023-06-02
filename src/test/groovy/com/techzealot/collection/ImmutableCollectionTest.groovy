@@ -2,9 +2,10 @@ package com.techzealot.collection
 
 import com.google.common.collect.ImmutableList
 import org.eclipse.collections.api.factory.Lists
-import spock.lang.Specification;
+import org.junit.jupiter.api.Test
+import spock.lang.Specification
 
-class ImmutableCollectionTest extends Specification {
+class ImmutableCollectionTest extends Specification implements TestParentCase {
 
     /**
      * 兼容Java集合接口，但实际使用时返回ImmutableList和MutableList来区分适用场景
@@ -41,5 +42,15 @@ class ImmutableCollectionTest extends Specification {
         then:
         list == [*1..10]
         list1 == [*1..10, *1..5]
+    }
+
+    @Test
+    void testUseJunit() {
+        assert 1 == 1
+    }
+
+    @Override
+    def getObject() {
+        return new Object()
     }
 }
